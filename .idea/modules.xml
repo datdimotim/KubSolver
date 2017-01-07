@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/KubSolver.iml" filepath="$PROJECT_DIR$/.idea/modules/KubSolver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/KubSolver_main.iml" filepath="$PROJECT_DIR$/.idea/modules/KubSolver_main.iml" group="KubSolver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/KubSolver_test.iml" filepath="$PROJECT_DIR$/.idea/modules/KubSolver_test.iml" group="KubSolver" />
+    </modules>
+  </component>
+</project>

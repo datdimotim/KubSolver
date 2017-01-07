@@ -1,0 +1,20 @@
+group 'KubSolver'
+version '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+jar {
+    manifest{ manifest.attributes('Main-Class' : 'test.TestsAndBenchmarks'); }
+    baseName = 'KubSolver'
+    version =  '1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
