@@ -8,8 +8,8 @@ import java.io.IOException;
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
-        //speedSolve();
-        parallelSolve();
+        speedSolve();
+        //parallelSolve();
         //infiniteSolve();
         //solveAndView();
         //computeTables();
