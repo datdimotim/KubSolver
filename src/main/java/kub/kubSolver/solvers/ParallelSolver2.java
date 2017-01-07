@@ -20,7 +20,7 @@ public class ParallelSolver2 extends Fase2Solver.AbstractSolver2{
         private volatile boolean isStopped = false;
 
         void fase2(int x, int y, int z, int[] hods) {
-            int[] res = ForkJoinPool.commonPool().invoke(new RecursiveTaskFase2(hods, x, y, z, 1));
+            int[] res = ParallelSolver1.commonPool.invoke(new RecursiveTaskFase2(hods, x, y, z, 1));
             System.arraycopy(res, 0, hods, 0, res.length);
         }
 

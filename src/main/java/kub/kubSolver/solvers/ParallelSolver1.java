@@ -5,6 +5,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
 public class ParallelSolver1 extends Fase1Solver.AbstractSolver1{
+    static ForkJoinPool commonPool=new ForkJoinPool();
     public ParallelSolver1(){
 
     }
@@ -16,7 +17,7 @@ public class ParallelSolver1 extends Fase1Solver.AbstractSolver1{
         private static final int T1=9;
         private volatile boolean isStopped=false;
         void fase1(int x, int y, int z, int[] hods){
-            int[] res= ForkJoinPool.commonPool().invoke(new RecursiveTaskFase1(hods,x,y,z,1, true));
+            int[] res= commonPool.invoke(new RecursiveTaskFase1(hods,x,y,z,1, true));
             System.arraycopy(res,0,hods,0,res.length);
         }
         private class RecursiveTaskFase1 extends RecursiveTask<int[]> {
