@@ -15,7 +15,7 @@ public class TestsAndBenchmarks {
         //computeTables();
     }
     public static void speedSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver(new SimpleSolver1(),new SimpleSolver2());
+        KubSolver kubSolver=new KubSolver(new RecursiveSolver1(),new SimpleSolver2());
         Kub kub = new Kub();
         final int time=1000;
         long st=System.currentTimeMillis();

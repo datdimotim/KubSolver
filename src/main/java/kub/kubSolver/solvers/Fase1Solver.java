@@ -4,6 +4,7 @@ import kub.kubSolver.Tables;
 
 public interface Fase1Solver extends BaseFaseSolver{
     abstract class AbstractSolver1 implements Fase1Solver{
+        Tables tables;
         int[][] x1Move;
         int[][] y1Move;
         int[][] z1Move;
@@ -18,6 +19,7 @@ public interface Fase1Solver extends BaseFaseSolver{
             xy1Deep=tables.getXy1Deep();
             xz1Deep=tables.getXz1Deep();
             yz1Deep=tables.getYz1Deep();
+            this.tables=tables;
         }
         public static boolean hodPredHod(int hod,int predHod){
             if(predHod!=0& hod ==0)return false;

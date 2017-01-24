@@ -190,26 +190,29 @@ final class KubKoordinates {
 }
 
 final class Symmetry{
-    private static int[][] symHods;
-    static int[][] x2SymTransform;
-    static int[][] y2SymTransform;
-    static int[][] x2Sym;
+    final static int[][] symHods= InitializerSymHods.createSymHods();
+    final static int[][] x2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getX2Move());
+    final static int[][] y2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getY2Move());
+    final static int[][] x2Sym=InitializerSymKoord2.koordSym(x2SymTransform);
 
-    static {
-        symHods= InitializerSymHods.createSymHods();
-        x2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getX2Move());
-        y2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getY2Move());
-
-        x2Sym=new int[2][Tables.x2_max];
-        Arrays.fill(x2Sym[0],-1);
-        int symClass=0;
-        for(int pos=0;pos<Tables.x2_max;pos++){
-            if(x2Sym[0][pos]!=-1)continue;
-            for(int sym=0;sym<x2SymTransform.length;sym++){
-                x2Sym[0][x2SymTransform[sym][pos]]=symClass;
-                x2Sym[1][x2SymTransform[sym][pos]]=findSymmetryTransform(pos,x2SymTransform[sym][pos],x2SymTransform);
+    private static class InitializerSymKoord2{
+        private static int[][]koordSym(int[][] koordSymTransform){
+            int[][] kSym=new int[2][koordSymTransform[0].length];
+            Arrays.fill(kSym[0],-1);
+            int symClass=0;
+            for(int pos=0;pos<kSym[0].length;pos++){
+                if(kSym[0][pos]!=-1)continue;
+                for(int sym=0;sym<koordSymTransform.length;sym++){
+                    kSym[0][koordSymTransform[sym][pos]]=symClass;
+                    kSym[1][koordSymTransform[sym][pos]]=findSymmetryTransform(pos,koordSymTransform[sym][pos],koordSymTransform);
+                }
+                symClass++;
             }
-            symClass++;
+            return kSym;
+        }
+        private static int findSymmetryTransform(int targetPos, int pos, int[][] transformTable){
+            for(int s=0;s<transformTable.length;s++)if(transformTable[s][pos]==targetPos)return s;
+            throw new RuntimeException();
         }
     }
     private static class InitializerSymHods {
@@ -296,6 +299,7 @@ final class Symmetry{
     }
 
     private static class InitializerSymTransformTable2Fase{
+        // used only for 2 fase
         static int[][] createSymTable(int[][] move){
             if(move.length==19){
                 int[][] sym_table=new int[48][move[0].length];
@@ -337,17 +341,18 @@ final class Symmetry{
                 }
             }
         }
-    }
-
-    private static void proofIdentytyDepth(byte[] deepTable,int[][] symTransform){
-        for(int s=0;s<symTransform.length;s++){
-            boolean c=true;
-            for(int p=0;p<symTransform[0].length;p++){
-                if(deepTable[symTransform[0][p]]!=deepTable[symTransform[s][p]]){c=false;break;}
+        private static void proofIdentytyDepth(byte[] deepTable,int[][] symTransform){
+            for(int s=0;s<symTransform.length;s++){
+                boolean c=true;
+                for(int p=0;p<symTransform[0].length;p++){
+                    if(deepTable[symTransform[0][p]]!=deepTable[symTransform[s][p]]){c=false;break;}
+                }
+                if(!c)throw new RuntimeException();
             }
-            if(!c)throw new RuntimeException();
         }
     }
+
+
 
     public static void main(String[] args) throws IOException {
         System.out.println(Arrays.toString(x2Sym[1]));
@@ -394,11 +399,6 @@ final class Symmetry{
             }
         }
         return deep_table;
-    }
-
-    private static int findSymmetryTransform(int targetPos, int pos, int[][] transformTable){
-        for(int s=0;s<transformTable.length;s++)if(transformTable[s][pos]==targetPos)return s;
-        throw new RuntimeException();
     }
 
     static int[][][] normalizeColors(int[][][] graniIn){

@@ -296,4 +296,18 @@ public class Tables{
         }
         return deep_table;
     }
+    public final int tryMoveAndGetDepth1(int[] k, int p){
+        int x = x1Move[p][k[0]];
+        int y = y1Move[p][k[1]];
+        int z = z1Move[p][k[2]];
+        int d1=xy1Deep[x][y];
+        int d2=xz1Deep[x][z];
+        int d3=yz1Deep[y][z];
+        return Math.max(d1,Math.max(d2,d3));
+    }
+    public final void move1(int[] k, int[] kn,int p){
+        kn[0] = x1Move[p][k[0]];
+        kn[1] = y1Move[p][k[1]];
+        kn[2] = z1Move[p][k[2]];
+    }
 }
