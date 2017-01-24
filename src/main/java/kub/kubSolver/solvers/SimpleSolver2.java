@@ -1,6 +1,7 @@
 package kub.kubSolver.solvers;
 
 import kub.kubSolver.Tables;
+import kub.kubSolver.XsYTable;
 
 public class SimpleSolver2 extends Fase2Solver.AbstractSolver2{
     public SimpleSolver2(){
@@ -21,7 +22,7 @@ public class SimpleSolver2 extends Fase2Solver.AbstractSolver2{
                 int xt = x2Move[np][hods_x_tmp[deep-1]];
                 int yt = y2Move[np][hods_y_tmp[deep-1]];
                 int zt = z2Move[np][hods_z_tmp[deep-1]];
-                if (xz2Deep[xt][zt] <= Tables.MAX_DEEP - deep && yz2Deep[yt][zt] <= Tables.MAX_DEEP - deep) {
+                if (XsYTable.getDepth(xt,yt)<=Tables.MAX_DEEP-deep && xz2Deep[xt][zt] <= Tables.MAX_DEEP - deep && yz2Deep[yt][zt] <= Tables.MAX_DEEP - deep) {
                     hods[deep] = np;
                     hods_x_tmp[deep] = xt;
                     hods_y_tmp[deep] = yt;
