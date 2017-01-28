@@ -187,13 +187,8 @@ final class KubKoordinates {
 
 final class Symmetry{
     static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(HodTransforms.getSymHodsAllSymmetry());
-    final static int[][] x2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getX2Move());
-    final static int[][] y2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getY2Move());
 
     private static class InitializerInverseSymmetry {
-        public static void main(String[] args) {
-
-        }
         private static int[] getInverseSymmetry(int[][] symHods){
             int[] inv=new int[symHods.length];
             main: for(int s=0;s<inv.length;s++){
@@ -264,70 +259,6 @@ final class Symmetry{
             for(int i=0;i<19;i++)m[i]=converter[povorots[i]];
             return m;
         }
-    }
-
-    private static class InitializerSymTransformTable2Fase{
-        static int[] p10to18=HodTransforms.getP10To18();
-        static int[] p18to10=HodTransforms.getP18to10();
-        // used only for 2 fase
-        static int[][] createSymTable(int[][] move){
-            int[][] symHods=HodTransforms.getSymHodsAllSymmetry();
-            if(move.length==19){
-                int[][] sym_table=new int[48][move[0].length];
-                for(int[] m:sym_table)Arrays.fill(m,-1);
-                for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
-                createSymTable1(move,sym_table,symHods);
-                return sym_table;
-            }
-            else {
-                int[][] sym_table=new int[16][move[0].length];
-                for(int[] m:sym_table)Arrays.fill(m,-1);
-                for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
-                createSymTable2(move,sym_table,symHods);
-                return sym_table;
-            }
-        }
-        // not used
-        private static void createSymTable1(int[][] move, int[][] sym_table,int[][] symHods){
-            boolean newMark=true;
-            while (newMark) {
-                newMark=false;
-                for(int pos=0;pos<sym_table[0].length;pos++) {
-                    if(sym_table[0][pos]==-1)continue;
-                    for (int p = 1; p < move.length; p++) {
-                        int newPos = move[p][pos];
-                        if(sym_table[0][newPos]!=-1)continue;
-                        newMark=true;
-                        for (int s = 0; s < 16; s++) {
-                            sym_table[s][newPos] = move[symHods[s][p]][sym_table[s][pos]];
-                        }
-                    }
-                }
-            }
-        }
-        private static void createSymTable2(int[][] move, int[][] sym_table,int[][] symHods){
-            boolean newMark=true;
-            while (newMark) {
-                newMark=false;
-                for(int pos=0;pos<sym_table[0].length;pos++) {
-                    if(sym_table[0][pos]==-1)continue;
-                    for (int p = 1; p < move.length; p++) {
-                        int newPos = move[p][pos];
-                        if(sym_table[0][newPos]!=-1)continue;
-                        newMark=true;
-                        for (int s = 0; s < 16; s++) {
-                            sym_table[s][newPos] = move[p18to10[symHods[s][p10to18[p]]]][sym_table[s][pos]];
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-
-    public static void main(String[] args) throws IOException {
-
     }
 
     static int[][][] normalizeColors(int[][][] graniIn){

@@ -4,33 +4,14 @@ import kub.kubSolver.*;
 import kub.kubSolver.Tables;
 import kub.kubSolver.solvers.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
+
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
-
-
-        //XsYTable t2=XsYTable.computeTableSave();
-        //XsYTable t2=Tables.INSTANCE.xsYTable;
-        //System.out.println(Arrays.deepEquals(t1.xsYDeep,t2.xsYDeep));
-
-
-        /*PrintWriter f1=new PrintWriter(new File("t1.txt"));
-        PrintWriter f2=new PrintWriter(new File("t2.txt"));
-
-        XsYTable t1=XsYTable.computeTable();
-        for(byte[] m:t1.xsYDeep) f1.println(Arrays.toString(m));
-        f1.close();
-
-        XsYTable t2=XsYTable.computeTableSave();
-        for(byte[] m:t2.xsYDeep) f2.println(Arrays.toString(m));
-        f2.close();*/
-
-        //Tables.INSTANCE.xsYTable=XsYTable.computeTableSave();
+        Tables.INSTANCE=new Tables(true);
         speedSolve();
+
         //parallelSolve();
         //infiniteSolve();
         //solveAndView();
@@ -84,7 +65,7 @@ public class TestsAndBenchmarks {
     }
     public static void computeTables(){
         long ts=System.currentTimeMillis();
-        Tables tables=Tables.computeTables();
+        Tables tables=new Tables(false);
         System.out.println(System.currentTimeMillis()-ts);
     }
 }
