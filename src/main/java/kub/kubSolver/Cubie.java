@@ -25,7 +25,7 @@ final class Cubie {
         r_o=KubFacelet.faceletToRO(facelet);
         valid();
     }
-    private Cubie(int[] u_o, int[] u_p, int[] r_o, int[] r_p) throws InvalidPositionException {
+    private Cubie(int[] u_o, int[] u_p, int[] r_o, int[] r_p){
         this.r_o=new int[12];
         this.u_o=new int[8];
         this.u_p = new int[8];
@@ -34,10 +34,9 @@ final class Cubie {
         System.arraycopy(r_p,0,this.r_p,0,12);
         System.arraycopy(u_o,0,this.u_o,0,8);
         System.arraycopy(u_p,0,this.u_p,0,8);
-        valid();
     }
     static Cubie valueOf(BigDecimal pos){
-        if(pos.compareTo(BigDecimalConverter.MAX_POS)>=0)
+        if(pos.compareTo(BigDecimalConverter.MAX_POS)>=0||pos.compareTo(BigDecimal.ZERO)<0)
             throw new IllegalArgumentException(pos+">=posMax="+BigDecimalConverter.MAX_POS);
         int[] k= BigDecimalConverter.unpack(pos);
         int uo=k[0];
@@ -49,14 +48,17 @@ final class Cubie {
         int[] u_p=Combinations.schetPerestanovka(up,8);
         int[] r_p1=Combinations.schetPerestanovka(rp*2,12);
         int[] r_p2=Combinations.schetPerestanovka(rp*2+1,12);
-        try {
+
+        boolean r1 = Combinations.chetNechetPerestanovka(r_p1);
+        boolean r2 = Combinations.chetNechetPerestanovka(r_p2);
+        boolean u = Combinations.chetNechetPerestanovka(u_p);
+
+        if(r1==r2)throw new RuntimeException();
+        if(r1==u){
             return new Cubie(u_o,u_p,r_o,r_p1);
-        } catch (InvalidPositionException e) {
-            try {
-                return new Cubie(u_o,u_p,r_o,r_p2);
-            } catch (InvalidPositionException e1) {
-                throw new RuntimeException();
-            }
+        }
+        else{
+            return new Cubie(u_o,u_p,r_o,r_p2);
         }
     }
     BigDecimal toNumberPos(){
@@ -117,7 +119,7 @@ final class Cubie {
         {
             boolean p1 = Combinations.chetNechetPerestanovka(r_p);
             boolean p2 = Combinations.chetNechetPerestanovka(u_p);
-            if (!((p1 & p2) || (!p1 & !p2))) throw new InvalidPositionException(InvalidPositionException.Trable.INVALID_SUM_PERESTANOVKA);
+            if (p1!=p2) throw new InvalidPositionException(InvalidPositionException.Trable.INVALID_SUM_PERESTANOVKA);
         }
     }
 

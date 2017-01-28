@@ -1,10 +1,8 @@
 package kub.kubSolver;
 
 public class Solution {
-    private static final int[][] symHods = {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18},
-                                            {0, 10, 11, 12, 4, 5, 6, 1, 2, 3, 16, 17, 18, 13, 14, 15, 7, 8, 9},
-                                            {0, 13, 14, 15, 1, 2, 3, 7, 8, 9, 10, 11, 12, 16, 17, 18, 4, 5, 6}};
-    private static final String[] hodString = {"", "D ", "D' ", "D2 ", "F ", "F' ", "F2 ", "L ", "L' ", "L2 ", "R ", "R' ", "R2 ", "B ", "B' ", "B2 ", "U ", "U' ", "U2 "};
+    private static final int[][] symHods=HodTransforms.getSymHodsFor3Axis();
+    private static final String[] hodString=HodTransforms.getHodString();
     public final int length;
     private final int[] hods;
     public final int sym;

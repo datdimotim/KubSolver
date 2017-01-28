@@ -1,23 +1,27 @@
 package kub.kubSolver.solvers;
 
-import kub.kubSolver.Tables;
-
 public class RecursiveSolver2 extends Fase2Solver.AbstractSolver2{
     public RecursiveSolver2(){
 
     }
     @Override
     public void solve(int x, int y, int z, int[] hods) {
-        fase2Recurcive(x,y,z,hods,1);
+        int[][] koords_tmp=new int[MAX_DEEP+1][3];
+        koords_tmp[0][0]=x;
+        koords_tmp[0][1]=y;
+        koords_tmp[0][2]=z;
+        fase2Recurcive(koords_tmp,hods,1);
     }
-    private boolean fase2Recurcive(final int x,final int y,final int z,final int[] hods,final int deep){
+    private boolean fase2Recurcive(int[][] koords_tmp,final int[] hods,final int deep){
         for(int np = hods[deep];np<=10;np++) {
             if(!hodPredHod(np,hods[deep-1]))continue;
-            int xt=x2Move[np][x];int yt=y2Move[np][y];int zt=z2Move[np][z];
-            if ((xz2Deep[xt][zt]>Tables.MAX_DEEP - deep||yz2Deep[yt][zt]>Tables.MAX_DEEP - deep)) continue;
+            if (tables.tryMoveAndGetDepth2(koords_tmp[deep-1],np)>MAX_DEEP - deep) continue;
             hods[deep]=np;
-            if(deep==Tables.MAX_DEEP)return true;
-            else if(fase2Recurcive(xt, yt, zt, hods, deep + 1))return true;
+            if(deep==MAX_DEEP)return true;
+            else {
+                tables.move2(koords_tmp[deep-1],koords_tmp[deep],np);
+                if(fase2Recurcive(koords_tmp, hods, deep + 1))return true;
+            }
         }
         hods[deep]=0;
         return false;

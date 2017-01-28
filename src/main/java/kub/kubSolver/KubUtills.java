@@ -1,13 +1,9 @@
 package kub.kubSolver;
 
-import kub.kubSolver.solvers.Fase2Solver;
 import kub.kubSolver.utills.Combinations;
 
 import java.io.*;
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Random;
 
 final class KubFacelet {
     static int[][][] faceletToGrani(int[] facelet) {
@@ -190,29 +186,31 @@ final class KubKoordinates {
 }
 
 final class Symmetry{
-    final static int[][] symHods= InitializerSymHods.createSymHods();
+    static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(HodTransforms.getSymHodsAllSymmetry());
     final static int[][] x2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getX2Move());
     final static int[][] y2SymTransform=InitializerSymTransformTable2Fase.createSymTable(Tables.INSTANCE.getY2Move());
-    final static int[][] x2Sym=InitializerSymKoord2.koordSym(x2SymTransform);
 
-    private static class InitializerSymKoord2{
-        private static int[][]koordSym(int[][] koordSymTransform){
-            int[][] kSym=new int[2][koordSymTransform[0].length];
-            Arrays.fill(kSym[0],-1);
-            int symClass=0;
-            for(int pos=0;pos<kSym[0].length;pos++){
-                if(kSym[0][pos]!=-1)continue;
-                for(int sym=0;sym<koordSymTransform.length;sym++){
-                    kSym[0][koordSymTransform[sym][pos]]=symClass;
-                    kSym[1][koordSymTransform[sym][pos]]=findSymmetryTransform(pos,koordSymTransform[sym][pos],koordSymTransform);
-                }
-                symClass++;
-            }
-            return kSym;
+    private static class InitializerInverseSymmetry {
+        public static void main(String[] args) {
+
         }
-        private static int findSymmetryTransform(int targetPos, int pos, int[][] transformTable){
-            for(int s=0;s<transformTable.length;s++)if(transformTable[s][pos]==targetPos)return s;
-            throw new RuntimeException();
+        private static int[] getInverseSymmetry(int[][] symHods){
+            int[] inv=new int[symHods.length];
+            main: for(int s=0;s<inv.length;s++){
+                for(int i=0;i<inv.length;i++){
+                    if(Arrays.equals(symHods[0],transform(symHods[s],symHods,i))){
+                        inv[s]=i;
+                        continue main;
+                    }
+                }
+                throw new RuntimeException();
+            }
+            return inv;
+        }
+        private static int[] transform(int[] hods,int[][] symHods, int s){
+            int[] t=new int[hods.length];
+            for(int i=0;i<hods.length;i++)t[i]=symHods[s][hods[i]];
+            return t;
         }
     }
     private static class InitializerSymHods {
@@ -226,7 +224,9 @@ final class Symmetry{
             return symmetry;
         }
         private static int[] rotatedSymmetry(int n){
-            int[][][] grani=new Kub().getGrani();
+            int[][][] grani=new int[6][3][3];
+            for(int g=0;g<6;g++)for(int i=0;i<3;i++)Arrays.fill(grani[g][i],g);
+
             int R,UD,OS;
             R=n-n/4*4;
             n=n/4;
@@ -264,90 +264,62 @@ final class Symmetry{
             for(int i=0;i<19;i++)m[i]=converter[povorots[i]];
             return m;
         }
-        // test hods table
-        void test(){
-            for(int[] m:symHods) System.out.println(Arrays.toString(m));
-            proofHodsDuplicate(symHods);
-            while (true) {
-                for(int i=0;i<symHods.length;i++) proofHodsMatrix(i);
-                System.out.println("c");
-            }
-        }
-        // for test only
-        private static void proofHodsDuplicate(int[][] symHods){
-            for(int i=0;i<symHods.length-1;i++)for(int j=i+1;j<symHods.length;j++)if(Arrays.equals(symHods[i],symHods[j]))throw new RuntimeException("равенство"+"  i="+i+"  j="+j);
-        }
-        // for test only
-        private static void proofHodsMatrix(int sym){
-            Kub kub=new Kub();
-            int[] zaput=new int[200];
-            Random random=new Random(System.currentTimeMillis());
-            for(int i=0;i<zaput.length;i++)zaput[i]=random.nextInt(19);
-            for(int p:zaput)kub.povorot(p);
-            KubSolver kubSolver=new KubSolver();
-            int[] solution=kubSolver.solve(kub,null,1).getHods();
-
-            for(int i=0;i<zaput.length;i++)zaput[i]=symHods[sym][zaput[i]];
-            for(int i=0;i<solution.length;i++)solution[i]=symHods[sym][solution[i]];
-
-            kub=new Kub();
-            for (int p : zaput) kub.povorot(p);
-            for (int p : solution) kub.povorot(p);
-            //System.out.println(kub);
-            if(kub.getNumberPos().compareTo(BigDecimal.ZERO)!=0)throw new RuntimeException("proof fail");
-        }
     }
 
     private static class InitializerSymTransformTable2Fase{
+        static int[] p10to18=HodTransforms.getP10To18();
+        static int[] p18to10=HodTransforms.getP18to10();
         // used only for 2 fase
         static int[][] createSymTable(int[][] move){
+            int[][] symHods=HodTransforms.getSymHodsAllSymmetry();
             if(move.length==19){
                 int[][] sym_table=new int[48][move[0].length];
                 for(int[] m:sym_table)Arrays.fill(m,-1);
                 for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
-                createSymTable1(move,sym_table,0);
+                createSymTable1(move,sym_table,symHods);
                 return sym_table;
             }
             else {
                 int[][] sym_table=new int[16][move[0].length];
                 for(int[] m:sym_table)Arrays.fill(m,-1);
                 for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
-                createSymTable2(move,sym_table,0);
+                createSymTable2(move,sym_table,symHods);
                 return sym_table;
             }
         }
         // not used
-        private static void createSymTable1(int[][] move, int[][] sym_table, int pos){
-            for(int p=1;p<move.length;p++){
-                int newPos=move[p][pos];
-                if(sym_table[0][newPos]==-1){
-                    for(int s=0;s<48;s++){
-                        sym_table[s][newPos]=move[symHods[s][p]][sym_table[s][pos]];
+        private static void createSymTable1(int[][] move, int[][] sym_table,int[][] symHods){
+            boolean newMark=true;
+            while (newMark) {
+                newMark=false;
+                for(int pos=0;pos<sym_table[0].length;pos++) {
+                    if(sym_table[0][pos]==-1)continue;
+                    for (int p = 1; p < move.length; p++) {
+                        int newPos = move[p][pos];
+                        if(sym_table[0][newPos]!=-1)continue;
+                        newMark=true;
+                        for (int s = 0; s < 16; s++) {
+                            sym_table[s][newPos] = move[symHods[s][p]][sym_table[s][pos]];
+                        }
                     }
-                    createSymTable1(move,sym_table,newPos);
                 }
             }
         }
-        private static void createSymTable2(int[][] move, int[][] sym_table, int pos){
-            int[] p10to18=Tables.getConvertPovorot();
-            int[] p18to10=new int[]{0,1,2,3,-1,-1,4,-1,-1,5,-1,-1,6,-1,-1,7,8,9,10};
-            for(int p=1;p<move.length;p++){
-                int newPos=move[p][pos];
-                if(sym_table[0][newPos]==-1){
-                    for(int s=0;s<16;s++){
-                        sym_table[s][newPos]=move[p18to10[symHods[s][p10to18[p]]]][sym_table[s][pos]];
+        private static void createSymTable2(int[][] move, int[][] sym_table,int[][] symHods){
+            boolean newMark=true;
+            while (newMark) {
+                newMark=false;
+                for(int pos=0;pos<sym_table[0].length;pos++) {
+                    if(sym_table[0][pos]==-1)continue;
+                    for (int p = 1; p < move.length; p++) {
+                        int newPos = move[p][pos];
+                        if(sym_table[0][newPos]!=-1)continue;
+                        newMark=true;
+                        for (int s = 0; s < 16; s++) {
+                            sym_table[s][newPos] = move[p18to10[symHods[s][p10to18[p]]]][sym_table[s][pos]];
+                        }
                     }
-                    createSymTable2(move,sym_table,newPos);
                 }
-            }
-        }
-        private static void proofIdentytyDepth(byte[] deepTable,int[][] symTransform){
-            for(int s=0;s<symTransform.length;s++){
-                boolean c=true;
-                for(int p=0;p<symTransform[0].length;p++){
-                    if(deepTable[symTransform[0][p]]!=deepTable[symTransform[s][p]]){c=false;break;}
-                }
-                if(!c)throw new RuntimeException();
             }
         }
     }
@@ -355,50 +327,7 @@ final class Symmetry{
 
 
     public static void main(String[] args) throws IOException {
-        System.out.println(Arrays.toString(x2Sym[1]));
 
-        System.exit(0);
-
-        byte[][] xsY2Table=new byte[x2Sym[0].length][Tables.y2_max];
-        byte[][] xyRaw= createDeepTable(Tables.INSTANCE.getX2Move(),Tables.INSTANCE.getY2Move());
-        for(int x=0;x<xyRaw.length;x++){
-            int symX=x2Sym[0][x];
-            if(x2Sym[1][x]!=0)continue;
-            System.arraycopy(xyRaw[x],0,xsY2Table[symX],0,xyRaw[x].length);
-        }
-        writeByteMassiv(xsY2Table,new DataOutputStream(new BufferedOutputStream(new FileOutputStream("xsy2.table"))));
-    }
-
-    private static void writeByteMassiv(byte[][] massiv, DataOutputStream dos) throws IOException {
-        int size=0;
-        for (byte[] srez:massiv)size+=srez.length;
-        ByteBuffer byteBuffer=ByteBuffer.allocate(size);
-        for(byte[] sr:massiv) for (byte srsr:sr) byteBuffer.put(srsr);
-        byteBuffer.position(0);
-        dos.write(byteBuffer.array());
-    }
-    private static byte[][] createDeepTable(int[][] move1, int[][] move2){
-        byte[][] deep_table=new byte[move1[0].length][move2[0].length];
-        for(int i=0;i<deep_table.length;i++){
-            for(int j=0;j<deep_table[0].length;j++) {
-                deep_table[i][j] = 20;
-            }
-        }
-        deep_table[0][0]=0;
-        for(int deep=0;deep<=20;deep++) {
-            for(int i= 0;i< deep_table.length;i++) {
-                for(int j=0;j<deep_table[0].length;j++) {
-                    if (deep_table[i][j] == deep) {
-                        for (int np = 1; np < move1.length; np++) {
-                            if (deep_table[move1[np][i]][move2[np][j]] > deep + 1) {
-                                deep_table[move1[np][i]][move2[np][j]] = (byte) (deep + 1);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return deep_table;
     }
 
     static int[][][] normalizeColors(int[][][] graniIn){
@@ -416,6 +345,9 @@ final class Symmetry{
             }
         }
         return grani;
+    }
+    static int[][] getSymHodsAllSymmetry(){
+        return InitializerSymHods.createSymHods();
     }
     static int[][][] symZ(int[][][] graniIn) { // symmetry n 2
         return KubGrani.povorot(KubGrani.povorot(KubGrani.povorot(graniIn, 19), 4), 14);

@@ -3,15 +3,35 @@ package kub.kubSolver;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 
 public class Tables{
-    public static final int x1_max=2187,y1_max=2048,z1_max=495,x2_max=40320,y2_max=40320,z2_max=24;
-    public static final int MAX_DEEP =30;
-    private static final int[] convertPovorot=new int[]{0,1,2,3,6,9,12,15,16,17,18};
+    public static final int x1_max=2187;
+    public static final int y1_max=2048;
+    public static final int z1_max=495;
+    public static final int x2_max=40320;
+    public static final int y2_max=40320;
+    public static final int z2_max=24;
 
-    private byte[] x1Deep,y1Deep,z1Deep,x2Deep,y2Deep,z2Deep;
-    private int[][] x1Move,y1Move,z1Move,x2Move,y2Move,z2Move;
-    private byte[][] xy1Deep,xz1Deep,yz1Deep,xz2Deep,yz2Deep;
+    private byte[] x1Deep;      // 2187
+    private byte[] y1Deep;      // 2048
+    private byte[] z1Deep;      // 495
+    byte[] x2Deep;      // 40 320
+    private byte[] y2Deep;      // 40 320
+    private byte[] z2Deep;      // 24
+    private int[][] x1Move;     // 166 212
+    private int[][] y1Move;     // 155 648
+    private int[][] z1Move;     // 37 620
+    private int[][] x2Move;     // 1 774 080
+    private int[][] y2Move;     // 1 774 080
+    private int[][] z2Move;     // 1056
+    private byte[][] xy1Deep;   // 4 478 976
+    private byte[][] xz1Deep;   // 1 082 565
+    private byte[][] yz1Deep;   // 1 013 760
+    private byte[][] xz2Deep;   // 967 680
+    private byte[][] yz2Deep;   // 967 680
+                                // total: 12 504 571 bytes
+    public XsYTable xsYTable;
     public static final Tables INSTANCE;
 
     static {
@@ -24,43 +44,12 @@ public class Tables{
 
     private  Tables(){}
 
-    public byte[] getX1Deep() {return arrayCopy(x1Deep);}
-    public byte[] getX2Deep() {return arrayCopy(x2Deep);}
-    public byte[] getY1Deep() {return arrayCopy(y1Deep);}
-    public byte[] getY2Deep() {return arrayCopy(y2Deep);}
-    public byte[] getZ1Deep() {return arrayCopy(z1Deep);}
-    public byte[] getZ2Deep() {return arrayCopy(z2Deep);}
-    public byte[][] getXy1Deep() {return arrayCopy(xy1Deep);}
-    public byte[][] getXz1Deep() {return arrayCopy(xz1Deep);}
-    public byte[][] getXz2Deep() {return arrayCopy(xz2Deep);}
-    public byte[][] getYz1Deep() {return arrayCopy(yz1Deep);}
-    public byte[][] getYz2Deep() {return arrayCopy(yz2Deep);}
-    public int[][] getX1Move() {return arrayCopy(x1Move);}
     public int[][] getX2Move() {return arrayCopy(x2Move);}
-    public int[][] getY1Move() {return arrayCopy(y1Move);}
     public int[][] getY2Move() {return arrayCopy(y2Move);}
-    public int[][] getZ1Move() {return arrayCopy(z1Move);}
-    public int[][] getZ2Move() {return arrayCopy(z2Move);}
-    public static int[] getConvertPovorot() {return arrayCopy(convertPovorot);}
 
-    private static byte[] arrayCopy(byte[] m){
-        byte[] ret=new byte[m.length];
-        System.arraycopy(m,0,ret,0,m.length);
-        return ret;
-    }
-    private static byte[][] arrayCopy(byte[][] m){
-        byte[][] ret=new byte[m.length][];
-        for(int i=0;i<m.length;i++)ret[i]=arrayCopy(m[i]);
-        return ret;
-    }
-    private static int[] arrayCopy(int[] m){
-        int[] ret=new int[m.length];
-        System.arraycopy(m,0,ret,0,m.length);
-        return ret;
-    }
     private static int[][] arrayCopy(int[][] m){
         int[][] ret=new int[m.length][];
-        for(int i=0;i<m.length;i++)ret[i]=arrayCopy(m[i]);
+        for(int i=0;i<m.length;i++)ret[i]=m[i].clone();
         return ret;
     }
 
@@ -68,48 +57,48 @@ public class Tables{
         try(FileOutputStream fos=new FileOutputStream("dataTable.bin")) {
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             DataOutputStream dos = new DataOutputStream(bos);
-            writeByteMassiv(x1Deep, dos);
-            writeByteMassiv(y1Deep, dos);
-            writeByteMassiv(z1Deep, dos);
-            writeByteMassiv(x2Deep, dos);
-            writeByteMassiv(y2Deep, dos);
-            writeByteMassiv(z2Deep, dos);
-            writeIntMassiv(x1Move, dos);
-            writeIntMassiv(y1Move, dos);
-            writeIntMassiv(z1Move, dos);
-            writeIntMassiv(x2Move, dos);
-            writeIntMassiv(y2Move, dos);
-            writeIntMassiv(z2Move, dos);
-            writeByteMassiv(xy1Deep, dos);
-            writeByteMassiv(xz1Deep, dos);
-            writeByteMassiv(yz1Deep, dos);
-            writeByteMassiv(xz2Deep, dos);
-            writeByteMassiv(yz2Deep, dos);
+            ReaderWriter.writeByteMassiv(x1Deep, dos);
+            ReaderWriter.writeByteMassiv(y1Deep, dos);
+            ReaderWriter.writeByteMassiv(z1Deep, dos);
+            ReaderWriter.writeByteMassiv(x2Deep, dos);
+            ReaderWriter.writeByteMassiv(y2Deep, dos);
+            ReaderWriter.writeByteMassiv(z2Deep, dos);
+            ReaderWriter.writeIntMassiv(x1Move, dos);
+            ReaderWriter.writeIntMassiv(y1Move, dos);
+            ReaderWriter.writeIntMassiv(z1Move, dos);
+            ReaderWriter.writeIntMassiv(x2Move, dos);
+            ReaderWriter.writeIntMassiv(y2Move, dos);
+            ReaderWriter.writeIntMassiv(z2Move, dos);
+            ReaderWriter.writeByteMassiv(xy1Deep, dos);
+            ReaderWriter.writeByteMassiv(xz1Deep, dos);
+            ReaderWriter.writeByteMassiv(yz1Deep, dos);
+            ReaderWriter.writeByteMassiv(xz2Deep, dos);
+            ReaderWriter.writeByteMassiv(yz2Deep, dos);
+
         }
     }
     public static Tables readData() throws IOException {
-        //try(FileInputStream fis = new FileInputStream("dataTable.bin")) {
         try(InputStream fis = Tables.class.getResourceAsStream("/dataTable.bin")) {
             BufferedInputStream bis = new BufferedInputStream(fis);
             DataInputStream dis = new DataInputStream(bis);
             Tables tables = new Tables();
-            tables.x1Deep = readByteMassiv(x1_max, dis);
-            tables.y1Deep = readByteMassiv(y1_max, dis);
-            tables.z1Deep = readByteMassiv(z1_max, dis);
-            tables.x2Deep = readByteMassiv(x2_max, dis);
-            tables.y2Deep = readByteMassiv(y2_max, dis);
-            tables.z2Deep = readByteMassiv(z2_max, dis);
-            tables.x1Move = readIntMassiv(19, x1_max, dis);
-            tables.y1Move = readIntMassiv(19, y1_max, dis);
-            tables.z1Move = readIntMassiv(19, z1_max, dis);
-            tables.x2Move = readIntMassiv(convertPovorot.length, x2_max, dis);
-            tables.y2Move = readIntMassiv(convertPovorot.length, y2_max, dis);
-            tables.z2Move = readIntMassiv(convertPovorot.length, z2_max, dis);
-            tables.xy1Deep = readByteMassiv(x1_max, y1_max, dis);
-            tables.xz1Deep = readByteMassiv(x1_max, z1_max, dis);
-            tables.yz1Deep = readByteMassiv(y1_max, z1_max, dis);
-            tables.xz2Deep = readByteMassiv(x2_max, z2_max, dis);
-            tables.yz2Deep = readByteMassiv(y2_max, z2_max, dis);
+            tables.x1Deep = ReaderWriter.readByteMassiv(x1_max, dis);
+            tables.y1Deep = ReaderWriter.readByteMassiv(y1_max, dis);
+            tables.z1Deep = ReaderWriter.readByteMassiv(z1_max, dis);
+            tables.x2Deep = ReaderWriter.readByteMassiv(x2_max, dis);
+            tables.y2Deep = ReaderWriter.readByteMassiv(y2_max, dis);
+            tables.z2Deep = ReaderWriter.readByteMassiv(z2_max, dis);
+            tables.x1Move = ReaderWriter.readIntMassiv(19, x1_max, dis);
+            tables.y1Move = ReaderWriter.readIntMassiv(19, y1_max, dis);
+            tables.z1Move = ReaderWriter.readIntMassiv(19, z1_max, dis);
+            tables.x2Move = ReaderWriter.readIntMassiv(HodTransforms.NUM_HODS_2, x2_max, dis);
+            tables.y2Move = ReaderWriter.readIntMassiv(HodTransforms.NUM_HODS_2, y2_max, dis);
+            tables.z2Move = ReaderWriter.readIntMassiv(HodTransforms.NUM_HODS_2, z2_max, dis);
+            tables.xy1Deep = ReaderWriter.readByteMassiv(x1_max, y1_max, dis);
+            tables.xz1Deep = ReaderWriter.readByteMassiv(x1_max, z1_max, dis);
+            tables.yz1Deep = ReaderWriter.readByteMassiv(y1_max, z1_max, dis);
+            tables.xz2Deep = ReaderWriter.readByteMassiv(x2_max, z2_max, dis);
+            tables.yz2Deep = ReaderWriter.readByteMassiv(y2_max, z2_max, dis);
             return tables;
         }
     }
@@ -134,60 +123,7 @@ public class Tables{
         tables.yz2Deep=createDeepTable(tables.y2Move,tables.z2Move);
         return tables;
     }
-    private static void writeByteMassiv(byte[][] massiv, DataOutputStream dos) throws IOException {
-        int size=0;
-        for (byte[] srez:massiv)size+=srez.length;
-        ByteBuffer byteBuffer=ByteBuffer.allocate(size);
-        for(byte[] sr:massiv) for (byte srsr:sr) byteBuffer.put(srsr);
-        byteBuffer.position(0);
-        dos.write(byteBuffer.array());
-    }
-    private static void writeByteMassiv(byte[] massiv, DataOutputStream dos) throws IOException {
-        writeByteMassiv(new byte[][]{massiv},dos);
-    }
-    private static void writeIntMassiv(int[] massiv, DataOutputStream dos) throws IOException {
-        writeIntMassiv(new int[][]{massiv},dos);
-    }
-    private static void writeIntMassiv(int[][] massiv, DataOutputStream dos) throws IOException {
-        int size=0;
-        for (int[] srez:massiv)size+=srez.length;
-        size*=4;
-        ByteBuffer byteBuffer=ByteBuffer.allocate(size);
-        IntBuffer intBuffer=byteBuffer.asIntBuffer();
-        for(int[] sr:massiv) for (int srsr:sr) intBuffer.put(srsr);
-        byteBuffer.position(0);
-        dos.write(byteBuffer.array());
-    }
-    private static int[][] readIntMassiv(int i, int j, DataInputStream dis) throws IOException {
-        int[][] massiv=new int[i][j];
-        byte[] data=new byte[i*j*4];
-        dis.readFully(data);
-        IntBuffer intBuffer=ByteBuffer.wrap(data).asIntBuffer();
-        for(int n=0;n<i;n++){
-            for(int k=0;k<j;k++){
-                massiv[n][k]=intBuffer.get(n*j+k);
-            }
-        }
-        return massiv;
-    }
-    private static byte[][] readByteMassiv(int i, int j, DataInputStream dis) throws IOException {
-        byte[][] massiv=new byte[i][j];
-        byte[] data=new byte[i*j];
-        dis.readFully(data);
-        ByteBuffer byteBuffer=ByteBuffer.wrap(data);
-        for(int n=0;n<i;n++){
-            for(int k=0;k<j;k++){
-                massiv[n][k]=byteBuffer.get(n*j+k);
-            }
-        }
-        return massiv;
-    }
-    private static int[] readIntMassiv(int j,DataInputStream dis) throws IOException {
-        return readIntMassiv(1,j,dis)[0];
-    }
-    private static byte[] readByteMassiv(int j,DataInputStream dis) throws IOException {
-        return readByteMassiv(1,j,dis)[0];
-    }
+
     private static int[][] createX1Move(){
         int[] u_o=new int[8];
         int[][] table=new int[19][x1_max];
@@ -222,10 +158,11 @@ public class Tables{
         return table;
     }
     private static int[][] createX2Move(){
+        int[] convertPovorot=HodTransforms.getP10To18();
         int[] u_p=new int[8];
-        int[][] table=new int[convertPovorot.length][x2_max];
+        int[][] table=new int[HodTransforms.NUM_HODS_2][x2_max];
         for(int pos=0;pos<x2_max;pos++){
-            for(int pov=0;pov<convertPovorot.length;pov++){
+            for(int pov=0;pov<HodTransforms.NUM_HODS_2;pov++){
                 KubCubie.povorotUP(KubKoordinates.x2ToCubie(pos),u_p,convertPovorot[pov]);
                 table[pov][pos]= KubCubie.upToX2(u_p);
             }
@@ -233,10 +170,11 @@ public class Tables{
         return table;
     }
     private static int[][] createY2Move(){
+        int[] convertPovorot=HodTransforms.getP10To18();
         int[] r_p=new int[12];
-        int[][] table=new int[convertPovorot.length][y2_max];
+        int[][] table=new int[HodTransforms.NUM_HODS_2][y2_max];
         for(int pos=0;pos<y2_max;pos++){
-            for(int pov=0;pov<convertPovorot.length;pov++){
+            for(int pov=0;pov<HodTransforms.NUM_HODS_2;pov++){
                 KubCubie.povorotRP(KubKoordinates.y2ToCubie(pos),r_p,convertPovorot[pov]);
                 table[pov][pos]=KubCubie.rpToY2(r_p);
             }
@@ -244,10 +182,11 @@ public class Tables{
         return table;
     }
     private static int[][] createZ2Move(){
+        int[] convertPovorot=HodTransforms.getP10To18();
         int[] r_p=new int[12];
-        int[][] table=new int[convertPovorot.length][z2_max];
+        int[][] table=new int[HodTransforms.NUM_HODS_2][z2_max];
         for(int pos=0;pos<z2_max;pos++){
-            for(int pov=0;pov<convertPovorot.length;pov++){
+            for(int pov=0;pov<HodTransforms.NUM_HODS_2;pov++){
                 KubCubie.povorotRP(KubKoordinates.z2ToCubie(pos),r_p,convertPovorot[pov]);
                 table[pov][pos]=KubCubie.rpToZ2(r_p);
             }
@@ -256,9 +195,7 @@ public class Tables{
     }
     private static byte[] createDeepTable(int[][] move){
         byte[] deep_table=new byte[move[0].length];
-        for(int i=0;i<deep_table.length;i++){
-            deep_table[i]=20;
-        }
+        Arrays.fill(deep_table,(byte) 20);
         deep_table[0]=0;
         for(int deep=0;deep<=20;deep++) {
             for(int i= 0;i< deep_table.length;i++) {
@@ -275,10 +212,8 @@ public class Tables{
     }
     private static byte[][] createDeepTable(int[][] move1, int[][] move2){
         byte[][] deep_table=new byte[move1[0].length][move2[0].length];
-        for(int i=0;i<deep_table.length;i++){
-            for(int j=0;j<deep_table[0].length;j++) {
-                deep_table[i][j] = 20;
-            }
+        for (byte[] m : deep_table) {
+            Arrays.fill(m, (byte) 20);
         }
         deep_table[0][0]=0;
         for(int deep=0;deep<=20;deep++) {
@@ -296,6 +231,20 @@ public class Tables{
         }
         return deep_table;
     }
+    public final int tryMoveAndGetDepth2(int[] k, int p){
+        int x = x2Move[p][k[0]];
+        int y = y2Move[p][k[1]];
+        int z = z2Move[p][k[2]];
+        int d1= 0;//xy2Deep[x][y];  // or 0
+        int d2=xz2Deep[x][z];
+        int d3=yz2Deep[y][z];
+        return Math.max(d1,Math.max(d2,d3));
+    }
+    public final void move2(int[] k,int[] kn,int p){
+        kn[0] = x2Move[p][k[0]];
+        kn[1] = y2Move[p][k[1]];
+        kn[2] = z2Move[p][k[2]];
+    }
     public final int tryMoveAndGetDepth1(int[] k, int p){
         int x = x1Move[p][k[0]];
         int y = y1Move[p][k[1]];
@@ -309,5 +258,61 @@ public class Tables{
         kn[0] = x1Move[p][k[0]];
         kn[1] = y1Move[p][k[1]];
         kn[2] = z1Move[p][k[2]];
+    }
+    private static class ReaderWriter{
+        private static void writeByteMassiv(byte[][] massiv, DataOutputStream dos) throws IOException {
+            int size=0;
+            for (byte[] srez:massiv)size+=srez.length;
+            ByteBuffer byteBuffer=ByteBuffer.allocate(size);
+            for(byte[] sr:massiv) for (byte srsr:sr) byteBuffer.put(srsr);
+            byteBuffer.position(0);
+            dos.write(byteBuffer.array());
+        }
+        private static void writeByteMassiv(byte[] massiv, DataOutputStream dos) throws IOException {
+            writeByteMassiv(new byte[][]{massiv},dos);
+        }
+        private static void writeIntMassiv(int[] massiv, DataOutputStream dos) throws IOException {
+            writeIntMassiv(new int[][]{massiv},dos);
+        }
+        private static void writeIntMassiv(int[][] massiv, DataOutputStream dos) throws IOException {
+            int size=0;
+            for (int[] srez:massiv)size+=srez.length;
+            size*=4;
+            ByteBuffer byteBuffer=ByteBuffer.allocate(size);
+            IntBuffer intBuffer=byteBuffer.asIntBuffer();
+            for(int[] sr:massiv) for (int srsr:sr) intBuffer.put(srsr);
+            byteBuffer.position(0);
+            dos.write(byteBuffer.array());
+        }
+        private static int[][] readIntMassiv(int i, int j, DataInputStream dis) throws IOException {
+            int[][] massiv=new int[i][j];
+            byte[] data=new byte[i*j*4];
+            dis.readFully(data);
+            IntBuffer intBuffer=ByteBuffer.wrap(data).asIntBuffer();
+            for(int n=0;n<i;n++){
+                for(int k=0;k<j;k++){
+                    massiv[n][k]=intBuffer.get(n*j+k);
+                }
+            }
+            return massiv;
+        }
+        private static byte[][] readByteMassiv(int i, int j, DataInputStream dis) throws IOException {
+            byte[][] massiv=new byte[i][j];
+            byte[] data=new byte[i*j];
+            dis.readFully(data);
+            ByteBuffer byteBuffer=ByteBuffer.wrap(data);
+            for(int n=0;n<i;n++){
+                for(int k=0;k<j;k++){
+                    massiv[n][k]=byteBuffer.get(n*j+k);
+                }
+            }
+            return massiv;
+        }
+        private static int[] readIntMassiv(int j,DataInputStream dis) throws IOException {
+            return readIntMassiv(1,j,dis)[0];
+        }
+        private static byte[] readByteMassiv(int j,DataInputStream dis) throws IOException {
+            return readByteMassiv(1,j,dis)[0];
+        }
     }
 }

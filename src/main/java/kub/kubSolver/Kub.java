@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class Kub{
     private Cubie cubie=new Cubie();
-    public Kub(){}
+    public Kub(boolean isRandom){if(isRandom)randomPos();}
     public Kub(int[][][] grani) throws InvalidPositionException {
         cubie=new Cubie(grani);
     }

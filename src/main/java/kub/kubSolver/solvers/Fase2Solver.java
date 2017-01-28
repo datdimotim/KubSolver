@@ -1,22 +1,15 @@
 package kub.kubSolver.solvers;
 
+import kub.kubSolver.HodTransforms;
 import kub.kubSolver.Tables;
 
 public interface Fase2Solver extends BaseFaseSolver{
     abstract class AbstractSolver2 implements Fase2Solver{
-        int[][] x2Move;
-        int[][] y2Move;
-        int[][] z2Move;
-        byte[][] xz2Deep;
-        byte[][] yz2Deep;
-        private static int[] hodsFase2=Tables.getConvertPovorot();
+        Tables tables;
+        private static int[] hodsFase2= HodTransforms.getP10To18();
         @Override
         public void init(Tables tables) {
-            x2Move=tables.getX2Move();
-            y2Move=tables.getY2Move();
-            z2Move=tables.getZ2Move();
-            xz2Deep=tables.getXz2Deep();
-            yz2Deep=tables.getYz2Deep();
+            this.tables=tables;
         }
         public static boolean hodPredHod(int hod,int predHod){
             hod=hodsFase2[hod];

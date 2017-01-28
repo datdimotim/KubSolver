@@ -2,11 +2,13 @@ package kub.kubSolver;
 
 import kub.kubSolver.solvers.*;
 
+import static kub.kubSolver.solvers.BaseFaseSolver.MAX_DEEP;
+
 public class KubSolver{
     private Fase1Solver fase1Solver;
     private Fase2Solver fase2Solver;
     private final Tables tables=Tables.INSTANCE;
-    private static final int[] hodsFase2=Tables.getConvertPovorot();
+    private static final int[] hodsFase2=HodTransforms.getP10To18();
     public KubSolver(){
         setFase1Solver(new SimpleSolver1());
         setFase2Solver(new SimpleSolver2());
@@ -50,7 +52,7 @@ public class KubSolver{
         int[] fase1solution=null;
         if(preSolution!=null)fase1solution=fase1HodsAdapter(preSolution.getFase1());
         if(fase1solution!=null)incrementHods1(fase1solution);
-        else fase1solution=new int[Tables.MAX_DEEP +1];
+        else fase1solution=new int[MAX_DEEP +1];
 
         if(fase1Solver!=null){
             int[] k1=cubie.toKoordinates1();
@@ -60,7 +62,7 @@ public class KubSolver{
             if(k1[0]!=0||k1[1]!=0||k1[2]!=0)throw new RuntimeException("Kub 1 fase error");
         }
 
-        int[] fase2solution=new int[Tables.MAX_DEEP +1];
+        int[] fase2solution=new int[MAX_DEEP +1];
 
         if(fase2Solver!=null) {
             int[] k2 = cubie.toKoordinates2();
@@ -74,8 +76,8 @@ public class KubSolver{
     }
 
     private static int[] fase1HodsAdapter(int[] fase1){
-        int[] ret=new int[Tables.MAX_DEEP+1];
-        System.arraycopy(fase1,0,ret,Tables.MAX_DEEP+1-fase1.length,fase1.length);
+        int[] ret=new int[MAX_DEEP+1];
+        System.arraycopy(fase1,0,ret,MAX_DEEP+1-fase1.length,fase1.length);
         return ret;
     }
 
