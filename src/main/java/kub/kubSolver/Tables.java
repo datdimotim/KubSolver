@@ -18,13 +18,8 @@ public class Tables{
     public static final int z2_max=24;
 
     private MoveTables moveTables;
-    private SimpleDeepTables simpleDeepTables;
+    private SimpleDeepTables simpleDeepTables;  // not used
     private ExtendDeepTables extendDeepTables;
-
-    private XsYTable xsYTable;
-    private XsZTable xsZTable;
-    private YsZTable ysZTable;
-
     private SymTables2 symTables2;
 
     public static Tables INSTANCE;
@@ -34,28 +29,14 @@ public class Tables{
         else readData();
     }
 
-    public static void main(String[] args) {
-        Tables tables=new Tables(false);
-        int kol=0;
-        for(int d=0;d<19;d++) {
-            for (int i = 0; i < tables.xsYTable.xsYDeep.length; i++) {
-                for (int j = 0; j < tables.xsYTable.xsYDeep[0].length; j++) {
-                    if(d==tables.xsYTable.xsYDeep[i][j])kol++;
-                }
-            }
-            System.out.println("deep= "+d+" pos= "+kol);
-            kol=0;
-        }
+    public static void main(String[] args) throws IOException{
+        new Tables(false).save();
     }
 
     private void computeTables(){
         moveTables=new MoveTables();
         simpleDeepTables=new SimpleDeepTables(moveTables);
         extendDeepTables=new ExtendDeepTables(moveTables);
-        xsYTable=new XsYTable(moveTables);
-        xsZTable=new XsZTable(moveTables);
-        ysZTable=new YsZTable(moveTables);
-
         symTables2=new SymTables2(moveTables);
     }
 
@@ -66,6 +47,7 @@ public class Tables{
             moveTables.save(dos);
             simpleDeepTables.save(dos);
             extendDeepTables.save(dos);
+            symTables2.save(dos);
         }
     }
     private void readData(){
@@ -75,6 +57,7 @@ public class Tables{
             moveTables=new MoveTables(dis);
             simpleDeepTables=new SimpleDeepTables(dis);
             extendDeepTables=new ExtendDeepTables(dis);
+            symTables2=new SymTables2(dis);
         }
         catch (IOException e){
             throw new RuntimeException("Can't read tables",e);
@@ -84,15 +67,7 @@ public class Tables{
         int x = moveTables.x2Move[p][k[0]];
         int y = moveTables.y2Move[p][k[1]];
         int z = moveTables.z2Move[p][k[2]];
-        int d1= xsYTable!=null ? xsYTable.getDeep(x,y) : 0;
-        int d2= xsZTable!=null ? xsZTable.getDeep(x,z) : 0;
-        int d3=extendDeepTables.xz2Deep[x][z];
-        int d4=extendDeepTables.yz2Deep[y][z];
-
-        if(Math.max(d1,Math.max(d2,Math.max(d3,d4)))!=symTables2.getDeep(x,y,z))throw new RuntimeException();
-        if(ysZTable.getDeep(y,z)!=d4)throw new RuntimeException();
-        if(d2!=d3)throw new RuntimeException();
-        return Math.max(d1,Math.max(d2,Math.max(d3,d4)));
+        return symTables2.getDeep(x,y,z);
     }
     public final void move2(int[] k,int[] kn,int p){
         kn[0] = moveTables.x2Move[p][k[0]];
@@ -116,18 +91,28 @@ public class Tables{
 }
 
 class MoveTables{
-    char[][] x1Move;     // 166 212
-    char[][] y1Move;     // 155 648
-    char[][] z1Move;     // 37 620
-    char[][] x2Move;     // 1 774 080
-    char[][] y2Move;     // 1 774 080
-    char[][] z2Move;     // 1056
+    final char[][] x1Move;     // 166 212
+    final char[][] y1Move;     // 155 648
+    final char[][] z1Move;     // 37 620
+    final char[][] x2Move;     // 1 774 080
+    final char[][] y2Move;     // 1 774 080
+    final char[][] z2Move;     // 1056
 
     MoveTables(DataInputStream dis) throws IOException {
-        readTables(dis);
+        x1Move = ReaderWriter.readCharMassiv(19, x1_max, dis);
+        y1Move = ReaderWriter.readCharMassiv(19, y1_max, dis);
+        z1Move = ReaderWriter.readCharMassiv(19, z1_max, dis);
+        x2Move = ReaderWriter.readCharMassiv(HodTransforms.NUM_HODS_2, x2_max, dis);
+        y2Move = ReaderWriter.readCharMassiv(HodTransforms.NUM_HODS_2, y2_max, dis);
+        z2Move = ReaderWriter.readCharMassiv(HodTransforms.NUM_HODS_2, z2_max, dis);
     }
     MoveTables(){
-        computeTables();
+        x1Move=createX1Move();
+        y1Move=createY1Move();
+        z1Move=createZ1Move();
+        x2Move=createX2Move();
+        y2Move=createY2Move();
+        z2Move=createZ2Move();
     }
     void save(DataOutputStream dos) throws IOException {
         writeMassiv(x1Move, dos);
@@ -136,22 +121,6 @@ class MoveTables{
         writeMassiv(x2Move, dos);
         writeMassiv(y2Move, dos);
         writeMassiv(z2Move, dos);
-    }
-    private void readTables(DataInputStream dis) throws IOException {
-        x1Move = ReaderWriter.readCharMassiv(19, x1_max, dis);
-        y1Move = ReaderWriter.readCharMassiv(19, y1_max, dis);
-        z1Move = ReaderWriter.readCharMassiv(19, z1_max, dis);
-        x2Move = ReaderWriter.readCharMassiv(HodTransforms.NUM_HODS_2, x2_max, dis);
-        y2Move = ReaderWriter.readCharMassiv(HodTransforms.NUM_HODS_2, y2_max, dis);
-        z2Move = ReaderWriter.readCharMassiv(HodTransforms.NUM_HODS_2, z2_max, dis);
-    }
-    private void computeTables(){
-        x1Move=createX1Move();
-        y1Move=createY1Move();
-        z1Move=createZ1Move();
-        x2Move=createX2Move();
-        y2Move=createY2Move();
-        z2Move=createZ2Move();
     }
 
     private static char[][] createX1Move(){
@@ -226,18 +195,28 @@ class MoveTables{
 }
 
 class SimpleDeepTables{
-    private byte[] x1Deep;      // 2187
-    private byte[] y1Deep;      // 2048
-    private byte[] z1Deep;      // 495
-    private byte[] x2Deep;      // 40 320
-    private byte[] y2Deep;      // 40 320
-    private byte[] z2Deep;      // 24
+    private final byte[] x1Deep;      // 2187
+    private final byte[] y1Deep;      // 2048
+    private final byte[] z1Deep;      // 495
+    private final byte[] x2Deep;      // 40 320
+    private final byte[] y2Deep;      // 40 320
+    private final byte[] z2Deep;      // 24
 
     SimpleDeepTables(DataInputStream dis) throws IOException {
-        readTables(dis);
+        x1Deep=readByteMassiv(x1_max,dis);
+        y1Deep=readByteMassiv(y1_max,dis);
+        z1Deep=readByteMassiv(z1_max,dis);
+        x2Deep=readByteMassiv(x2_max,dis);
+        y2Deep=readByteMassiv(y2_max,dis);
+        z2Deep=readByteMassiv(z2_max,dis);
     }
     SimpleDeepTables(MoveTables moveTables){
-        computeTables(moveTables);
+        x1Deep=createDeepTable(moveTables.x1Move);
+        y1Deep=createDeepTable(moveTables.y1Move);
+        z1Deep=createDeepTable(moveTables.z1Move);
+        x2Deep=createDeepTable(moveTables.x2Move);
+        y2Deep=createDeepTable(moveTables.y2Move);
+        z2Deep=createDeepTable(moveTables.z2Move);
     }
     void save(DataOutputStream dos) throws IOException {
         ReaderWriter.writeMassiv(x1Deep, dos);
@@ -246,22 +225,6 @@ class SimpleDeepTables{
         ReaderWriter.writeMassiv(x2Deep, dos);
         ReaderWriter.writeMassiv(y2Deep, dos);
         ReaderWriter.writeMassiv(z2Deep, dos);
-    }
-    private void readTables(DataInputStream dis) throws IOException {
-        x1Deep=readByteMassiv(x1_max,dis);
-        y1Deep=readByteMassiv(y1_max,dis);
-        z1Deep=readByteMassiv(z1_max,dis);
-        x2Deep=readByteMassiv(x2_max,dis);
-        y2Deep=readByteMassiv(y2_max,dis);
-        z2Deep=readByteMassiv(z2_max,dis);
-    }
-    private void computeTables(MoveTables moveTables){
-        x1Deep=createDeepTable(moveTables.x1Move);
-        y1Deep=createDeepTable(moveTables.y1Move);
-        z1Deep=createDeepTable(moveTables.z1Move);
-        x2Deep=createDeepTable(moveTables.x2Move);
-        y2Deep=createDeepTable(moveTables.y2Move);
-        z2Deep=createDeepTable(moveTables.z2Move);
     }
 
     private static byte[] createDeepTable(char[][] move){
@@ -284,17 +247,25 @@ class SimpleDeepTables{
 }
 
 class ExtendDeepTables{
-    byte[][] xy1Deep;   // 4 478 976
-    byte[][] xz1Deep;   // 1 082 565
-    byte[][] yz1Deep;   // 1 013 760
-    byte[][] xz2Deep;   // 967 680
-    byte[][] yz2Deep;   // 967 680
+    final byte[][] xy1Deep;   // 4 478 976
+    final byte[][] xz1Deep;   // 1 082 565
+    final byte[][] yz1Deep;   // 1 013 760
+    final byte[][] xz2Deep;   // 967 680
+    final byte[][] yz2Deep;   // 967 680
 
     ExtendDeepTables(DataInputStream dis) throws IOException {
-        readTables(dis);
+        xy1Deep=readByteMassiv(x1_max,y1_max,dis);
+        yz1Deep=readByteMassiv(y1_max,z1_max,dis);
+        xz1Deep=readByteMassiv(x1_max,z1_max,dis);
+        xz2Deep=readByteMassiv(x2_max,z2_max,dis);
+        yz2Deep=readByteMassiv(y2_max,z2_max,dis);
     }
     ExtendDeepTables(MoveTables moveTables){
-        computeTables(moveTables);
+        xy1Deep=createDeepTable(moveTables.x1Move,moveTables.y1Move);
+        yz1Deep=createDeepTable(moveTables.y1Move,moveTables.z1Move);
+        xz1Deep=createDeepTable(moveTables.x1Move,moveTables.z1Move);
+        xz2Deep=createDeepTable(moveTables.x2Move,moveTables.z2Move);
+        yz2Deep=createDeepTable(moveTables.y2Move,moveTables.z2Move);
     }
     void save(DataOutputStream dos) throws IOException {
         ReaderWriter.writeMassiv(xy1Deep, dos);
@@ -303,20 +274,7 @@ class ExtendDeepTables{
         ReaderWriter.writeMassiv(xz2Deep, dos);
         ReaderWriter.writeMassiv(yz2Deep, dos);
     }
-    private void readTables(DataInputStream dis) throws IOException {
-        xy1Deep=readByteMassiv(x1_max,y1_max,dis);
-        yz1Deep=readByteMassiv(y1_max,z1_max,dis);
-        xz1Deep=readByteMassiv(x1_max,z1_max,dis);
-        xz2Deep=readByteMassiv(x2_max,z2_max,dis);
-        yz2Deep=readByteMassiv(y2_max,z2_max,dis);
-    }
-    private void computeTables(MoveTables moveTables){
-        xy1Deep=createDeepTable(moveTables.x1Move,moveTables.y1Move);
-        yz1Deep=createDeepTable(moveTables.y1Move,moveTables.z1Move);
-        xz1Deep=createDeepTable(moveTables.x1Move,moveTables.z1Move);
-        xz2Deep=createDeepTable(moveTables.x2Move,moveTables.z2Move);
-        yz2Deep=createDeepTable(moveTables.y2Move,moveTables.z2Move);
-    }
+
     private static byte[][] createDeepTable(char[][] move1, char[][] move2){
         byte[][] deep_table=new byte[move1[0].length][move2[0].length];
         for (byte[] m : deep_table) {
@@ -340,45 +298,21 @@ class ExtendDeepTables{
     }
 }
 
-class XsYTable{
-    private final int[][] xTransform;
-    private final int[][] yTransform;
-    private final int[] inverseSymmetry= Symmetry.inverseSymmetry;
-
-    final int[][] xToSymClass;
-    final byte[][] xsYDeep;
-
-    XsYTable(MoveTables moveTables){
-        char[][] moveX = moveTables.x2Move;
-        char[][] moveY = moveTables.y2Move;
-        xTransform= InitializerSymTable.createSymTable(moveX);
-        yTransform= InitializerSymTable.createSymTable(moveY);
-        xToSymClass= InitializerSymTable.splitToClasses(moveX,xTransform);
-        xsYDeep= InitializerSymTable.computeDeepTable(xToSymClass,xTransform,yTransform, moveX, moveY);
-    }
-
-    public int getDeep(int x,int y){
-        int xs=xToSymClass[0][x];
-        int s=xToSymClass[1][x];
-        int yt=yTransform[inverseSymmetry[s]][y];
-        return xsYDeep[xs][yt];
-    }
-}
-
 class SymTables2{
+    private static final int xSymMax=2768;
+    private static final int ySymMax=2768;
     private final int[] inverseSymmetry= Symmetry.inverseSymmetry;
 
     private final int[][] xTransform;
     private final int[][] yTransform;
     private final int[][] zTransform;
 
+    private final int[][] xToSymClass;
+    private final int[][] yToSymClass;
 
-    final int[][] xToSymClass;
-    final int[][] yToSymClass;
-
-    final byte[][] xsYDeep;
-    final byte[][] xsZDeep;
-    final byte[][] ysZDeep;
+    private final byte[][] xsYDeep;
+    private final byte[][] xsZDeep;
+    private final byte[][] ysZDeep;
 
     SymTables2(MoveTables moveTables){
         char[][] moveX = moveTables.x2Move;
@@ -396,7 +330,31 @@ class SymTables2{
         xsZDeep= InitializerSymTable.computeDeepTable(xToSymClass,xTransform,zTransform, moveX, moveZ);
         ysZDeep= InitializerSymTable.computeDeepTable(yToSymClass,yTransform,zTransform, moveY, moveZ);
     }
-    public int getDeep(int x,int y,int z){
+    SymTables2(DataInputStream dis)throws IOException{
+        xTransform=readIntMassiv(16,Tables.x2_max,dis);
+        yTransform=readIntMassiv(16,Tables.y2_max,dis);
+        zTransform=readIntMassiv(16,Tables.z2_max,dis);
+
+        xToSymClass=readIntMassiv(2,Tables.x2_max,dis);
+        yToSymClass=readIntMassiv(2,Tables.y2_max,dis);
+
+        xsYDeep=readByteMassiv(xSymMax,Tables.y2_max,dis);
+        xsZDeep=readByteMassiv(xSymMax,Tables.z2_max,dis);
+        ysZDeep=readByteMassiv(ySymMax,Tables.z2_max,dis);
+    }
+    void save(DataOutputStream dos)throws IOException{
+        writeMassiv(xTransform,dos);
+        writeMassiv(yTransform,dos);
+        writeMassiv(zTransform,dos);
+
+        writeMassiv(xToSymClass,dos);
+        writeMassiv(yToSymClass,dos);
+
+        writeMassiv(xsYDeep,dos);
+        writeMassiv(xsZDeep,dos);
+        writeMassiv(ysZDeep,dos);
+    }
+    int getDeep(int x,int y,int z){
         int xs=xToSymClass[0][x];
         int s=xToSymClass[1][x];
         int yt=yTransform[inverseSymmetry[s]][y];
@@ -410,56 +368,6 @@ class SymTables2{
         int d3=ysZDeep[ys][zt2];
 
         return Math.max(d1,Math.max(d2,d3));
-    }
-}
-
-class XsZTable{
-    private final int[][] xTransform;
-    private final int[][] zTransform;
-    private final int[] inverseSymmetry= Symmetry.inverseSymmetry;
-
-    final int[][] xToSymClass;
-    final byte[][] xsZDeep;
-
-    XsZTable(MoveTables moveTables){
-        char[][] moveX = moveTables.x2Move;
-        char[][] moveZ = moveTables.z2Move;
-        xTransform= InitializerSymTable.createSymTable(moveX);
-        zTransform= InitializerSymTable.createSymTable(moveZ);
-        xToSymClass= InitializerSymTable.splitToClasses(moveX,xTransform);
-        xsZDeep= InitializerSymTable.computeDeepTable(xToSymClass,xTransform,zTransform, moveX, moveZ);
-    }
-
-    public int getDeep(int x,int z){
-        int xs=xToSymClass[0][x];
-        int s=xToSymClass[1][x];
-        int zt=zTransform[inverseSymmetry[s]][z];
-        return xsZDeep[xs][zt];
-    }
-}
-
-class YsZTable{
-    private final int[][] yTransform;
-    private final int[][] zTransform;
-    private final int[] inverseSymmetry= Symmetry.inverseSymmetry;
-
-    final int[][] yToSymClass;
-    final byte[][] ysZDeep;
-
-    YsZTable(MoveTables moveTables){
-        char[][] moveY = moveTables.y2Move;
-        char[][] moveZ = moveTables.z2Move;
-        yTransform= InitializerSymTable.createSymTable(moveY);
-        zTransform= InitializerSymTable.createSymTable(moveZ);
-        yToSymClass= InitializerSymTable.splitToClasses(moveY,yTransform);
-        ysZDeep= InitializerSymTable.computeDeepTable(yToSymClass,yTransform,zTransform, moveY, moveZ);
-    }
-
-    public int getDeep(int y,int z){
-        int ys=yToSymClass[0][y];
-        int s=yToSymClass[1][y];
-        int zt=zTransform[inverseSymmetry[s]][z];
-        return ysZDeep[ys][zt];
     }
 }
 
