@@ -22,6 +22,8 @@ public class Tables{
     private ExtendDeepTables extendDeepTables;
     private SymTables2 symTables2;
 
+    private SymTables1 symTables1;
+
     public static Tables INSTANCE;
 
     public Tables(boolean inResource){
@@ -29,8 +31,11 @@ public class Tables{
         else readData();
     }
 
-    public static void main(String[] args) throws IOException{
-        new Tables(false).save();
+    public static void main(String[] args){
+        //Tables tables=new Tables(false);
+        MoveTables moveTables=new MoveTables();
+        SymTables1 symTables1=new SymTables1(moveTables);
+        for(byte[] m:symTables1.xsZDeep)System.out.println(Arrays.toString(m));
     }
 
     private void computeTables(){
@@ -38,6 +43,7 @@ public class Tables{
         simpleDeepTables=new SimpleDeepTables(moveTables);
         extendDeepTables=new ExtendDeepTables(moveTables);
         symTables2=new SymTables2(moveTables);
+        symTables1=new SymTables1(moveTables);
     }
 
     public void save() throws IOException {
@@ -81,6 +87,7 @@ public class Tables{
         int d1=extendDeepTables.xy1Deep[x][y];
         int d2=extendDeepTables.xz1Deep[x][z];
         int d3=extendDeepTables.yz1Deep[y][z];
+        if(symTables1.getDeep(x,y,z)!=Math.max(d1,Math.max(d2,d3)))throw new RuntimeException();
         return Math.max(d1,Math.max(d2,d3));
     }
     public final void move1(int[] k, int[] kn,int p){
@@ -91,12 +98,12 @@ public class Tables{
 }
 
 class MoveTables{
-    final char[][] x1Move;     // 166 212
-    final char[][] y1Move;     // 155 648
-    final char[][] z1Move;     // 37 620
-    final char[][] x2Move;     // 1 774 080
-    final char[][] y2Move;     // 1 774 080
-    final char[][] z2Move;     // 1056
+    final char[][] x1Move;
+    final char[][] y1Move;
+    final char[][] z1Move;
+    final char[][] x2Move;
+    final char[][] y2Move;
+    final char[][] z2Move;
 
     MoveTables(DataInputStream dis) throws IOException {
         x1Move = ReaderWriter.readCharMassiv(19, x1_max, dis);
@@ -371,6 +378,71 @@ class SymTables2{
     }
 }
 
+class SymTables1{
+    //private static final int xSymMax=2768;
+    //private static final int ySymMax=2768;
+    private final int[] inverseSymmetry=Symmetry.inverseSymmetry;
+    final int[][] xTransform;
+    final int[][] yTransform;
+    final int[][] zTransform;
+
+    final int[][] xToSymClass;
+    final int[][] yToSymClassHalf;
+
+    final byte[][] xsZDeep;
+    final byte[][] ysZDeep;
+    final byte[][] ysXDeep;
+
+    SymTables1(MoveTables moveTables){
+        char[][] moveX = moveTables.x1Move;
+        char[][] moveY=  moveTables.y1Move;
+        char[][] moveZ = moveTables.z1Move;
+
+        xTransform= InitializerSymTable.createSymTable(moveX);
+        yTransform= InitializerSymTable.createSymTable(moveY);
+        zTransform= InitializerSymTable.createSymTable(moveZ);
+
+        xToSymClass= InitializerSymTable.splitToClasses(moveX,xTransform);
+        yToSymClassHalf= InitializerSymTableHalf.splitToClasses(moveY,yTransform);
+
+        xsZDeep= InitializerSymTable.computeDeepTable(xToSymClass,xTransform,zTransform, moveX, moveZ);
+        ysZDeep= InitializerSymTableHalf.computeDeepTable(yToSymClassHalf,yTransform,zTransform,moveY,moveZ);
+        ysXDeep= InitializerSymTableHalf.computeDeepTable(yToSymClassHalf,yTransform,xTransform,moveY,moveX);
+    }
+    /*SymTables1(DataInputStream dis)throws IOException{
+        xTransform=readIntMassiv(16,Tables.x2_max,dis);
+        yTransform=readIntMassiv(16,Tables.y2_max,dis);
+        zTransform=readIntMassiv(16,Tables.z2_max,dis);
+
+        xToSymClass=readIntMassiv(2,Tables.x2_max,dis);
+        yToSymClass=readIntMassiv(2,Tables.y2_max,dis);
+
+        xsYDeep=readByteMassiv(xSymMax,Tables.y2_max,dis);
+        xsZDeep=readByteMassiv(xSymMax,Tables.z2_max,dis);
+        ysZDeep=readByteMassiv(ySymMax,Tables.z2_max,dis);
+    }*/
+    void save(DataOutputStream dos)throws IOException{
+        writeMassiv(xTransform,dos);
+        writeMassiv(zTransform,dos);
+        writeMassiv(xToSymClass,dos);
+        writeMassiv(xsZDeep,dos);
+    }
+    int getDeep(int x,int y,int z){
+        int ys=yToSymClassHalf[0][y];
+        int xt=xTransform[inverseSymmetry[yToSymClassHalf[1][y]]][x];
+        int deep=ysXDeep[ys][xt];
+
+        int zty=zTransform[inverseSymmetry[yToSymClassHalf[1][y]]][z];
+        deep=Math.max(deep,ysZDeep[ys][zty]);
+
+        int xs=xToSymClass[0][x];
+        int s=xToSymClass[1][x];
+        int ztx=zTransform[inverseSymmetry[s]][z];
+        deep=Math.max(deep,xsZDeep[xs][ztx]);
+        return deep;
+    }
+}
+
 class ReaderWriter {
     static void writeMassiv(byte[][] massiv, DataOutputStream dos) throws IOException {
         int size=0;
@@ -464,7 +536,7 @@ class InitializerSymTable {
     static int[][] createSymTable(char[][] move){
         int[][] symHods=HodTransforms.getSymHodsAllSymmetry();
         if(move.length==19){
-            int[][] sym_table=new int[48][move[0].length];
+            int[][] sym_table=new int[16][move[0].length];
             for(int[] m:sym_table)Arrays.fill(m,-1);
             for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
             createSymTable1(move,sym_table,symHods);
@@ -480,7 +552,6 @@ class InitializerSymTable {
     }
     // not used
     private static void createSymTable1(char[][] move, int[][] sym_table,int[][] symHods){
-        if(true)throw new RuntimeException();
         boolean newMark=true;
         while (newMark) {
             newMark=false;
@@ -560,7 +631,7 @@ class InitializerSymTable {
     }
     private static int[] getExtend(int[][] toSymClass){
         int size=0;
-        for(int c:toSymClass[0])if(size<c)size=c+1;
+        for(int c:toSymClass[0])if(size<=c)size=c+1;
         int[] extend=new int[size];
         for(int i=0;i<toSymClass[0].length;i++)if(toSymClass[1][i]==0)extend[toSymClass[0][i]]=i;
         return extend;
@@ -595,6 +666,103 @@ class InitializerSymTable {
                                 for(int s=0;s<xTransform.length;s++) {
                                     if(xmt!=xTransform[s][xm])continue;
                                     int ymt = yTransform[s][ym];
+                                    deep_table[xms][ymt] = (byte) (deep + 1);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return deep_table;
+    }
+}
+
+class InitializerSymTableHalf {
+    private static int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
+    private static int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7,-1,-1};
+
+    private static int[][] getClass0(char[][] move, int[][] transform){
+        int[][] toSymClass=new int[2][move[0].length];
+        Arrays.fill(toSymClass[0],-1);
+        Arrays.fill(toSymClass[1],-1);
+
+        toSymClass[0][0]=0;
+        toSymClass[1][0]=0;
+
+        byte[] deep_table=new byte[move[0].length];
+        Arrays.fill(deep_table,(byte) 20);
+        deep_table[0]=0;
+        int symClass=1;
+        for(int deep=0;deep<=20;deep++) {
+            for(int i= 0;i< deep_table.length;i++) {
+                if (deep_table[i]==deep&&toSymClass[0][i]!=-1) {
+                    for (int np = 1;np<move.length ;np++) {
+                        if (deep_table[move[np][i]]>deep + 1){
+                            toSymClass[0][move[np][i]]=symClass++;
+                            toSymClass[1][move[np][i]]=0;
+                            for(int s=0;s<8;s++){
+                                deep_table[transform[convertSymHalfToFull[s]][move[np][i]]] = (byte) (deep + 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return toSymClass;
+    }
+    static int[][] splitToClasses(char[][] move, int[][] transform){
+        int[][] toSymClass=getClass0(move,transform);
+        for(int p=0;p<toSymClass[0].length;p++){
+            if(toSymClass[0][p]!=-1){
+                for(int s=0;s<8;s++){
+                    if(toSymClass[0][transform[convertSymHalfToFull[s]][p]]==-1){
+                        toSymClass[0][transform[convertSymHalfToFull[s]][p]]=toSymClass[0][p];
+                        toSymClass[1][transform[convertSymHalfToFull[s]][p]]=convertSymHalfToFull[s];
+                    }
+                }
+            }
+        }
+        return toSymClass;
+    }
+    private static int[] getExtend(int[][] toSymClass){
+        int size=0;
+        for(int c:toSymClass[0])if(size<=c)size=c+1;
+        System.out.println(size);
+        int[] extend=new int[size];
+        for(int i=0;i<toSymClass[0].length;i++)if(toSymClass[1][i]==0)extend[toSymClass[0][i]]=i;
+        return extend;
+    }
+
+    static byte[][] computeDeepTable(int[][] xToSymClass,int[][] xTransform,int[][] yTransform,char[][] moveX,char[][] moveY){
+        int[] inverseSymmetry=Symmetry.inverseSymmetry;
+        int[] extendX=getExtend(xToSymClass);
+        byte[][] deep_table=new byte[extendX.length][moveY[0].length];
+        for (byte[] m : deep_table) {
+            Arrays.fill(m, (byte) 20);
+        }
+        deep_table[0][0]=0;
+        for(int deep=0;deep<=20;deep++) {
+            for(int xs= 0;xs< deep_table.length;xs++) {
+                for(int y=0;y<deep_table[0].length;y++) {
+                    if (deep_table[xs][y] == deep) {
+                        for (int np = 1; np < moveX.length; np++) {
+                            int x=extendX[xs];
+                            int xm=moveX[np][x];
+                            //if(xToSymClass[1][xm]!=0)continue;
+                            int sym=xToSymClass[1][xm];
+                            int xms=xToSymClass[0][xm];
+                            int xmt=xTransform[inverseSymmetry[sym]][xm];
+                            // позиция была получена из extendX
+                            // применением симметрии sym
+                            // поэтому чтобы вернуть позицию в позицию из
+                            // extendX применяем обратную симметрию
+
+                            int ym=moveY[np][y];
+                            if (deep_table[xms][yTransform[inverseSymmetry[sym]][ym]] > deep + 1) {
+                                for(int s=0;s<8;s++) {
+                                    if(xmt!=xTransform[convertSymHalfToFull[s]][xm])continue;
+                                    int ymt = yTransform[convertSymHalfToFull[s]][ym];
                                     deep_table[xms][ymt] = (byte) (deep + 1);
                                 }
                             }

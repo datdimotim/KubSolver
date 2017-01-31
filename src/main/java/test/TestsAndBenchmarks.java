@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
-        Tables.INSTANCE=new Tables(true);
+        Tables.INSTANCE=new Tables(false);
         //Tables.INSTANCE.save();
         speedSolve();
 

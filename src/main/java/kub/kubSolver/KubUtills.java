@@ -2,7 +2,6 @@ package kub.kubSolver;
 
 import kub.kubSolver.utills.Combinations;
 
-import java.io.*;
 import java.util.Arrays;
 
 final class KubFacelet {
