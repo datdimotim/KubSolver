@@ -19,9 +19,9 @@ public class Tables{
 
     private MoveTables moveTables;
     private SimpleDeepTables simpleDeepTables;  // not used
-    private ExtendDeepTables extendDeepTables;
-    private SymTables2 symTables2;
+    private ExtendDeepTables extendDeepTables;  // not used
 
+    private SymTables2 symTables2;
     private SymTables1 symTables1;
 
     public static Tables INSTANCE;
@@ -32,10 +32,7 @@ public class Tables{
     }
 
     public static void main(String[] args){
-        //Tables tables=new Tables(false);
-        MoveTables moveTables=new MoveTables();
-        SymTables1 symTables1=new SymTables1(moveTables);
-        for(byte[] m:symTables1.xsZDeep)System.out.println(Arrays.toString(m));
+
     }
 
     private void computeTables(){
@@ -54,6 +51,7 @@ public class Tables{
             simpleDeepTables.save(dos);
             extendDeepTables.save(dos);
             symTables2.save(dos);
+            symTables1.save(dos);
         }
     }
     private void readData(){
@@ -64,6 +62,7 @@ public class Tables{
             simpleDeepTables=new SimpleDeepTables(dis);
             extendDeepTables=new ExtendDeepTables(dis);
             symTables2=new SymTables2(dis);
+            symTables1=new SymTables1(dis);
         }
         catch (IOException e){
             throw new RuntimeException("Can't read tables",e);
@@ -84,11 +83,7 @@ public class Tables{
         int x = moveTables.x1Move[p][k[0]];
         int y = moveTables.y1Move[p][k[1]];
         int z = moveTables.z1Move[p][k[2]];
-        int d1=extendDeepTables.xy1Deep[x][y];
-        int d2=extendDeepTables.xz1Deep[x][z];
-        int d3=extendDeepTables.yz1Deep[y][z];
-        if(symTables1.getDeep(x,y,z)!=Math.max(d1,Math.max(d2,d3)))throw new RuntimeException();
-        return Math.max(d1,Math.max(d2,d3));
+        return symTables1.getDeep(x,y,z);
     }
     public final void move1(int[] k, int[] kn,int p){
         kn[0] = moveTables.x1Move[p][k[0]];
@@ -379,19 +374,20 @@ class SymTables2{
 }
 
 class SymTables1{
-    //private static final int xSymMax=2768;
-    //private static final int ySymMax=2768;
+    private static final int xSymMax=168;
+    private static final int ySymMax=336;
     private final int[] inverseSymmetry=Symmetry.inverseSymmetry;
-    final int[][] xTransform;
-    final int[][] yTransform;
-    final int[][] zTransform;
 
-    final int[][] xToSymClass;
-    final int[][] yToSymClassHalf;
+    private final int[][] xTransform;
+    private final int[][] yTransform;
+    private final int[][] zTransform;
 
-    final byte[][] xsZDeep;
-    final byte[][] ysZDeep;
-    final byte[][] ysXDeep;
+    private final int[][] xToSymClass;
+    private final int[][] yToSymClassHalf;
+
+    private final byte[][] xsZDeep;
+    private final byte[][] ysZDeep;
+    private final byte[][] ysXDeep;
 
     SymTables1(MoveTables moveTables){
         char[][] moveX = moveTables.x1Move;
@@ -409,23 +405,29 @@ class SymTables1{
         ysZDeep= InitializerSymTableHalf.computeDeepTable(yToSymClassHalf,yTransform,zTransform,moveY,moveZ);
         ysXDeep= InitializerSymTableHalf.computeDeepTable(yToSymClassHalf,yTransform,xTransform,moveY,moveX);
     }
-    /*SymTables1(DataInputStream dis)throws IOException{
-        xTransform=readIntMassiv(16,Tables.x2_max,dis);
-        yTransform=readIntMassiv(16,Tables.y2_max,dis);
-        zTransform=readIntMassiv(16,Tables.z2_max,dis);
+    SymTables1(DataInputStream dis)throws IOException{
+        xTransform=readIntMassiv(16,Tables.x1_max,dis);
+        yTransform=readIntMassiv(16,Tables.y1_max,dis);
+        zTransform=readIntMassiv(16,Tables.z1_max,dis);
 
-        xToSymClass=readIntMassiv(2,Tables.x2_max,dis);
-        yToSymClass=readIntMassiv(2,Tables.y2_max,dis);
+        xToSymClass=readIntMassiv(2,Tables.x1_max,dis);
+        yToSymClassHalf=readIntMassiv(2,Tables.y1_max,dis);
 
-        xsYDeep=readByteMassiv(xSymMax,Tables.y2_max,dis);
-        xsZDeep=readByteMassiv(xSymMax,Tables.z2_max,dis);
-        ysZDeep=readByteMassiv(ySymMax,Tables.z2_max,dis);
-    }*/
+        xsZDeep=readByteMassiv(xSymMax,Tables.z1_max,dis);
+        ysZDeep=readByteMassiv(ySymMax,Tables.z1_max,dis);
+        ysXDeep=readByteMassiv(ySymMax,Tables.x1_max,dis);
+    }
     void save(DataOutputStream dos)throws IOException{
         writeMassiv(xTransform,dos);
+        writeMassiv(yTransform,dos);
         writeMassiv(zTransform,dos);
+
         writeMassiv(xToSymClass,dos);
+        writeMassiv(yToSymClassHalf,dos);
+
         writeMassiv(xsZDeep,dos);
+        writeMassiv(ysZDeep,dos);
+        writeMassiv(ysXDeep,dos);
     }
     int getDeep(int x,int y,int z){
         int ys=yToSymClassHalf[0][y];
@@ -532,7 +534,6 @@ class ReaderWriter {
 class InitializerSymTable {
     private static int[] p10to18=HodTransforms.getP10To18();
     private static int[] p18to10=HodTransforms.getP18to10();
-    // used only for 2 fase
     static int[][] createSymTable(char[][] move){
         int[][] symHods=HodTransforms.getSymHodsAllSymmetry();
         if(move.length==19){
@@ -550,7 +551,6 @@ class InitializerSymTable {
             return sym_table;
         }
     }
-    // not used
     private static void createSymTable1(char[][] move, int[][] sym_table,int[][] symHods){
         boolean newMark=true;
         while (newMark) {
@@ -652,7 +652,6 @@ class InitializerSymTable {
                         for (int np = 1; np < moveX.length; np++) {
                             int x=extendX[xs];
                             int xm=moveX[np][x];
-                            //if(xToSymClass[1][xm]!=0)continue;
                             int sym=xToSymClass[1][xm];
                             int xms=xToSymClass[0][xm];
                             int xmt=xTransform[inverseSymmetry[sym]][xm];
@@ -680,7 +679,6 @@ class InitializerSymTable {
 
 class InitializerSymTableHalf {
     private static int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
-    private static int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7,-1,-1};
 
     private static int[][] getClass0(char[][] move, int[][] transform){
         int[][] toSymClass=new int[2][move[0].length];
@@ -728,7 +726,6 @@ class InitializerSymTableHalf {
     private static int[] getExtend(int[][] toSymClass){
         int size=0;
         for(int c:toSymClass[0])if(size<=c)size=c+1;
-        System.out.println(size);
         int[] extend=new int[size];
         for(int i=0;i<toSymClass[0].length;i++)if(toSymClass[1][i]==0)extend[toSymClass[0][i]]=i;
         return extend;
@@ -749,7 +746,6 @@ class InitializerSymTableHalf {
                         for (int np = 1; np < moveX.length; np++) {
                             int x=extendX[xs];
                             int xm=moveX[np][x];
-                            //if(xToSymClass[1][xm]!=0)continue;
                             int sym=xToSymClass[1][xm];
                             int xms=xToSymClass[0][xm];
                             int xmt=xTransform[inverseSymmetry[sym]][xm];
