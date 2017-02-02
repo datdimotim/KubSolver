@@ -18,9 +18,6 @@ public class Tables{
     public static final int z2_max=24;
 
     private MoveTables moveTables;
-    private SimpleDeepTables simpleDeepTables;  // not used
-    private ExtendDeepTables extendDeepTables;  // not used
-
     private SymTables2 symTables2;
     private SymTables1 symTables1;
 
@@ -31,14 +28,8 @@ public class Tables{
         else readData();
     }
 
-    public static void main(String[] args){
-
-    }
-
     private void computeTables(){
         moveTables=new MoveTables();
-        simpleDeepTables=new SimpleDeepTables(moveTables);
-        extendDeepTables=new ExtendDeepTables(moveTables);
         symTables2=new SymTables2(moveTables);
         symTables1=new SymTables1(moveTables);
     }
@@ -48,8 +39,6 @@ public class Tables{
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             DataOutputStream dos = new DataOutputStream(bos);
             moveTables.save(dos);
-            simpleDeepTables.save(dos);
-            extendDeepTables.save(dos);
             symTables2.save(dos);
             symTables1.save(dos);
         }
@@ -59,8 +48,6 @@ public class Tables{
             BufferedInputStream bis = new BufferedInputStream(fis);
             DataInputStream dis = new DataInputStream(bis);
             moveTables=new MoveTables(dis);
-            simpleDeepTables=new SimpleDeepTables(dis);
-            extendDeepTables=new ExtendDeepTables(dis);
             symTables2=new SymTables2(dis);
             symTables1=new SymTables1(dis);
         }
@@ -68,27 +55,41 @@ public class Tables{
             throw new RuntimeException("Can't read tables",e);
         }
     }
-    public final int tryMoveAndGetDepth2(int[] k, int p){
-        int x = moveTables.x2Move[p][k[0]];
-        int y = moveTables.y2Move[p][k[1]];
-        int z = moveTables.z2Move[p][k[2]];
-        return symTables2.getDeep(x,y,z);
+
+    public final void initState1(CoordSet set){
+        symTables1.initState(set,moveTables);
     }
-    public final void move2(int[] k,int[] kn,int p){
-        kn[0] = moveTables.x2Move[p][k[0]];
-        kn[1] = moveTables.y2Move[p][k[1]];
-        kn[2] = moveTables.z2Move[p][k[2]];
+    public final void initState2(CoordSet set){
+        symTables2.initState(set,moveTables);
     }
-    public final int tryMoveAndGetDepth1(int[] k, int p){
-        int x = moveTables.x1Move[p][k[0]];
-        int y = moveTables.y1Move[p][k[1]];
-        int z = moveTables.z1Move[p][k[2]];
-        return symTables1.getDeep(x,y,z);
+    public final int moveAndGetDepth2(CoordSet in, CoordSet out, int p){
+        out.coord[0] = moveTables.x2Move[p][in.coord[0]];
+        out.coord[1] = moveTables.y2Move[p][in.coord[1]];
+        out.coord[2] = moveTables.z2Move[p][in.coord[2]];
+        symTables2.getDeep(in, out);
+        if(symTables2.getDeep(out)!=Math.max(out.deep[0],Math.max(out.deep[1],out.deep[2])))throw new RuntimeException();
+        //return Math.max(out.deep[0],Math.max(out.deep[1],out.deep[2]));
+        return symTables2.getDeep(out);
     }
-    public final void move1(int[] k, int[] kn,int p){
-        kn[0] = moveTables.x1Move[p][k[0]];
-        kn[1] = moveTables.y1Move[p][k[1]];
-        kn[2] = moveTables.z1Move[p][k[2]];
+    public final int moveAndGetDepth1(CoordSet in, CoordSet out, int p){
+        out.coord[0] = moveTables.x1Move[p][in.coord[0]];
+        out.coord[1] = moveTables.y1Move[p][in.coord[1]];
+        out.coord[2] = moveTables.z1Move[p][in.coord[2]];
+        symTables1.getDeep(in,out);
+        if(symTables1.getDeep(out)!=Math.max(out.deep[0],Math.max(out.deep[1],out.deep[2])))throw new RuntimeException();
+        return Math.max(out.deep[0],Math.max(out.deep[1],out.deep[2]));
+    }
+    public static class CoordSet{
+        public final int[] coord;
+        public final int[] deep;
+        public CoordSet(){
+            coord=new int[3];
+            deep=new int[3];
+        }
+        public CoordSet(CoordSet set){
+            this.coord=set.coord.clone();
+            this.deep=set.deep.clone();
+        }
     }
 }
 
@@ -196,110 +197,6 @@ class MoveTables{
     }
 }
 
-class SimpleDeepTables{
-    private final byte[] x1Deep;      // 2187
-    private final byte[] y1Deep;      // 2048
-    private final byte[] z1Deep;      // 495
-    private final byte[] x2Deep;      // 40 320
-    private final byte[] y2Deep;      // 40 320
-    private final byte[] z2Deep;      // 24
-
-    SimpleDeepTables(DataInputStream dis) throws IOException {
-        x1Deep=readByteMassiv(x1_max,dis);
-        y1Deep=readByteMassiv(y1_max,dis);
-        z1Deep=readByteMassiv(z1_max,dis);
-        x2Deep=readByteMassiv(x2_max,dis);
-        y2Deep=readByteMassiv(y2_max,dis);
-        z2Deep=readByteMassiv(z2_max,dis);
-    }
-    SimpleDeepTables(MoveTables moveTables){
-        x1Deep=createDeepTable(moveTables.x1Move);
-        y1Deep=createDeepTable(moveTables.y1Move);
-        z1Deep=createDeepTable(moveTables.z1Move);
-        x2Deep=createDeepTable(moveTables.x2Move);
-        y2Deep=createDeepTable(moveTables.y2Move);
-        z2Deep=createDeepTable(moveTables.z2Move);
-    }
-    void save(DataOutputStream dos) throws IOException {
-        ReaderWriter.writeMassiv(x1Deep, dos);
-        ReaderWriter.writeMassiv(y1Deep, dos);
-        ReaderWriter.writeMassiv(z1Deep, dos);
-        ReaderWriter.writeMassiv(x2Deep, dos);
-        ReaderWriter.writeMassiv(y2Deep, dos);
-        ReaderWriter.writeMassiv(z2Deep, dos);
-    }
-
-    private static byte[] createDeepTable(char[][] move){
-        byte[] deep_table=new byte[move[0].length];
-        Arrays.fill(deep_table,(byte) 20);
-        deep_table[0]=0;
-        for(int deep=0;deep<=20;deep++) {
-            for(int i= 0;i< deep_table.length;i++) {
-                if (deep_table[i]==deep) {
-                    for (int np = 1;np<move.length ;np++) {
-                        if (deep_table[move[np][i]]>deep + 1){
-                            deep_table[move[np][i]] = (byte) (deep + 1);
-                        }
-                    }
-                }
-            }
-        }
-        return deep_table;
-    }
-}
-
-class ExtendDeepTables{
-    final byte[][] xy1Deep;   // 4 478 976
-    final byte[][] xz1Deep;   // 1 082 565
-    final byte[][] yz1Deep;   // 1 013 760
-    final byte[][] xz2Deep;   // 967 680
-    final byte[][] yz2Deep;   // 967 680
-
-    ExtendDeepTables(DataInputStream dis) throws IOException {
-        xy1Deep=readByteMassiv(x1_max,y1_max,dis);
-        yz1Deep=readByteMassiv(y1_max,z1_max,dis);
-        xz1Deep=readByteMassiv(x1_max,z1_max,dis);
-        xz2Deep=readByteMassiv(x2_max,z2_max,dis);
-        yz2Deep=readByteMassiv(y2_max,z2_max,dis);
-    }
-    ExtendDeepTables(MoveTables moveTables){
-        xy1Deep=createDeepTable(moveTables.x1Move,moveTables.y1Move);
-        yz1Deep=createDeepTable(moveTables.y1Move,moveTables.z1Move);
-        xz1Deep=createDeepTable(moveTables.x1Move,moveTables.z1Move);
-        xz2Deep=createDeepTable(moveTables.x2Move,moveTables.z2Move);
-        yz2Deep=createDeepTable(moveTables.y2Move,moveTables.z2Move);
-    }
-    void save(DataOutputStream dos) throws IOException {
-        ReaderWriter.writeMassiv(xy1Deep, dos);
-        ReaderWriter.writeMassiv(yz1Deep, dos);
-        ReaderWriter.writeMassiv(xz1Deep, dos);
-        ReaderWriter.writeMassiv(xz2Deep, dos);
-        ReaderWriter.writeMassiv(yz2Deep, dos);
-    }
-
-    private static byte[][] createDeepTable(char[][] move1, char[][] move2){
-        byte[][] deep_table=new byte[move1[0].length][move2[0].length];
-        for (byte[] m : deep_table) {
-            Arrays.fill(m, (byte) 20);
-        }
-        deep_table[0][0]=0;
-        for(int deep=0;deep<=20;deep++) {
-            for(int i= 0;i< deep_table.length;i++) {
-                for(int j=0;j<deep_table[0].length;j++) {
-                    if (deep_table[i][j] == deep) {
-                        for (int np = 1; np < move1.length; np++) {
-                            if (deep_table[move1[np][i]][move2[np][j]] > deep + 1) {
-                                deep_table[move1[np][i]][move2[np][j]] = (byte) (deep + 1);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return deep_table;
-    }
-}
-
 class SymTables2{
     private static final int xSymMax=2768;
     private static final int ySymMax=2768;
@@ -356,20 +253,102 @@ class SymTables2{
         writeMassiv(xsZDeep,dos);
         writeMassiv(ysZDeep,dos);
     }
-    int getDeep(int x,int y,int z){
+    void getDeep(CoordSet pred, CoordSet out){
+        int x=out.coord[0];
+        int y=out.coord[1];
+        int z=out.coord[2];
         int xs=xToSymClass[0][x];
         int s=xToSymClass[1][x];
         int yt=yTransform[inverseSymmetry[s]][y];
         int zt=zTransform[inverseSymmetry[s]][z];
-        int d1=xsYDeep[xs][yt];
-        int d2=xsZDeep[xs][zt];
-
+        out.deep[0]=Tracker.track(xsYDeep[xs][yt]%3,pred.deep[0]);
+        out.deep[1]=Tracker.track(xsZDeep[xs][zt]%3,pred.deep[1]);
         int ys=yToSymClass[0][y];
         int s2=yToSymClass[1][y];
         int zt2=zTransform[inverseSymmetry[s2]][z];
-        int d3=ysZDeep[ys][zt2];
+        out.deep[2]=Tracker.track(ysZDeep[ys][zt2]%3,pred.deep[2]);
+    }
 
-        return Math.max(d1,Math.max(d2,d3));
+    int getDeep(CoordSet out){
+        int x=out.coord[0];
+        int y=out.coord[1];
+        int z=out.coord[2];
+        int xs=xToSymClass[0][x];
+        int s=xToSymClass[1][x];
+        int yt=yTransform[inverseSymmetry[s]][y];
+        int zt=zTransform[inverseSymmetry[s]][z];
+        int ys=yToSymClass[0][y];
+        int s2=yToSymClass[1][y];
+        int zt2=zTransform[inverseSymmetry[s2]][z];
+        return Math.max(xsYDeep[xs][yt],Math.max(xsZDeep[xs][zt],ysZDeep[ys][zt2]));
+    }
+
+    void initState(CoordSet set, final MoveTables moveTables){
+        class LocalUtills{
+            private void rotate(CoordSet in, CoordSet out, int p){
+                out.coord[0] = moveTables.x2Move[p][in.coord[0]];
+                out.coord[1] = moveTables.y2Move[p][in.coord[1]];
+                out.coord[2] = moveTables.z2Move[p][in.coord[2]];
+            }
+            private void getDeepByModPrecision(CoordSet set){
+                int x=set.coord[0];
+                int y=set.coord[1];
+                int z=set.coord[2];
+                int xs=xToSymClass[0][x];
+                int s=xToSymClass[1][x];
+                int yt=yTransform[inverseSymmetry[s]][y];
+                int zt=zTransform[inverseSymmetry[s]][z];
+                set.deep[0]=xsYDeep[xs][yt]%3+30;
+                set.deep[1]=xsZDeep[xs][zt]%3+30;
+                int ys=yToSymClass[0][y];
+                int s2=yToSymClass[1][y];
+                int zt2=zTransform[inverseSymmetry[s2]][z];
+                set.deep[2]=ysZDeep[ys][zt2]%3+30;
+            }
+        }
+        LocalUtills localUtills=new LocalUtills();
+
+        for(int k=0;k<3;k++) {
+            CoordSet set1=new CoordSet(set);
+            CoordSet set2=new CoordSet();
+            localUtills.getDeepByModPrecision(set1);
+            int deep = -1;
+            outside: while (true) {
+                deep++;
+                for (int p = 1; p < 11; p++) {
+                    localUtills.rotate(set1, set2, p);
+                    getDeep(set1, set2);
+                    if (set2.deep[k] >= set1.deep[k]) continue;
+
+                    CoordSet tmp = set1;
+                    set1 = set2;
+                    set2 = tmp;
+                    continue outside;
+                }
+                break;
+            }
+            set.deep[k]=deep;
+        }
+    }
+}
+
+class Tracker{
+    static int track(int mod, int deepPred){
+        int old=deepPred%3;
+        if(mod==old)return deepPred;
+        if(old==2){
+            if(mod==1)return deepPred-1;
+            else return deepPred+1;
+        }
+        if(old==1){
+            if(mod==0)return deepPred-1;
+            else return deepPred+1;
+        }
+        if(old==0){
+            if(mod==2)return deepPred-1;
+            else return deepPred+1;
+        }
+        throw new RuntimeException("mod="+mod+" deepPred="+deepPred);
     }
 }
 
@@ -429,19 +408,85 @@ class SymTables1{
         writeMassiv(ysZDeep,dos);
         writeMassiv(ysXDeep,dos);
     }
-    int getDeep(int x,int y,int z){
+    void getDeep(CoordSet pred, CoordSet out){
+        int x=out.coord[0];
+        int y=out.coord[1];
+        int z=out.coord[2];
+
         int ys=yToSymClassHalf[0][y];
         int xt=xTransform[inverseSymmetry[yToSymClassHalf[1][y]]][x];
-        int deep=ysXDeep[ys][xt];
+        out.deep[0]=Tracker.track(ysXDeep[ys][xt]%3,pred.deep[0]);
 
         int zty=zTransform[inverseSymmetry[yToSymClassHalf[1][y]]][z];
-        deep=Math.max(deep,ysZDeep[ys][zty]);
+        out.deep[1]=Tracker.track(ysZDeep[ys][zty]%3,pred.deep[1]);
 
         int xs=xToSymClass[0][x];
         int s=xToSymClass[1][x];
         int ztx=zTransform[inverseSymmetry[s]][z];
-        deep=Math.max(deep,xsZDeep[xs][ztx]);
-        return deep;
+        out.deep[2]=Tracker.track(xsZDeep[xs][ztx]%3,pred.deep[2]);
+    }
+
+    int getDeep(CoordSet out){
+        int x=out.coord[0];
+        int y=out.coord[1];
+        int z=out.coord[2];
+        int ys=yToSymClassHalf[0][y];
+        int xt=xTransform[inverseSymmetry[yToSymClassHalf[1][y]]][x];
+        int zty=zTransform[inverseSymmetry[yToSymClassHalf[1][y]]][z];
+        int xs=xToSymClass[0][x];
+        int s=xToSymClass[1][x];
+        int ztx=zTransform[inverseSymmetry[s]][z];
+        return Math.max(ysXDeep[ys][xt],Math.max(ysZDeep[ys][zty],xsZDeep[xs][ztx]));
+    }
+
+    void initState(CoordSet set, final MoveTables moveTables){
+        class LocalUtills{
+            private void rotate(CoordSet in, CoordSet out, int p){
+                out.coord[0] = moveTables.x1Move[p][in.coord[0]];
+                out.coord[1] = moveTables.y1Move[p][in.coord[1]];
+                out.coord[2] = moveTables.z1Move[p][in.coord[2]];
+            }
+            private void getDeepByModPrecision(CoordSet set){
+                int x=set.coord[0];
+                int y=set.coord[1];
+                int z=set.coord[2];
+
+                int ys=yToSymClassHalf[0][y];
+                int xt=xTransform[inverseSymmetry[yToSymClassHalf[1][y]]][x];
+                set.deep[0]=(ysXDeep[ys][xt]%3)+30;
+
+                int zty=zTransform[inverseSymmetry[yToSymClassHalf[1][y]]][z];
+                set.deep[1]=(ysZDeep[ys][zty]%3)+30;
+
+                int xs=xToSymClass[0][x];
+                int s=xToSymClass[1][x];
+                int ztx=zTransform[inverseSymmetry[s]][z];
+                set.deep[2]=(xsZDeep[xs][ztx]%3)+30;
+            }
+        }
+        LocalUtills localUtills=new LocalUtills();
+
+        for(int k=0;k<3;k++) {
+            CoordSet set1=new CoordSet(set);
+            CoordSet set2=new CoordSet();
+            localUtills.getDeepByModPrecision(set1);
+            int deep = -1;
+            outside: while (true) {
+                deep++;
+                for (int p = 1; p < 19; p++) {
+                    localUtills.rotate(set1, set2, p);
+                    getDeep(set1, set2);
+                    if (set2.deep[k] >= set1.deep[k]) continue;
+
+                    CoordSet tmp = set1;
+                    set1 = set2;
+                    set2 = tmp;
+                    continue outside;
+                }
+                break;
+            }
+            set.deep[k]=deep;
+        }
     }
 }
 

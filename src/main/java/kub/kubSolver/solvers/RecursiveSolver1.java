@@ -5,7 +5,7 @@ public class RecursiveSolver1 extends Fase1Solver.AbstractSolver1{
 
     }
     @Override
-    public void solve(int x, int y, int z, int[] hods) {
+    public void solve(int x, int y, int z, int[] hods) {/*
         int[][] koords_tmp=new int[MAX_DEEP +1][3];
         koords_tmp[0][0]=x;
         koords_tmp[0][1]=y;
@@ -24,6 +24,6 @@ public class RecursiveSolver1 extends Fase1Solver.AbstractSolver1{
             }
         }
         hods[deep]=0;
-        return false;
+        return false;*/
     }
 }

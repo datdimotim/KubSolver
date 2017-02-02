@@ -1,25 +1,27 @@
 package kub.kubSolver.solvers;
 
+import static kub.kubSolver.Tables.CoordSet;
+
 public class SimpleSolver1 extends Fase1Solver.AbstractSolver1{
     public SimpleSolver1(){
 
     }
     @Override
     public void solve(int x, int y, int z, int[] hods) {
-        int[][] koord_tmp=new int[MAX_DEEP +1][3];
-        koord_tmp[0][0]=x;
-        koord_tmp[0][1]=y;
-        koord_tmp[0][2]=z;
-        for(int deep=1;deep<koord_tmp.length;deep++){
-            tables.move1(koord_tmp[deep-1],koord_tmp[deep],hods[deep]);
+        CoordSet[] state=new CoordSet[MAX_DEEP+1];
+        for(int i=0;i<state.length;i++)state[i]=new CoordSet();
+        state[0].coord[0]=x; state[0].coord[1]=y; state[0].coord[2]=z;
+        tables.initState1(state[0]);
+
+        for(int deep=1;deep<state.length;deep++){
+            tables.moveAndGetDepth1(state[deep-1],state[deep],hods[deep]);
         }
         int deep=1;
         mega: while(deep<=MAX_DEEP) {
             for(int np = hods[deep];np<=18;np++) {
                 if(!hodPredHod(np,hods[deep-1]))continue;
-                if (tables.tryMoveAndGetDepth1(koord_tmp[deep-1],np)<=MAX_DEEP-deep) {
+                if (tables.moveAndGetDepth1(state[deep-1],state[deep],np)<=MAX_DEEP-deep) {
                     hods[deep] = np;
-                    tables.move1(koord_tmp[deep-1],koord_tmp[deep],np);
                     deep++;
                     continue mega;
                 }
