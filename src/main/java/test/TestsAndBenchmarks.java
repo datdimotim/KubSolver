@@ -1,16 +1,13 @@
 package test;
 
 import kub.kubSolver.*;
-import kub.kubSolver.Tables;
-import kub.kubSolver.solvers.*;
+import parallel_solver.ParallelSymmetrySolver;
 
 import java.io.IOException;
 
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
-        Tables.INSTANCE=new Tables(false);
-        //Tables.INSTANCE.save();
         speedSolve();
 
         //parallelSolve();
@@ -19,7 +16,7 @@ public class TestsAndBenchmarks {
         //while (true)computeTables();
     }
     public static void speedSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver(new SimpleSolver1(),new SimpleSolver2());
+        KubSolver kubSolver=new KubSolver();
         Kub kub = new Kub(false);
         final int time=1000;
         long st=System.currentTimeMillis();
@@ -39,7 +36,7 @@ public class TestsAndBenchmarks {
     public static void parallelSolve() throws IOException {
         KubSolver kubSolver=new KubSolver();
         Kub kub = new Kub(true);
-        Solution solution=ParallelSymmetrySolver.solve(kub,kubSolver,1000);
+        Solution solution= ParallelSymmetrySolver.solve(kub,kubSolver,1000);
         System.out.println(solution);
         for(int p:solution.getHods())kub.povorot(p);
         System.out.println(kub);
@@ -63,10 +60,5 @@ public class TestsAndBenchmarks {
         for(int p:solution.getHods())kub.povorot(p);
 
         System.out.println(kub);
-    }
-    public static void computeTables(){
-        long ts=System.currentTimeMillis();
-        Tables tables=new Tables(false);
-        System.out.println(System.currentTimeMillis()-ts);
     }
 }

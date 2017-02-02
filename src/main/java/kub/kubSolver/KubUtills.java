@@ -1,8 +1,8 @@
 package kub.kubSolver;
 
-import kub.kubSolver.utills.Combinations;
-
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Random;
 
 final class KubFacelet {
     static int[][][] faceletToGrani(int[] facelet) {
@@ -730,5 +730,330 @@ final class KubCubie {
             m[i] = r_p[i + 4] - 4;
         }
         return Combinations.schetPerestanovka(m);
+    }
+}
+
+class HodTransforms {
+    //static final int NUM_HODS_1=19;
+    static final int NUM_HODS_2=11;
+    private static final int[] p10To18 =new int[]{0,1,2,3,6,9,12,15,16,17,18};
+    private static final int[] p18to10=new int[]{0,1,2,3,-1,-1,4,-1,-1,5,-1,-1,6,-1,-1,7,8,9,10};
+    private static final String[] hodString = {"",
+            "D ", "D' ", "D2 ",
+            "F ", "F' ", "F2 ",
+            "L ", "L' ", "L2 ",
+            "R ", "R' ", "R2 ",
+            "B ", "B' ", "B2 ",
+            "U ", "U' ", "U2 "};
+
+    private final static int[][] symHodsAllSymmetry=Symmetry.getSymHodsAllSymmetry();
+    private static final int[][] symHodsFor3Axis = {symHodsAllSymmetry[0].clone(),
+            symHodsAllSymmetry[32].clone(),
+            symHodsAllSymmetry[16].clone()};
+    static String[] getHodString() {
+        return hodString.clone();
+    }
+
+    static int[] getP10To18() {
+        return p10To18.clone();
+    }
+    static int[] getP18to10(){return p18to10.clone();}
+
+    static int[][] getSymHodsFor3Axis() {
+        int[][] ret=new int[symHodsFor3Axis.length][];
+        for(int i = 0; i< symHodsFor3Axis.length; i++)ret[i]= symHodsFor3Axis[i].clone();
+        return ret;
+    }
+
+    static int[][] getSymHodsAllSymmetry() {
+        return Symmetry.getSymHodsAllSymmetry();
+    }
+}
+
+final class BigDecimalConverter {
+    private static Random random=new Random();
+    private static final BigDecimal
+            UO_MAX=BigDecimal.valueOf(Tables.x1_max),
+            RO_MAX=BigDecimal.valueOf(Tables.y1_max),
+            UP_MAX=BigDecimal.valueOf(Tables.x2_max),
+            RP_MAX=BigDecimal.valueOf(479001600/2); // factorial(12)/2
+    static final BigDecimal MAX_POS=umnozit(umnozit(umnozit(UO_MAX,RO_MAX),UP_MAX),RP_MAX);
+    private static BigDecimal plus(BigDecimal a, BigDecimal b){
+        return a.add(b);
+    }
+    private static BigDecimal minus(BigDecimal a, BigDecimal b){
+        return a.subtract(b);
+    }
+    private static BigDecimal umnozit(BigDecimal a, BigDecimal b){
+        return a.multiply(b);
+    }
+    private static BigDecimal delit(BigDecimal a, BigDecimal b){
+        return a.divide(b,BigDecimal.ROUND_DOWN);
+    }
+    static BigDecimal pack(int uoInt,int roInt,int upInt, int rpInt){
+        BigDecimal uo=BigDecimal.valueOf(uoInt);
+        BigDecimal ro=BigDecimal.valueOf(roInt);
+        BigDecimal up=BigDecimal.valueOf(upInt);
+        BigDecimal rp=BigDecimal.valueOf(rpInt);
+
+        BigDecimal tmp=BigDecimal.ZERO;
+        tmp=plus(tmp,uo);
+        tmp=umnozit(tmp,RO_MAX);
+        tmp=plus(tmp,ro);
+        tmp=umnozit(tmp,UP_MAX);
+        tmp=plus(tmp,up);
+        tmp=umnozit(tmp,RP_MAX);
+        tmp=plus(tmp,rp);
+        return tmp;
+    }
+    static int[] unpack(BigDecimal p){
+        int[] k=new int[4];
+        k[3]=minus(p,umnozit(delit(p,RP_MAX),RP_MAX)).intValue();
+        p=delit(p,RP_MAX);
+        k[2]=minus(p,umnozit(delit(p,UP_MAX),UP_MAX)).intValue();
+        p=delit(p,UP_MAX);
+        k[1]=minus(p,umnozit(delit(p,RO_MAX),RO_MAX)).intValue();
+        p=delit(p,RO_MAX);
+        k[0]=p.intValue();
+        return k;
+    }
+    static BigDecimal randomPos(){
+        int uo=random.nextInt(UO_MAX.intValue());
+        int ro=random.nextInt(RO_MAX.intValue());
+        int up=random.nextInt(UP_MAX.intValue());
+        int rp=random.nextInt(RP_MAX.intValue());
+        return pack(uo,ro,up,rp);
+    }
+}
+
+final class Combinations{
+    static int schetOrientation(int[] m,int max){
+        int x = 0;
+        for (int i = m.length-1; i > 0; i--)x +=m[i]*pow(max,(m.length-1-i));
+        return x;
+    }
+    static int[] schetOrientation(int ch,int max,int length){
+        int[] m = new int[length];
+        for (int i = length-1; i > 0; i--) {
+            m[i] = ch - ((ch / max) * max);
+            ch = ch / max;
+        }
+        int s = 0;
+        for (int i = 1; i < length; i++) s = s + m[i];
+        m[0]=max-s+s/max*max;
+        if(m[0]==max)m[0]=0;
+        return m;
+    }
+    static int schetPerestanovka(int[] m){
+        int ch = 0;
+        int n = m.length;
+        int[] poradok = new int[n - 1];
+        for (int i = 0; i < n - 1; i++) {
+            int sum = 0;
+            for (int aM : m) {
+                if (aM > i + 1) sum = sum + 1;
+                if (aM == i + 1) {
+                    poradok[i] = sum;
+                    break;
+                }
+            }
+        }
+        int factorial = 1;
+        for (int i = n - 2; i > -1; i--) {
+            factorial = factorial * (n - 1 - i);
+            ch = ch + poradok[i] * factorial;
+        }
+        return ch;
+    }
+    static int[] schetPerestanovka(int ch,int length){
+        int[] m = new int[length];
+        int[] poradok = new int[length - 1];
+        for (int i = 0; i < length; i++) {
+            m[i] = length;
+        }
+        for (int i = 0; i < length - 1; i++) {
+            poradok[length - 1 - i - 1] = ch - ch / (i + 1 + 1) * (i + 1 + 1);
+            ch = ch / (i + 1 + 1);
+        }
+        for (int i = 0; i < length - 1; i++) {
+            int sum = 0;
+            for (int j = 0; j < length; j++) {
+                if (m[j] > i + 1) sum = sum + 1;
+                if (sum == poradok[i] + 1) {
+                    m[j] = i + 1;
+                    break;
+                }
+            }
+        }
+        return m;
+    }
+    private static int pow(int osn,int stepen){
+        int ret=1;
+        for(int i=0;i<stepen;i++)ret*=osn;
+        return ret;
+    }
+
+    static int C(int n, int k) {
+        int c = 1;
+        for (int i = n; i >= n - k + 1; i--) {
+            c = c * i;
+        }
+        for (int i = 1; i <= k; i++) {
+            c = c / i;
+        }
+        return c;
+    }
+
+    static boolean chetNechetPerestanovka(int[] mIn) {
+        int[] m = new int[mIn.length];
+        System.arraycopy(mIn, 0, m, 0, mIn.length);
+        boolean perest = false;
+        main:
+        for (int i = 0; i < m.length; i++) {
+            if (m[i] != i + 1) {
+                for (int j = i + 1; j < m.length; j++) {
+                    if (m[j] == i + 1) {
+                        perestPair(m, i, j);
+                        perest = !perest;
+                        continue main;
+                    }
+                }
+                throw new RuntimeException("Perestanovka Error");
+            }
+        }
+        return perest;
+    }
+
+    private static void perestPair(int[] m, int i, int j) {
+        int tmp = m[i];
+        m[i] = m[j];
+        m[j] = tmp;
+    }
+}
+
+final class Cubie {
+    private final int[] u_p;
+    private final int[] u_o;
+    private final int[] r_p;
+    private final int[] r_o;
+
+    Cubie() {
+        r_o=new int[12];
+        u_o=new int[8];
+        u_p = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+        r_p = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    }
+    Cubie(int[][][] grani) throws InvalidPositionException {
+        int[] facelet= KubGrani.graniToFacelet(grani);
+        u_p=KubFacelet.faceletToUP(facelet);
+        r_p=KubFacelet.faceletToRP(facelet);
+        u_o=KubFacelet.faceletToUO(facelet);
+        r_o=KubFacelet.faceletToRO(facelet);
+        valid();
+    }
+    private Cubie(int[] u_o, int[] u_p, int[] r_o, int[] r_p){
+        this.r_o=new int[12];
+        this.u_o=new int[8];
+        this.u_p = new int[8];
+        this.r_p = new int[12];
+        System.arraycopy(r_o,0,this.r_o,0,12);
+        System.arraycopy(r_p,0,this.r_p,0,12);
+        System.arraycopy(u_o,0,this.u_o,0,8);
+        System.arraycopy(u_p,0,this.u_p,0,8);
+    }
+    static Cubie valueOf(BigDecimal pos){
+        if(pos.compareTo(BigDecimalConverter.MAX_POS)>=0||pos.compareTo(BigDecimal.ZERO)<0)
+            throw new IllegalArgumentException(pos+">=posMax="+BigDecimalConverter.MAX_POS);
+        int[] k= BigDecimalConverter.unpack(pos);
+        int uo=k[0];
+        int ro=k[1];
+        int up=k[2];
+        int rp=k[3];
+        int[] u_o= Combinations.schetOrientation(uo,3,8);
+        int[] r_o=Combinations.schetOrientation(ro,2,12);
+        int[] u_p=Combinations.schetPerestanovka(up,8);
+        int[] r_p1=Combinations.schetPerestanovka(rp*2,12);
+        int[] r_p2=Combinations.schetPerestanovka(rp*2+1,12);
+
+        boolean r1 = Combinations.chetNechetPerestanovka(r_p1);
+        boolean r2 = Combinations.chetNechetPerestanovka(r_p2);
+        boolean u = Combinations.chetNechetPerestanovka(u_p);
+
+        if(r1==r2)throw new RuntimeException();
+        if(r1==u){
+            return new Cubie(u_o,u_p,r_o,r_p1);
+        }
+        else{
+            return new Cubie(u_o,u_p,r_o,r_p2);
+        }
+    }
+    BigDecimal toNumberPos(){
+        int uo=Combinations.schetOrientation(u_o,3);
+        int up=Combinations.schetPerestanovka(u_p);
+        int rp=Combinations.schetPerestanovka(r_p)/2;
+        int ro=Combinations.schetOrientation(r_o,2);
+        return BigDecimalConverter.pack(uo,ro,up,rp);
+    }
+    int[] toKoordinates1(){
+        return new int[]{KubCubie.uoToX1(u_o),KubCubie.roToY1(r_o),KubCubie.rpToZ1(r_p)};
+    }
+    int[] toKoordinates2(){
+        int[] k1=toKoordinates1();
+        for (int k:k1)if(k!=0)throw new IllegalStateException("k1="+ Arrays.toString(k1));
+        return new int[]{KubCubie.upToX2(u_p),KubCubie.rpToY2(r_p),KubCubie.rpToZ2(r_p)};
+    }
+    Cubie povorot(int np){
+        Cubie out=new Cubie();
+        KubCubie.povorotRO(r_o,out.r_o,np);
+        KubCubie.povorotRP(r_p,out.r_p,np);
+        KubCubie.povorotUO(u_o,out.u_o,np);
+        KubCubie.povorotUP(u_p,out.u_p,np);
+        return out;
+    }
+    int[][][] toGrani(){
+        int[][][] grani=KubFacelet.faceletToGrani(KubCubie.cubieToFacelet(u_o,u_p,r_o,r_p));
+        for (int i=0;i<grani.length;i++)grani[i][1][1]=i;
+        return grani;
+    }
+    private void valid() throws InvalidPositionException {
+        {
+            int sum = 0;
+            for (int s : u_o) sum += s;
+            if (sum != sum / 3 * 3) throw new InvalidPositionException(InvalidPositionException.Trable.INVALID_UGOL_SUM_ORIENTATION);
+        }
+        {
+            int sum=0;
+            for(int s:r_o)sum+=s;
+            if(sum!=sum/2*2) throw new InvalidPositionException(InvalidPositionException.Trable.INVALID_REBRO_SUM_ORIENTATION);
+        }
+        {
+            for (int i:u_p)if(i<=0||i>8) throw new InvalidPositionException(InvalidPositionException.Trable.INVALID_UGOL_CUBIE);
+            boolean[] m=new boolean[8];
+            for(int i:u_p){
+                if(m[i-1]) throw new InvalidPositionException(InvalidPositionException.Trable.UGOL_ALREADY_PRESENT);
+                else m[i-1]=true;
+            }
+
+        }
+        {
+            for (int i:r_p)if(i<=0||i>12) throw new InvalidPositionException(InvalidPositionException.Trable.INVALID_REBRO_CUBIE);
+            boolean[] m=new boolean[12];
+            for(int i:r_p)if(m[i-1]) throw new InvalidPositionException(InvalidPositionException.Trable.REBRO_ALREADY_PRESENT);
+            else m[i-1]=true;
+
+        }
+        {
+            boolean p1 = Combinations.chetNechetPerestanovka(r_p);
+            boolean p2 = Combinations.chetNechetPerestanovka(u_p);
+            if (p1!=p2) throw new InvalidPositionException(InvalidPositionException.Trable.INVALID_SUM_PERESTANOVKA);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "up="+Arrays.toString(u_p)+"\n" +
+                "uo="+Arrays.toString(u_o)+"\n"+
+                "rp="+Arrays.toString(r_p)+"\n" +
+                "ro="+Arrays.toString(r_o);
     }
 }

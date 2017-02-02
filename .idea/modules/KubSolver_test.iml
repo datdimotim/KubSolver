@@ -10,7 +10,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="KubSolver_main" />
-    <orderEntry type="library" name="Gradle: com.github.datdimotim:CompactArrays:1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.datdimotim:CompactArrays:1.0.1" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="KubSolver_main" />
 </module>

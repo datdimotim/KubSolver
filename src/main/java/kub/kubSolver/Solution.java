@@ -5,7 +5,7 @@ public class Solution {
     private static final String[] hodString=HodTransforms.getHodString();
     public final int length;
     private final int[] hods;
-    public final int sym;
+    private final int sym;
     private final int[] fase1;
 
     Solution(int sym, int[] fase1, int[] fase2) {

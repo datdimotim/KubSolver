@@ -1,9 +1,6 @@
 package kub.kubSolver;
 
-import kub.kubSolver.utills.BigDecimalConverter;
-
 import java.math.BigDecimal;
-import java.util.Random;
 
 public class Kub{
     private Cubie cubie=new Cubie();

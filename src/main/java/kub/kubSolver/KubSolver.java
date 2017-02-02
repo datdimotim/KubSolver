@@ -1,19 +1,19 @@
 package kub.kubSolver;
 
-import kub.kubSolver.solvers.*;
-
-import static kub.kubSolver.solvers.BaseFaseSolver.MAX_DEEP;
+import static kub.kubSolver.BaseFaseSolver.MAX_DEEP;
 
 public class KubSolver{
     private Fase1Solver fase1Solver;
     private Fase2Solver fase2Solver;
-    private final Tables tables=Tables.INSTANCE;
+    private final Tables tables;
     private static final int[] hodsFase2=HodTransforms.getP10To18();
     public KubSolver(){
+        this.tables=Tables.readTables();
         setFase1Solver(new SimpleSolver1());
         setFase2Solver(new SimpleSolver2());
     }
     public KubSolver(Fase1Solver fase1Solver,Fase2Solver fase2Solver){
+        this.tables=Tables.readTables();
         setFase1Solver(fase1Solver);
         setFase2Solver(fase2Solver);
     }

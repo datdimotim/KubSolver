@@ -17,5 +17,5 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.datdimotim:CompactArrays:1.0.0'
+    compile 'com.github.datdimotim:CompactArrays:1.0.1'
 }
