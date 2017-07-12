@@ -186,6 +186,35 @@ final class KubKoordinates {
 
 final class Symmetry{
     static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(HodTransforms.getSymHodsAllSymmetry());
+    static final int[][] symHods=getSymHodsAllSymmetry();
+    static final int[][] symmetryMul=initSymmetryMul();  // matrix1*matrix2*vector -> matrix*vector
+
+    private static int[][] initSymmetryMul(){
+        int[][] symmetryMul=new int[48][48];
+        int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+        for(int i=0;i<symmetryMul.length;i++){
+            int[] hods1=hodsTransform(hodsInit,i);
+            for(int j=0;j<symmetryMul.length;j++){
+                int[] hods2=hodsTransform(hods1,j);
+                boolean check=false;
+                for(int s=0;s<symmetryMul.length;s++){
+                    int[] hodsM=hodsTransform(hodsInit,s);
+                    if(Arrays.equals(hodsM,hods2)){
+                        if(check)throw new RuntimeException();
+                        symmetryMul[j][i]=s;
+                        check=true;
+                    }
+                }
+            }
+        }
+        return symmetryMul;
+    }
+
+    private static int[] hodsTransform(int[] hods, int s){
+        int[] ret=new int[hods.length];
+        for(int i=0;i<ret.length;i++)ret[i]=symHods[s][hods[i]];
+        return ret;
+    }
 
     private static class InitializerInverseSymmetry {
         private static int[] getInverseSymmetry(int[][] symHods){
@@ -734,7 +763,7 @@ final class KubCubie {
 }
 
 class HodTransforms {
-    //static final int NUM_HODS_1=19;
+    static final int NUM_HODS_1=19;
     static final int NUM_HODS_2=11;
     private static final int[] p10To18 =new int[]{0,1,2,3,6,9,12,15,16,17,18};
     private static final int[] p18to10=new int[]{0,1,2,3,-1,-1,4,-1,-1,5,-1,-1,6,-1,-1,7,8,9,10};

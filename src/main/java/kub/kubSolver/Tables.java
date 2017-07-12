@@ -16,7 +16,11 @@ class Tables implements Serializable{
     static final int y2_max=40320;
     static final int z2_max=24;
 
-    private final MoveTables moveTables;
+    static final int x2_sym_classes=2768;
+    static final int y2_sym_classes=2768;
+    static final int z2_sym_classes=8;
+
+    final MoveTables moveTables;
     private final SymTables2 symTables2;
     private final SymTables1 symTables1;
 
@@ -178,7 +182,7 @@ class SymTables2 implements Serializable{
     private final int[][] xToSymClass;
     private final int[][] yToSymClass;
 
-    private final IntegerMatrix xsYDeep;
+    //private final IntegerMatrix xsYDeep;
     private final IntegerMatrix xsZDeep;
     private final IntegerMatrix ysZDeep;
 
@@ -192,39 +196,16 @@ class SymTables2 implements Serializable{
         zTransform= InitializerSymTable.createSymTable(moveZ);
 
         xToSymClass= InitializerSymTable.splitToClasses(moveX, xTransform);
-        yToSymClass= InitializerSymTable.splitToClasses(moveX,yTransform);
+        yToSymClass= InitializerSymTable.splitToClasses(moveX, yTransform);
 
-        byte[][] d1=InitializerSymTable.computeDeepTable(xToSymClass, xTransform,yTransform, moveX, moveY);
-        xsYDeep= InitializerSymTable.packDeepTable(d1);
+        byte[][] d1;//=InitializerSymTable.computeDeepTable(xToSymClass, xTransform,yTransform, moveX, moveY);
+        //xsYDeep= InitializerSymTable.packDeepTable(d1);
         d1=InitializerSymTable.computeDeepTable(xToSymClass, xTransform,zTransform, moveX, moveZ);
         xsZDeep= InitializerSymTable.packDeepTable(d1);
         d1=InitializerSymTable.computeDeepTable(yToSymClass,yTransform,zTransform, moveY, moveZ);
         ysZDeep= InitializerSymTable.packDeepTable(d1);
     }
-    /*SymTables2(DataInputStream dis)throws IOException{
-        xTransform=readIntMassiv(16,Tables.x2_max,dis);
-        yTransform=readIntMassiv(16,Tables.y2_max,dis);
-        zTransform=readIntMassiv(16,Tables.z2_max,dis);
 
-        xToSymClass=readIntMassiv(2,Tables.x2_max,dis);
-        yToSymClass=readIntMassiv(2,Tables.y2_max,dis);
-
-        xsYDeep=readByteMassiv(xSymMax,Tables.y2_max,dis);
-        xsZDeep=readByteMassiv(xSymMax,Tables.z2_max,dis);
-        ysZDeep=readByteMassiv(ySymMax,Tables.z2_max,dis);
-    }*/
-    /*void save(DataOutputStream dos)throws IOException{
-        writeMassiv(xTransform,dos);
-        writeMassiv(yTransform,dos);
-        writeMassiv(zTransform,dos);
-
-        writeMassiv(xToSymClass,dos);
-        writeMassiv(yToSymClass,dos);
-
-        writeMassiv(xsYDeep,dos);
-        writeMassiv(xsZDeep,dos);
-        writeMassiv(ysZDeep,dos);
-    }*/
     void getDeep(CoordSet pred, CoordSet out){
         int x=out.coord[0];
         int y=out.coord[1];
@@ -233,7 +214,7 @@ class SymTables2 implements Serializable{
         int s=xToSymClass[1][x];
         int yt=yTransform[inverseSymmetry[s]][y];
         int zt=zTransform[inverseSymmetry[s]][z];
-        out.deep[0]=Tracker.track((int)xsYDeep.get(xs,yt),pred.deep[0]);
+        //out.deep[0]=Tracker.track((int)xsYDeep.get(xs,yt),pred.deep[0]);
         out.deep[1]=Tracker.track((int)xsZDeep.get(xs,zt),pred.deep[1]);
         int ys=yToSymClass[0][y];
         int s2=yToSymClass[1][y];
@@ -256,7 +237,7 @@ class SymTables2 implements Serializable{
                 int s=xToSymClass[1][x];
                 int yt=yTransform[inverseSymmetry[s]][y];
                 int zt=zTransform[inverseSymmetry[s]][z];
-                set.deep[0]=(int) xsYDeep.get(xs,yt)+30;
+                //set.deep[0]=(int) xsYDeep.get(xs,yt)+30;
                 set.deep[1]=(int) xsZDeep.get(xs,zt)+30;
                 int ys=yToSymClass[0][y];
                 int s2=yToSymClass[1][y];
@@ -293,13 +274,12 @@ class SymTables2 implements Serializable{
 class SymTables1 implements Serializable{
     //private static final int xSymMax=168;
     //private static final int ySymMax=336;
-    private final int[] inverseSymmetry=Symmetry.inverseSymmetry;
+    final int[] inverseSymmetry=Symmetry.inverseSymmetry;
+    final int[][] xTransform;
+    final int[][] zTransform;
 
-    private final int[][] xTransform;
-    private final int[][] zTransform;
-
-    private final int[][] xToSymClass;
-    private final int[][] yToSymClassHalf;
+    final int[][] xToSymClass;
+    final int[][] yToSymClassHalf;
 
     private final IntegerMatrix xsZDeep;
     private final IntegerMatrix ysZDeep;
@@ -324,30 +304,7 @@ class SymTables1 implements Serializable{
         d1= InitializerSymTableHalf.computeDeepTable(yToSymClassHalf, yTransform,xTransform,moveY,moveX);
         ysXDeep = InitializerSymTable.packDeepTable(d1);
     }
-    /*SymTables1(DataInputStream dis)throws IOException{
-        xTransform=readIntMassiv(16,Tables.x1_max,dis);
-        yTransform=readIntMassiv(16,Tables.y1_max,dis);
-        zTransform=readIntMassiv(16,Tables.z1_max,dis);
 
-        xToSymClass=readIntMassiv(2,Tables.x1_max,dis);
-        yToSymClassHalf=readIntMassiv(2,Tables.y1_max,dis);
-
-        xsZDeep=readByteMassiv(xSymMax,Tables.z1_max,dis);
-        ysZDeep=readByteMassiv(ySymMax,Tables.z1_max,dis);
-        ysXDeep=readByteMassiv(ySymMax,Tables.x1_max,dis);
-    }*/
-    /*void save(DataOutputStream dos)throws IOException{
-        writeMassiv(xTransform,dos);
-        writeMassiv(yTransform,dos);
-        writeMassiv(zTransform,dos);
-
-        writeMassiv(xToSymClass,dos);
-        writeMassiv(yToSymClassHalf,dos);
-
-        writeMassiv(xsZDeep,dos);
-        writeMassiv(ysZDeep,dos);
-        writeMassiv(ysXDeep,dos);
-    }*/
     void getDeep(CoordSet pred, CoordSet out){
         int x=out.coord[0];
         int y=out.coord[1];
@@ -515,6 +472,7 @@ class InitializerSymTable {
         }
         return toSymClass;
     }
+
     private static int[] getExtend(int[][] toSymClass){
         int size=0;
         for(int c:toSymClass[0])if(size<=c)size=c+1;
@@ -706,5 +664,366 @@ class IntegerMatrix implements Serializable{
     }
     long get(int i,int j){
         return array.get(i* jLength +j);
+    }
+}
+
+class SymMoveTabes2 {
+    private static final int[][] symmetryMul=Symmetry.symmetryMul; // matrix1*matrix2*vector -> matrix*vector
+    private static final int[] inverseSymmetry=Symmetry.inverseSymmetry;
+    private static final int[][] symHods=Symmetry.symHods;
+    private static final int[] hods18to10=HodTransforms.getP18to10();
+    private static final int[] hods10to18=HodTransforms.getP10To18();
+
+    public final int CLASSES;
+    private final int[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
+    private final int[][]   classToRaw;     // sym, class
+    private final int[][]   rawToClass;     // <class, sym>[pos]
+
+    SymMoveTabes2(char[][] rawMoveTable, int classes){
+        CLASSES=classes;
+        symMoveTable =new int[2][19][CLASSES];
+        classToRaw=new int[16][CLASSES];
+        int[][] symTable=createSymTable(rawMoveTable);
+        initClassToRaw(rawMoveTable,symTable);
+        initSymmetryMul();
+        rawToClass=initRawToClass(symTable);
+        initSymMove(rawMoveTable);
+
+        proofSymmetryMul(symTable);
+        proofRawToClassAndClassToRaw(rawMoveTable,symTable);
+        proofSymMove(rawMoveTable);
+        proofMove(rawMoveTable);
+    }
+
+    private int[][] initRawToClass(int[][] symTable){   // <class, sym>[pos]
+        int[][] rawToClass=new int[2][Tables.x2_max];
+        for(int i=0;i<CLASSES;i++){
+            for(int s=0;s<symTable.length;s++){
+                rawToClass[0][classToRaw[s][i]]=i;
+                rawToClass[1][classToRaw[s][i]]=s;
+            }
+        }
+        return rawToClass;
+    }
+
+    private void initClassToRaw(char[][] rawMoveTable,int[][] symTable){
+        boolean[] mask=new boolean[rawMoveTable[0].length];
+        Arrays.fill(mask,true);
+        int classNumber=0;
+        for(int i=0;i<symTable[0].length;i++){
+            if(mask[i]){
+                for(int s=0;s<symTable.length;s++){
+                    classToRaw[s][classNumber]=symTable[s][i];
+                    mask[symTable[s][i]]=false;
+                }
+                classNumber++;
+            }
+        }
+
+        System.out.println("TotalClasses="+classNumber);
+    }
+
+    private void initSymmetryMul(){
+        int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+        for(int i=0;i<symmetryMul.length;i++){
+            int[] hods1=hodsTransform(hodsInit,i);
+            for(int j=0;j<symmetryMul.length;j++){
+                int[] hods2=hodsTransform(hods1,j);
+                boolean check=false;
+                for(int s=0;s<symmetryMul.length;s++){
+                    int[] hodsM=hodsTransform(hodsInit,s);
+                    if(Arrays.equals(hodsM,hods2)){
+                        if(check)throw new RuntimeException();
+                        symmetryMul[j][i]=s;
+                        check=true;
+                    }
+                }
+            }
+        }
+    }
+
+    private int[] hodsTransform(int[] hods, int s){
+        int[] ret=new int[hods.length];
+        for(int i=0;i<ret.length;i++)ret[i]=symHods[s][hods[i]];
+        return ret;
+    }
+
+    private  int[][] createSymTable(char[][] move){
+        int[][] symHods=HodTransforms.getSymHodsAllSymmetry();
+        int[][] sym_table=new int[16][move[0].length];
+        for(int[] m:sym_table)Arrays.fill(m,-1);
+        for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
+        createSymTable2(move,sym_table,symHods);
+        return sym_table;
+    }
+    private void createSymTable2(char[][] move, int[][] sym_table,int[][] symHods){
+        boolean newMark=true;
+        while (newMark) {
+            newMark=false;
+            for(int pos=0;pos<sym_table[0].length;pos++) {
+                if(sym_table[0][pos]==-1)continue;
+                for (int p = 1; p < move.length; p++) {
+                    int newPos = move[p][pos];
+                    if(sym_table[0][newPos]!=-1)continue;
+                    newMark=true;
+                    for (int s = 0; s < 16; s++) {
+                        sym_table[s][newPos] = move[hods18to10[symHods[s][hods10to18[p]]]][sym_table[s][pos]];
+                    }
+                }
+            }
+        }
+    }
+
+    private void initSymMove(char[][] rawMoveTable){
+        for (int i=0;i<CLASSES;i++){
+            for (int np = 0; np< rawMoveTable.length; np++) {
+                symMoveTable[0][np][i] = rawToClass[0][rawMoveTable[np][classToRaw[0][i]]];
+                symMoveTable[1][np][i] = rawToClass[1][rawMoveTable[np][classToRaw[0][i]]];
+            }
+        }
+    }
+
+    private void proofSymmetryMul(int[][] symTable){
+        for(int rawPos=0;rawPos<symTable[0].length;rawPos++){
+            for(int s1=0;s1<16;s1++){
+                for(int s2=0;s2<16;s2++){
+                    if(symTable[s1][symTable[s2][rawPos]]!=symTable[symmetryMul[s1][s2]][rawPos])throw new RuntimeException();
+                }
+            }
+        }
+    }
+
+    private void proofRawToClassAndClassToRaw(char[][] rawMoveTable,int[][] symTable){
+        for(int i=0;i<rawMoveTable[0].length;i++){
+            if(i!=classToRaw[rawToClass[1][i]][rawToClass[0][i]])throw new RuntimeException();
+        }
+    }
+
+    private void proofSymMove(char[][] rawMoveTable){
+        for(int pos=0;pos<rawMoveTable[0].length;pos++){
+            for(int np = 0; np< rawMoveTable.length; np++){
+                int posEtalon= rawMoveTable[np][pos];
+                int sym=rawToClass[1][pos];
+                int symInv=inverseSymmetry[sym];
+                int transformedHod=hods18to10[symHods[symInv][hods10to18[np]]];
+                int classPos= symMoveTable[0][transformedHod][rawToClass[0][pos]];
+                int sym2= symMoveTable[1][transformedHod][rawToClass[0][pos]];
+                int symRes=symmetryMul[sym][sym2];
+                int posCheck=classToRaw[symRes][classPos];
+                if(posEtalon!=posCheck)throw new RuntimeException("pos="+pos+" np="+np+" posEtalon="+posEtalon+" posCheck="+posCheck);
+            }
+        }
+    }
+
+    private void proofMove(char[][] rawMoveTable){
+        for(int pos=0;pos<rawMoveTable[0].length;pos++){
+            for(int np = 0; np< rawMoveTable.length; np++){
+                int posEtalon= rawMoveTable[np][pos];
+                SymPos s1=new SymPos();
+                s1.sym=rawToClass[1][pos];
+                s1.classPos=rawToClass[0][pos];
+                SymPos s2=new SymPos();
+                doMove(s1,s2,np);
+                int posCheck=classToRaw[s2.sym][s2.classPos];
+                if(posEtalon!=posCheck)throw new RuntimeException("pos="+pos+" np="+np+" posEtalon="+posEtalon+" posCheck="+posCheck);
+            }
+        }
+    }
+
+    static class SymPos{
+        int classPos;
+        int sym;
+    }
+
+    void doMove(SymPos in, SymPos out,int np){
+        int npSym=hods18to10[symHods[inverseSymmetry[in.sym]][hods10to18[np]]];
+        out.classPos=symMoveTable[0][npSym][in.classPos];
+        out.sym=symmetryMul[in.sym][symMoveTable[1][npSym][in.classPos]];
+    }
+
+    public static void main(String[] args) {
+        SymMoveTabes2 x2=new SymMoveTabes2(new MoveTables().x2Move,x2_sym_classes);
+        SymMoveTabes2 y2=new SymMoveTabes2(new MoveTables().y2Move,y2_sym_classes);
+        SymMoveTabes2 z2=new SymMoveTabes2(new MoveTables().z2Move,z2_sym_classes);
+    }
+}
+
+class SymMoveTabes1 {
+    private static final int[][] symmetryMul=Symmetry.symmetryMul; // matrix1*matrix2*vector -> matrix*vector
+    private static final int[] inverseSymmetry=Symmetry.inverseSymmetry;
+    private static final int[][] symHods=Symmetry.symHods;
+    private static int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
+
+    public final int CLASSES;
+    private final int[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
+    private final int[][]   classToRaw;     // sym, class
+    private final int[][]   rawToClass;     // <class, sym>[pos]
+
+    SymMoveTabes1(char[][] rawMoveTable, int classes){
+        CLASSES=classes;
+        symMoveTable =new int[2][19][CLASSES];
+        classToRaw=new int[8][CLASSES];
+        int[][] symTable=createSymTable(rawMoveTable);
+        initClassToRaw(rawMoveTable,symTable);
+        initSymmetryMul();
+        rawToClass=initRawToClass(symTable);
+        initSymMove(rawMoveTable);
+
+        proofSymmetryMul(symTable);
+        proofRawToClassAndClassToRaw(rawMoveTable,symTable);
+        proofSymMove(rawMoveTable);
+        proofMove(rawMoveTable);
+    }
+
+    private int[][] initRawToClass(int[][] symTable){   // <class, sym>[pos]
+        int[][] rawToClass=new int[2][Tables.x2_max];
+        for(int i=0;i<CLASSES;i++){
+            for(int s=0;s<symTable.length;s++){
+                rawToClass[0][classToRaw[s][i]]=i;
+                rawToClass[1][classToRaw[s][i]]=s;
+            }
+        }
+        return rawToClass;
+    }
+
+    private void initClassToRaw(char[][] rawMoveTable,int[][] symTable){
+        boolean[] mask=new boolean[rawMoveTable[0].length];
+        Arrays.fill(mask,true);
+        int classNumber=0;
+        for(int i=0;i<symTable[0].length;i++){
+            if(mask[i]){
+                for(int s=0;s<symTable.length;s++){
+                    classToRaw[s][classNumber]=symTable[s][i];
+                    mask[symTable[s][i]]=false;
+                }
+                classNumber++;
+            }
+        }
+
+        System.out.println("TotalClasses="+classNumber);
+    }
+
+    private void initSymmetryMul(){
+        int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+        for(int i=0;i<symmetryMul.length;i++){
+            int[] hods1=hodsTransform(hodsInit,i);
+            for(int j=0;j<symmetryMul.length;j++){
+                int[] hods2=hodsTransform(hods1,j);
+                boolean check=false;
+                for(int s=0;s<symmetryMul.length;s++){
+                    int[] hodsM=hodsTransform(hodsInit,s);
+                    if(Arrays.equals(hodsM,hods2)){
+                        if(check)throw new RuntimeException();
+                        symmetryMul[j][i]=s;
+                        check=true;
+                    }
+                }
+            }
+        }
+    }
+
+    private int[] hodsTransform(int[] hods, int s){
+        int[] ret=new int[hods.length];
+        for(int i=0;i<ret.length;i++)ret[i]=symHods[s][hods[i]];
+        return ret;
+    }
+
+    private static int[][] createSymTable(char[][] move){
+        int[][] symHods=HodTransforms.getSymHodsAllSymmetry();
+        int[][] sym_table=new int[8][move[0].length];
+        for(int[] m:sym_table)Arrays.fill(m,-1);
+        for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
+        createSymTable1(move,sym_table,symHods);
+        return sym_table;
+    }
+    private static void createSymTable1(char[][] move, int[][] sym_table,int[][] symHods){
+        boolean newMark=true;
+        while (newMark) {
+            newMark=false;
+            for(int pos=0;pos<sym_table[0].length;pos++) {
+                if(sym_table[0][pos]==-1)continue;
+                for (int p = 1; p < move.length; p++) {
+                    int newPos = move[p][pos];
+                    if(sym_table[0][newPos]!=-1)continue;
+                    newMark=true;
+                    for (int s = 0; s < 8; s++) {
+                        sym_table[s][newPos] = move[symHods[s][p]][sym_table[s][pos]];
+                    }
+                }
+            }
+        }
+    }
+
+    private void initSymMove(char[][] rawMoveTable){
+        for (int i=0;i<CLASSES;i++){
+            for (int np = 0; np< rawMoveTable.length; np++) {
+                symMoveTable[0][np][i] = rawToClass[0][rawMoveTable[np][classToRaw[0][i]]];
+                symMoveTable[1][np][i] = rawToClass[1][rawMoveTable[np][classToRaw[0][i]]];
+            }
+        }
+    }
+
+    private void proofSymmetryMul(int[][] symTable){
+        for(int rawPos=0;rawPos<symTable[0].length;rawPos++){
+            for(int s1=0;s1<8;s1++){
+                for(int s2=0;s2<8;s2++){
+                    if(symTable[s1][symTable[s2][rawPos]]!=symTable[symmetryMul[s1][s2]][rawPos])throw new RuntimeException();
+                }
+            }
+        }
+    }
+
+    private void proofRawToClassAndClassToRaw(char[][] rawMoveTable,int[][] symTable){
+        for(int i=0;i<rawMoveTable[0].length;i++){
+            if(i!=classToRaw[rawToClass[1][i]][rawToClass[0][i]])throw new RuntimeException();
+        }
+    }
+
+    private void proofSymMove(char[][] rawMoveTable){
+        for(int pos=0;pos<rawMoveTable[0].length;pos++){
+            for(int np = 0; np< rawMoveTable.length; np++){
+                int posEtalon= rawMoveTable[np][pos];
+                int sym=rawToClass[1][pos];
+                int symInv=inverseSymmetry[sym];
+                int transformedHod=symHods[symInv][np];
+                int classPos= symMoveTable[0][transformedHod][rawToClass[0][pos]];
+                int sym2= symMoveTable[1][transformedHod][rawToClass[0][pos]];
+                int symRes=symmetryMul[sym][sym2];
+                int posCheck=classToRaw[symRes][classPos];
+                if(posEtalon!=posCheck)throw new RuntimeException("pos="+pos+" np="+np+" posEtalon="+posEtalon+" posCheck="+posCheck);
+            }
+        }
+    }
+
+    private void proofMove(char[][] rawMoveTable){
+        for(int pos=0;pos<rawMoveTable[0].length;pos++){
+            for(int np = 0; np< rawMoveTable.length; np++){
+                int posEtalon= rawMoveTable[np][pos];
+                SymPos s1=new SymPos();
+                s1.sym=rawToClass[1][pos];
+                s1.classPos=rawToClass[0][pos];
+                SymPos s2=new SymPos();
+                doMove(s1,s2,np);
+                int posCheck=classToRaw[s2.sym][s2.classPos];
+                if(posEtalon!=posCheck)throw new RuntimeException("pos="+pos+" np="+np+" posEtalon="+posEtalon+" posCheck="+posCheck);
+            }
+        }
+    }
+
+    static class SymPos{
+        int classPos;
+        int sym;
+    }
+
+    void doMove(SymPos in, SymPos out,int np){
+        int npSym=symHods[inverseSymmetry[in.sym]][np];
+        out.classPos=symMoveTable[0][npSym][in.classPos];
+        out.sym=symmetryMul[in.sym][symMoveTable[1][npSym][in.classPos]];
+    }
+
+    public static void main(String[] args) {
+        SymMoveTabes1 x1=new SymMoveTabes1(new MoveTables().x1Move,x2_sym_classes);
+        SymMoveTabes1 y1=new SymMoveTabes1(new MoveTables().y1Move,y2_sym_classes);
+        SymMoveTabes1 z1=new SymMoveTabes1(new MoveTables().z1Move,z2_sym_classes);
     }
 }
