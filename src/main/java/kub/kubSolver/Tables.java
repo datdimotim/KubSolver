@@ -14,18 +14,18 @@ import java.util.IdentityHashMap;
 import static kub.kubSolver.Tables.*;
 
 class Tables implements Serializable{
-    static final int x1_max=2187;
-    static final int y1_max=2048;
-    static final int z1_max=495;
-    static final int x2_max=40320;
-    static final int y2_max=40320;
-    static final int z2_max=24;
-    static final int x1_sym_classes=324;
-    static final int y1_sym_classes=336;
-    static final int z1_sym_classes=81;
-    static final int x2_sym_classes=2768;
-    static final int y2_sym_classes=2768;
-    static final int z2_sym_classes=8;
+    static final int X_1_MAX =2187;
+    static final int Y_1_MAX =2048;
+    static final int Z_1_MAX =495;
+    static final int X_2_MAX =40320;
+    static final int Y_2_MAX =40320;
+    static final int Z_2_MAX =24;
+    static final int X_1_SYM_CLASSES =324;
+    static final int Y_1_SYM_CLASSES =336;
+    static final int Z_1_SYM_CLASSES =81;
+    static final int X_2_SYM_CLASSES =2768;
+    static final int Y_2_SYM_CLASSES =2768;
+    static final int Z_2_SYM_CLASSES =8;
 
     final MoveTables moveTables;
     private final SymTables2 symTables2;
@@ -109,8 +109,8 @@ class MoveTables implements Serializable{
 
     private static char[][] createX1Move(){
         int[] u_o=new int[8];
-        char[][] table=new char[19][x1_max];
-        for(int pos=0;pos<x1_max;pos++){
+        char[][] table=new char[19][X_1_MAX];
+        for(int pos = 0; pos< X_1_MAX; pos++){
             for(int pov=0;pov<19;pov++){
                 KubCubie.povorotUO(KubKoordinates.x1ToCubie(pos),u_o,pov);
                 table[pov][pos]= (char) KubCubie.uoToX1(u_o);
@@ -120,8 +120,8 @@ class MoveTables implements Serializable{
     }
     private static char[][] createY1Move(){
         int[] r_o=new int[12];
-        char[][] table=new char[19][y1_max];
-        for(int pos=0;pos<y1_max;pos++){
+        char[][] table=new char[19][Y_1_MAX];
+        for(int pos = 0; pos< Y_1_MAX; pos++){
             for(int pov=0;pov<19;pov++){
                 KubCubie.povorotRO(KubKoordinates.y1ToCubie(pos),r_o,pov);
                 table[pov][pos]= (char) KubCubie.roToY1(r_o);
@@ -131,8 +131,8 @@ class MoveTables implements Serializable{
     }
     private static char[][] createZ1Move(){
         int[] r_p=new int[12];
-        char[][] table=new char[19][z1_max];
-        for(int pos=0;pos<z1_max;pos++){
+        char[][] table=new char[19][Z_1_MAX];
+        for(int pos = 0; pos< Z_1_MAX; pos++){
             for(int pov=0;pov<19;pov++){
                 KubCubie.povorotRP(KubKoordinates.z1ToCubie(pos),r_p,pov);
                 table[pov][pos]= (char) KubCubie.rpToZ1(r_p);
@@ -143,8 +143,8 @@ class MoveTables implements Serializable{
     private static char[][] createX2Move(){
         int[] convertPovorot=HodTransforms.getP10To18();
         int[] u_p=new int[8];
-        char[][] table=new char[HodTransforms.NUM_HODS_2][x2_max];
-        for(int pos=0;pos<x2_max;pos++){
+        char[][] table=new char[HodTransforms.NUM_HODS_2][X_2_MAX];
+        for(int pos = 0; pos< X_2_MAX; pos++){
             for(int pov=0;pov<HodTransforms.NUM_HODS_2;pov++){
                 KubCubie.povorotUP(KubKoordinates.x2ToCubie(pos),u_p,convertPovorot[pov]);
                 table[pov][pos]= (char) KubCubie.upToX2(u_p);
@@ -155,8 +155,8 @@ class MoveTables implements Serializable{
     private static char[][] createY2Move(){
         int[] convertPovorot=HodTransforms.getP10To18();
         int[] r_p=new int[12];
-        char[][] table=new char[HodTransforms.NUM_HODS_2][y2_max];
-        for(int pos=0;pos<y2_max;pos++){
+        char[][] table=new char[HodTransforms.NUM_HODS_2][Y_2_MAX];
+        for(int pos = 0; pos< Y_2_MAX; pos++){
             for(int pov=0;pov<HodTransforms.NUM_HODS_2;pov++){
                 KubCubie.povorotRP(KubKoordinates.y2ToCubie(pos),r_p,convertPovorot[pov]);
                 table[pov][pos]=(char) KubCubie.rpToY2(r_p);
@@ -167,8 +167,8 @@ class MoveTables implements Serializable{
     private static char[][] createZ2Move(){
         int[] convertPovorot=HodTransforms.getP10To18();
         int[] r_p=new int[12];
-        char[][] table=new char[HodTransforms.NUM_HODS_2][z2_max];
-        for(int pos=0;pos<z2_max;pos++){
+        char[][] table=new char[HodTransforms.NUM_HODS_2][Z_2_MAX];
+        for(int pos = 0; pos< Z_2_MAX; pos++){
             for(int pov=0;pov<HodTransforms.NUM_HODS_2;pov++){
                 KubCubie.povorotRP(KubKoordinates.z2ToCubie(pos),r_p,convertPovorot[pov]);
                 table[pov][pos]=(char) KubCubie.rpToZ2(r_p);
@@ -674,7 +674,7 @@ class IntegerMatrix implements Serializable{
     }
 }
 
-class SymMoveTabes2 {
+class SymMoveTables2 {
     private static final int[][] symmetryMul=Symmetry.symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private static final int[] inverseSymmetry=Symmetry.inverseSymmetry;
     private static final int[][] symHods=Symmetry.symHods;
@@ -682,14 +682,14 @@ class SymMoveTabes2 {
     private static final int[] hods10to18=HodTransforms.getP10To18();
 
     public final int CLASSES;
-    private final int[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
-    private final int[][]   classToRaw;     // sym, class
-    private final int[][]   rawToClass;     // <class, sym>[pos]
+    private final char[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
+    private final char[][]   classToRaw;     // sym, class
+    private final char[][]   rawToClass;     // <class, sym>[pos]
 
-    SymMoveTabes2(char[][] rawMoveTable, int classes){
+    SymMoveTables2(char[][] rawMoveTable, int classes){
         CLASSES=classes;
-        symMoveTable =new int[2][19][CLASSES];
-        classToRaw=new int[16][CLASSES];
+        symMoveTable =new char[2][19][CLASSES];
+        classToRaw=new char[16][CLASSES];
         int[][] symTable=createSymTable(rawMoveTable);
         initClassToRaw(rawMoveTable,symTable);
         rawToClass=initRawToClass(symTable);
@@ -699,12 +699,12 @@ class SymMoveTabes2 {
         proofMove(rawMoveTable);
     }
 
-    private int[][] initRawToClass(int[][] symTable){   // <class, sym>[pos]
-        int[][] rawToClass=new int[2][Tables.x2_max];
+    private char[][] initRawToClass(int[][] symTable){   // <class, sym>[pos]
+        char[][] rawToClass=new char[2][symTable[0].length];
         for(int i=0;i<CLASSES;i++){
             for(int s=0;s<symTable.length;s++){
-                rawToClass[0][classToRaw[s][i]]=i;
-                rawToClass[1][classToRaw[s][i]]=s;
+                rawToClass[0][classToRaw[s][i]]=(char) i;
+                rawToClass[1][classToRaw[s][i]]=(char) s;
             }
         }
         return rawToClass;
@@ -717,7 +717,7 @@ class SymMoveTabes2 {
         for(int i=0;i<symTable[0].length;i++){
             if(mask[i]){
                 for(int s=0;s<symTable.length;s++){
-                    classToRaw[s][classNumber]=symTable[s][i];
+                    classToRaw[s][classNumber]=(char) symTable[s][i];
                     mask[symTable[s][i]]=false;
                 }
                 classNumber++;
@@ -795,7 +795,7 @@ class SymMoveTabes2 {
     }
 }
 
-class SymMoveTabes1 {
+class SymMoveTables1 {
     private static final int[][] symmetryMul=Symmetry.symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private static final int[] inverseSymmetry=Symmetry.inverseSymmetry;
     private static final int[][] symHods=Symmetry.symHods;
@@ -803,14 +803,14 @@ class SymMoveTabes1 {
     private static final int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7};
 
     public final int CLASSES;
-    private final int[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
-    private final int[][]   classToRaw;     // sym, class
-    private final int[][]   rawToClass;     // <class, sym>[pos]
+    private final char[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
+    private final char[][]   classToRaw;     // sym, class
+    private final char[][]   rawToClass;     // <class, sym>[pos]
 
-    SymMoveTabes1(char[][] rawMoveTable, int classes){
+    SymMoveTables1(char[][] rawMoveTable, int classes){
         CLASSES=classes;
-        symMoveTable =new int[2][19][CLASSES];
-        classToRaw=new int[8][CLASSES];
+        symMoveTable =new char[2][19][CLASSES];
+        classToRaw=new char[8][CLASSES];
         int[][] symTable=createSymTable(rawMoveTable);
         initClassToRaw(rawMoveTable,symTable);
         rawToClass=initRawToClass(symTable);
@@ -820,12 +820,12 @@ class SymMoveTabes1 {
         proofMove(rawMoveTable);
     }
 
-    private int[][] initRawToClass(int[][] symTable){   // <class, sym>[pos]
-        int[][] rawToClass=new int[2][Tables.x2_max];
+    private char[][] initRawToClass(int[][] symTable){   // <class, sym>[pos]
+        char[][] rawToClass=new char[2][symTable[0].length];
         for(int i=0;i<CLASSES;i++){
             for(int s=0;s<symTable.length;s++){
-                rawToClass[0][classToRaw[s][i]]=i;
-                rawToClass[1][classToRaw[s][i]]=s;
+                rawToClass[0][classToRaw[s][i]]=(char) i;
+                rawToClass[1][classToRaw[s][i]]=(char) s;
             }
         }
         return rawToClass;
@@ -839,7 +839,7 @@ class SymMoveTabes1 {
         for(int i=0;i<symTable[0].length;i++){
             if(mask[i]){
                 for(int s=0;s<symTable.length;s++){
-                    classToRaw[s][classNumber]= symTable[s][i];
+                    classToRaw[s][classNumber]= (char) symTable[s][i];
                     mask[symTable[s][i]]=false;
                 }
                 classNumber++;
@@ -917,22 +917,17 @@ class SymMoveTabes1 {
     }
 
     public static void main(String[] args) {
-        SymMoveTabes1 x1=new SymMoveTabes1(new MoveTables().x1Move,x1_sym_classes);
-        SymMoveTabes1 y1=new SymMoveTabes1(new MoveTables().y1Move,y1_sym_classes);
-        SymMoveTabes1 z1=new SymMoveTabes1(new MoveTables().z1Move,z1_sym_classes);
-        SymMoveTabes2 x2=new SymMoveTabes2(new MoveTables().x2Move,x2_sym_classes);
-        SymMoveTabes2 y2=new SymMoveTabes2(new MoveTables().y2Move,y2_sym_classes);
-        SymMoveTabes2 z2=new SymMoveTabes2(new MoveTables().z2Move,z2_sym_classes);
+        new SymMoveTables();
     }
 }
 
 class SymMoveTables{
-    SymMoveTabes1 x1=new SymMoveTabes1(new MoveTables().x1Move,x1_sym_classes);
-    SymMoveTabes1 y1=new SymMoveTabes1(new MoveTables().y1Move,y1_sym_classes);
-    SymMoveTabes1 z1=new SymMoveTabes1(new MoveTables().z1Move,z1_sym_classes);
-    SymMoveTabes2 x2=new SymMoveTabes2(new MoveTables().x2Move,x2_sym_classes);
-    SymMoveTabes2 y2=new SymMoveTabes2(new MoveTables().y2Move,y2_sym_classes);
-    SymMoveTabes2 z2=new SymMoveTabes2(new MoveTables().z2Move,z2_sym_classes);
+    SymMoveTables1 x1=new SymMoveTables1(new MoveTables().x1Move, X_1_SYM_CLASSES);
+    SymMoveTables1 y1=new SymMoveTables1(new MoveTables().y1Move, Y_1_SYM_CLASSES);
+    SymMoveTables1 z1=new SymMoveTables1(new MoveTables().z1Move, Z_1_SYM_CLASSES);
+    SymMoveTables2 x2=new SymMoveTables2(new MoveTables().x2Move, X_2_SYM_CLASSES);
+    SymMoveTables2 y2=new SymMoveTables2(new MoveTables().y2Move, Y_2_SYM_CLASSES);
+    SymMoveTables2 z2=new SymMoveTables2(new MoveTables().z2Move, Z_2_SYM_CLASSES);
 }
 
 class SizeOf {
@@ -1020,7 +1015,8 @@ class SizeOf {
 
 class T{
     public static void main(String[] args) {
-        SizeOf.sizeof(new SymMoveTables());
+        //SizeOf.sizeof(new SymMoveTables());
         //SizeOf.sizeof(new MoveTables());
+        SizeOf.sizeof(readTables());
     }
 }

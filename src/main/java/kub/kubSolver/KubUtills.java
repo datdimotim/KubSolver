@@ -802,9 +802,9 @@ class HodTransforms {
 final class BigDecimalConverter {
     private static Random random=new Random();
     private static final BigDecimal
-            UO_MAX=BigDecimal.valueOf(Tables.x1_max),
-            RO_MAX=BigDecimal.valueOf(Tables.y1_max),
-            UP_MAX=BigDecimal.valueOf(Tables.x2_max),
+            UO_MAX=BigDecimal.valueOf(Tables.X_1_MAX),
+            RO_MAX=BigDecimal.valueOf(Tables.Y_1_MAX),
+            UP_MAX=BigDecimal.valueOf(Tables.X_2_MAX),
             RP_MAX=BigDecimal.valueOf(479001600/2); // factorial(12)/2
     static final BigDecimal MAX_POS=umnozit(umnozit(umnozit(UO_MAX,RO_MAX),UP_MAX),RP_MAX);
     private static BigDecimal plus(BigDecimal a, BigDecimal b){
