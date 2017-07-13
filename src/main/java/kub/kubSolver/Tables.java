@@ -4,7 +4,12 @@ import com.dimotim.compact_arrays.*;
 import com.dimotim.compact_arrays.IntegerArray;
 
 import java.io.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 
 import static kub.kubSolver.Tables.*;
 
@@ -15,7 +20,9 @@ class Tables implements Serializable{
     static final int x2_max=40320;
     static final int y2_max=40320;
     static final int z2_max=24;
-
+    static final int x1_sym_classes=324;
+    static final int y1_sym_classes=336;
+    static final int z1_sym_classes=81;
     static final int x2_sym_classes=2768;
     static final int y2_sym_classes=2768;
     static final int z2_sym_classes=8;
@@ -685,13 +692,10 @@ class SymMoveTabes2 {
         classToRaw=new int[16][CLASSES];
         int[][] symTable=createSymTable(rawMoveTable);
         initClassToRaw(rawMoveTable,symTable);
-        initSymmetryMul();
         rawToClass=initRawToClass(symTable);
         initSymMove(rawMoveTable);
 
-        proofSymmetryMul(symTable);
         proofRawToClassAndClassToRaw(rawMoveTable,symTable);
-        proofSymMove(rawMoveTable);
         proofMove(rawMoveTable);
     }
 
@@ -721,31 +725,6 @@ class SymMoveTabes2 {
         }
 
         System.out.println("TotalClasses="+classNumber);
-    }
-
-    private void initSymmetryMul(){
-        int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
-        for(int i=0;i<symmetryMul.length;i++){
-            int[] hods1=hodsTransform(hodsInit,i);
-            for(int j=0;j<symmetryMul.length;j++){
-                int[] hods2=hodsTransform(hods1,j);
-                boolean check=false;
-                for(int s=0;s<symmetryMul.length;s++){
-                    int[] hodsM=hodsTransform(hodsInit,s);
-                    if(Arrays.equals(hodsM,hods2)){
-                        if(check)throw new RuntimeException();
-                        symmetryMul[j][i]=s;
-                        check=true;
-                    }
-                }
-            }
-        }
-    }
-
-    private int[] hodsTransform(int[] hods, int s){
-        int[] ret=new int[hods.length];
-        for(int i=0;i<ret.length;i++)ret[i]=symHods[s][hods[i]];
-        return ret;
     }
 
     private  int[][] createSymTable(char[][] move){
@@ -783,35 +762,9 @@ class SymMoveTabes2 {
         }
     }
 
-    private void proofSymmetryMul(int[][] symTable){
-        for(int rawPos=0;rawPos<symTable[0].length;rawPos++){
-            for(int s1=0;s1<16;s1++){
-                for(int s2=0;s2<16;s2++){
-                    if(symTable[s1][symTable[s2][rawPos]]!=symTable[symmetryMul[s1][s2]][rawPos])throw new RuntimeException();
-                }
-            }
-        }
-    }
-
     private void proofRawToClassAndClassToRaw(char[][] rawMoveTable,int[][] symTable){
         for(int i=0;i<rawMoveTable[0].length;i++){
             if(i!=classToRaw[rawToClass[1][i]][rawToClass[0][i]])throw new RuntimeException();
-        }
-    }
-
-    private void proofSymMove(char[][] rawMoveTable){
-        for(int pos=0;pos<rawMoveTable[0].length;pos++){
-            for(int np = 0; np< rawMoveTable.length; np++){
-                int posEtalon= rawMoveTable[np][pos];
-                int sym=rawToClass[1][pos];
-                int symInv=inverseSymmetry[sym];
-                int transformedHod=hods18to10[symHods[symInv][hods10to18[np]]];
-                int classPos= symMoveTable[0][transformedHod][rawToClass[0][pos]];
-                int sym2= symMoveTable[1][transformedHod][rawToClass[0][pos]];
-                int symRes=symmetryMul[sym][sym2];
-                int posCheck=classToRaw[symRes][classPos];
-                if(posEtalon!=posCheck)throw new RuntimeException("pos="+pos+" np="+np+" posEtalon="+posEtalon+" posCheck="+posCheck);
-            }
         }
     }
 
@@ -840,19 +793,14 @@ class SymMoveTabes2 {
         out.classPos=symMoveTable[0][npSym][in.classPos];
         out.sym=symmetryMul[in.sym][symMoveTable[1][npSym][in.classPos]];
     }
-
-    public static void main(String[] args) {
-        SymMoveTabes2 x2=new SymMoveTabes2(new MoveTables().x2Move,x2_sym_classes);
-        SymMoveTabes2 y2=new SymMoveTabes2(new MoveTables().y2Move,y2_sym_classes);
-        SymMoveTabes2 z2=new SymMoveTabes2(new MoveTables().z2Move,z2_sym_classes);
-    }
 }
 
 class SymMoveTabes1 {
     private static final int[][] symmetryMul=Symmetry.symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private static final int[] inverseSymmetry=Symmetry.inverseSymmetry;
     private static final int[][] symHods=Symmetry.symHods;
-    private static int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
+    private static final int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
+    private static final int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7};
 
     public final int CLASSES;
     private final int[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
@@ -865,13 +813,10 @@ class SymMoveTabes1 {
         classToRaw=new int[8][CLASSES];
         int[][] symTable=createSymTable(rawMoveTable);
         initClassToRaw(rawMoveTable,symTable);
-        initSymmetryMul();
         rawToClass=initRawToClass(symTable);
         initSymMove(rawMoveTable);
 
-        proofSymmetryMul(symTable);
         proofRawToClassAndClassToRaw(rawMoveTable,symTable);
-        proofSymMove(rawMoveTable);
         proofMove(rawMoveTable);
     }
 
@@ -890,10 +835,11 @@ class SymMoveTabes1 {
         boolean[] mask=new boolean[rawMoveTable[0].length];
         Arrays.fill(mask,true);
         int classNumber=0;
+        //System.out.println(symTable[0].length);
         for(int i=0;i<symTable[0].length;i++){
             if(mask[i]){
                 for(int s=0;s<symTable.length;s++){
-                    classToRaw[s][classNumber]=symTable[s][i];
+                    classToRaw[s][classNumber]= symTable[s][i];
                     mask[symTable[s][i]]=false;
                 }
                 classNumber++;
@@ -901,31 +847,6 @@ class SymMoveTabes1 {
         }
 
         System.out.println("TotalClasses="+classNumber);
-    }
-
-    private void initSymmetryMul(){
-        int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
-        for(int i=0;i<symmetryMul.length;i++){
-            int[] hods1=hodsTransform(hodsInit,i);
-            for(int j=0;j<symmetryMul.length;j++){
-                int[] hods2=hodsTransform(hods1,j);
-                boolean check=false;
-                for(int s=0;s<symmetryMul.length;s++){
-                    int[] hodsM=hodsTransform(hodsInit,s);
-                    if(Arrays.equals(hodsM,hods2)){
-                        if(check)throw new RuntimeException();
-                        symmetryMul[j][i]=s;
-                        check=true;
-                    }
-                }
-            }
-        }
-    }
-
-    private int[] hodsTransform(int[] hods, int s){
-        int[] ret=new int[hods.length];
-        for(int i=0;i<ret.length;i++)ret[i]=symHods[s][hods[i]];
-        return ret;
     }
 
     private static int[][] createSymTable(char[][] move){
@@ -947,7 +868,7 @@ class SymMoveTabes1 {
                     if(sym_table[0][newPos]!=-1)continue;
                     newMark=true;
                     for (int s = 0; s < 8; s++) {
-                        sym_table[s][newPos] = move[symHods[s][p]][sym_table[s][pos]];
+                        sym_table[s][newPos] = move[symHods[convertSymHalfToFull[s]][p]][sym_table[s][pos]];
                     }
                 }
             }
@@ -963,35 +884,9 @@ class SymMoveTabes1 {
         }
     }
 
-    private void proofSymmetryMul(int[][] symTable){
-        for(int rawPos=0;rawPos<symTable[0].length;rawPos++){
-            for(int s1=0;s1<8;s1++){
-                for(int s2=0;s2<8;s2++){
-                    if(symTable[s1][symTable[s2][rawPos]]!=symTable[symmetryMul[s1][s2]][rawPos])throw new RuntimeException();
-                }
-            }
-        }
-    }
-
     private void proofRawToClassAndClassToRaw(char[][] rawMoveTable,int[][] symTable){
         for(int i=0;i<rawMoveTable[0].length;i++){
             if(i!=classToRaw[rawToClass[1][i]][rawToClass[0][i]])throw new RuntimeException();
-        }
-    }
-
-    private void proofSymMove(char[][] rawMoveTable){
-        for(int pos=0;pos<rawMoveTable[0].length;pos++){
-            for(int np = 0; np< rawMoveTable.length; np++){
-                int posEtalon= rawMoveTable[np][pos];
-                int sym=rawToClass[1][pos];
-                int symInv=inverseSymmetry[sym];
-                int transformedHod=symHods[symInv][np];
-                int classPos= symMoveTable[0][transformedHod][rawToClass[0][pos]];
-                int sym2= symMoveTable[1][transformedHod][rawToClass[0][pos]];
-                int symRes=symmetryMul[sym][sym2];
-                int posCheck=classToRaw[symRes][classPos];
-                if(posEtalon!=posCheck)throw new RuntimeException("pos="+pos+" np="+np+" posEtalon="+posEtalon+" posCheck="+posCheck);
-            }
         }
     }
 
@@ -1016,14 +911,116 @@ class SymMoveTabes1 {
     }
 
     void doMove(SymPos in, SymPos out,int np){
-        int npSym=symHods[inverseSymmetry[in.sym]][np];
+        int npSym=symHods[inverseSymmetry[convertSymHalfToFull[in.sym]]][np];
         out.classPos=symMoveTable[0][npSym][in.classPos];
-        out.sym=symmetryMul[in.sym][symMoveTable[1][npSym][in.classPos]];
+        out.sym=convertSymFullToHalf[symmetryMul[convertSymHalfToFull[in.sym]][convertSymHalfToFull[symMoveTable[1][npSym][in.classPos]]]];
     }
 
     public static void main(String[] args) {
-        SymMoveTabes1 x1=new SymMoveTabes1(new MoveTables().x1Move,x2_sym_classes);
-        SymMoveTabes1 y1=new SymMoveTabes1(new MoveTables().y1Move,y2_sym_classes);
-        SymMoveTabes1 z1=new SymMoveTabes1(new MoveTables().z1Move,z2_sym_classes);
+        SymMoveTabes1 x1=new SymMoveTabes1(new MoveTables().x1Move,x1_sym_classes);
+        SymMoveTabes1 y1=new SymMoveTabes1(new MoveTables().y1Move,y1_sym_classes);
+        SymMoveTabes1 z1=new SymMoveTabes1(new MoveTables().z1Move,z1_sym_classes);
+        SymMoveTabes2 x2=new SymMoveTabes2(new MoveTables().x2Move,x2_sym_classes);
+        SymMoveTabes2 y2=new SymMoveTabes2(new MoveTables().y2Move,y2_sym_classes);
+        SymMoveTabes2 z2=new SymMoveTabes2(new MoveTables().z2Move,z2_sym_classes);
+    }
+}
+
+class SymMoveTables{
+    SymMoveTabes1 x1=new SymMoveTabes1(new MoveTables().x1Move,x1_sym_classes);
+    SymMoveTabes1 y1=new SymMoveTabes1(new MoveTables().y1Move,y1_sym_classes);
+    SymMoveTabes1 z1=new SymMoveTabes1(new MoveTables().z1Move,z1_sym_classes);
+    SymMoveTabes2 x2=new SymMoveTabes2(new MoveTables().x2Move,x2_sym_classes);
+    SymMoveTabes2 y2=new SymMoveTabes2(new MoveTables().y2Move,y2_sym_classes);
+    SymMoveTabes2 z2=new SymMoveTabes2(new MoveTables().z2Move,z2_sym_classes);
+}
+
+class SizeOf {
+    public static final int SIZE_OF_REFERENCE=8;
+
+    private final IdentityHashMap set=new IdentityHashMap();
+    private int size=0;
+    private SizeOf(){}
+    public static void sizeof(Object instance){
+        new SizeOf().start(instance);
+    }
+    private void start(Object instance){
+        if(instance==null)throw new RuntimeException();
+        try {
+            if(instance.getClass().isArray())processArray(instance,"");
+            else processObject(instance,instance.getClass(),"");
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException();
+        }
+        System.out.println("\nTotalSize= "+size);
+    }
+    private void processArray(Object array,String prefix) throws IllegalAccessException {
+        Class elementType = array.getClass().getComponentType();
+        int arraySize = Array.getLength(array);
+        if (elementType.isPrimitive()){
+            size+=primitiveSize(elementType)*arraySize;
+        }
+        else{
+            size+=SIZE_OF_REFERENCE*arraySize;
+            for (int i = 0; i < arraySize; i++) {
+                Object arrayElement = Array.get(array, i);
+                if (arrayElement != null) {
+                    if(set.containsKey(arrayElement))continue;
+                    else set.put(arrayElement,null);
+                    if(arrayElement.getClass().isArray())processArray(arrayElement,prefix+"\t");
+                    else processObject(arrayElement, arrayElement.getClass(),prefix+"\t");
+                }
+            }
+        }
+    }
+    private void processObject(Object instance, Class clazz, String prefix) throws IllegalAccessException {
+        int start=size;
+        System.out.println(prefix + "class " +clazz.getName()+" {");
+        final Class superclass;
+        final ArrayList<Field> fields;
+        superclass=clazz.getSuperclass();
+        fields= new ArrayList<>();
+        for (Field field:clazz.getDeclaredFields())if(!Modifier.isStatic(field.getModifiers()))fields.add(field);
+
+        if(superclass!=null) processObject(instance, superclass, prefix+"\t");
+
+
+        for(Field f:fields) {
+            int holdSize=size;
+            if (f.getType().isPrimitive()) {
+                size+=primitiveSize(f.getType());
+            }
+            else {
+                size+=SIZE_OF_REFERENCE;
+                f.setAccessible(true);
+                Object contain = f.get(instance);
+                if (contain != null) {
+                    if(set.containsKey(contain))continue;
+                    set.put(contain,null);
+                    if (!contain.getClass().isArray()) processObject(contain, contain.getClass(),prefix+"\t");
+                    else processArray(contain,prefix+"\t");
+                }
+            }
+            System.out.println(prefix+"\t"+f.getName()+"  // size="+(size-holdSize));
+        }
+        System.out.println(prefix +"}  // classSize="+(size-start));
+    }
+    private static int primitiveSize(Class primitive){
+        if(primitive.equals(byte.class))return 1;
+        if(primitive.equals(char.class))return 2;
+        if(primitive.equals(short.class))return 2;
+        if(primitive.equals(int.class))return 4;
+        if(primitive.equals(float.class))return 4;
+        if(primitive.equals(boolean.class))return 4;
+        if(primitive.equals(long.class))return 8;
+        if(primitive.equals(double.class))return 8;
+        throw new RuntimeException();
+    }
+}
+
+class T{
+    public static void main(String[] args) {
+        SizeOf.sizeof(new SymMoveTables());
+        //SizeOf.sizeof(new MoveTables());
     }
 }
