@@ -9,8 +9,10 @@ public class KubSolver{
     private static final int[] hodsFase2=HodTransforms.getP10To18();
     public KubSolver(){
         this.tables=Tables.readTables();
-        setFase1Solver(new SimpleSolver1());
-        setFase2Solver(new SimpleSolver2());
+        //setFase1Solver(new SimpleSolver1());
+        //setFase2Solver(new SimpleSolver2());
+        setFase1Solver(new SymSimpleSolver1());
+        setFase2Solver(new SymSimpleSolver2());
     }
     public KubSolver(Fase1Solver fase1Solver,Fase2Solver fase2Solver){
         this.tables=Tables.readTables();

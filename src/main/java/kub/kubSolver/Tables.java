@@ -1,6 +1,8 @@
 package kub.kubSolver;
 
 import com.dimotim.compact_arrays.*;
+import test.SizeOf;
+
 import java.io.*;
 import java.util.Arrays;
 import static kub.kubSolver.Tables.*;
@@ -218,14 +220,14 @@ class SymMoveTable {
     private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private final int[] inverseSymmetry;
     private final int[][] symHods;
-
     public final int SYMMETRIES;
     public final int ROTATIES;
     public final int CLASSES;
     public final int RAW;
+
     final char[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
-    private final char[][]   classToRaw;     // sym, class
-    private final char[][]   rawToClass;     // <class, sym>[pos]
+    final char[][]   classToRaw;     // sym, class
+    final char[][]   rawToClass;     // <class, sym>[pos]
 
     SymMoveTable(char[][] rawMoveTable, int classes){
         if(rawMoveTable.length==19) {
@@ -250,10 +252,6 @@ class SymMoveTable {
         initClassToRaw(rawMoveTable,symTable);
         rawToClass=initRawToClass(symTable);
         initSymMove(rawMoveTable);
-
-        proofRawToClassAndClassToRaw(rawMoveTable,symTable);
-        proofMove(rawMoveTable);
-        proofMove1(rawMoveTable);
     }
 
     private char[][] initRawToClass(int[][] symTable){   // <class, sym>[pos]
@@ -316,13 +314,7 @@ class SymMoveTable {
         }
     }
 
-    private void proofRawToClassAndClassToRaw(char[][] rawMoveTable,int[][] symTable){
-        for(int i=0;i<rawMoveTable[0].length;i++){
-            if(i!=classToRaw[rawToClass[1][i]][rawToClass[0][i]])throw new RuntimeException();
-        }
-    }
-
-    private void proofMove(char[][] rawMoveTable){
+    void proofMove(char[][] rawMoveTable){
         for(int pos=0;pos<rawMoveTable[0].length;pos++){
             for(int np = 0; np< rawMoveTable.length; np++){
                 int posEtalon= rawMoveTable[np][pos];
@@ -332,53 +324,41 @@ class SymMoveTable {
         }
     }
 
-    private void proofMove1(char[][] rawMoveTable){
-        for(int c=0;c<CLASSES;c++){
-            for(int s=0;s<SYMMETRIES;s++) {
-                for (int np = 0; np < rawMoveTable.length; np++) {
-                    SymPos symPos=new SymPos();
-                    symPos.sym=s;
-                    symPos.classPos=c;
-                    int posEtalon = rawMoveTable[np][symPosToRaw(symPos)];
-                    SymPos ratated=new SymPos();
-                    doMove(symPos,ratated,np);
-                    int posCheck = symPosToRaw(ratated);
-                    if (posEtalon != posCheck) throw new RuntimeException();
-                }
-            }
-        }
-    }
-
-    void rawToSym(int raw,SymPos symPos){
+    final void rawToSym(int raw,SymPos symPos){
         symPos.classPos=rawToClass[0][raw];
         symPos.sym=rawToClass[1][raw];
     }
 
-    int symPosToRaw(SymPos symPos){
+    final int symPosToRaw(SymPos symPos){
         return classToRaw[symPos.sym][symPos.classPos];
     }
 
-    void doMove(SymPos in, SymPos out,int np){
+    final void doMove(SymPos in, SymPos out,int np){
         int npSym=symHods[inverseSymmetry[in.sym]][np];
         out.classPos=symMoveTable[0][npSym][in.classPos];
         out.sym=symmetryMul[in.sym][symMoveTable[1][npSym][in.classPos]];
     }
 
-    int rawHod(int raw,int np){
-        SymPos in=new SymPos();
-        SymPos out=new SymPos();
-        rawToSym(raw,in);
-        doMove(in,out,np);
-        return symPosToRaw(out);
+    final int rawHod(int raw,int np){
+        int in_classPos=rawToClass[0][raw];
+        int in_sym=rawToClass[1][raw];
+        int npSym=symHods[inverseSymmetry[in_sym]][np];
+        int out_classPos=symMoveTable[0][npSym][in_classPos];
+        int out_sym=symmetryMul[in_sym][symMoveTable[1][npSym][in_classPos]];
+        return classToRaw[out_sym][out_classPos];
     }
 }
 
 class SymDeepTable {
     private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private final int[] inverseSymmetry;
+    private final SymMoveTable symPart;
+    private final SymMoveTable rawPart;
 
     private final byte[][] deepTable;
     SymDeepTable(SymMoveTable symPart, SymMoveTable rawPart){
+        this.symPart=symPart;
+        this.rawPart=rawPart;
         if(symPart.symMoveTable[0].length==19) {
             symmetryMul = Symmetry.symmetryMulHalf;
             inverseSymmetry = Symmetry.inverseSymmetryHalf;
@@ -388,9 +368,9 @@ class SymDeepTable {
             symmetryMul = Symmetry.symmetryMul;
             inverseSymmetry = Symmetry.inverseSymmetry;
         }
-        deepTable=createDeepTable(symPart,rawPart);
+        deepTable=createDeepTable();
     }
-    private byte[][] createDeepTable(SymMoveTable symPart, SymMoveTable rawPart){
+    private byte[][] createDeepTable(){
         SymPos symP=new SymPos();
         SymPos rawP=new SymPos();
         SymPos symPRotated=new SymPos();
@@ -424,10 +404,21 @@ class SymDeepTable {
                 }
             }
         }
+
+        //
+        for(int d=0;d<30;d++) {
+            int count=0;
+            for (int i = 0; i < deepTable.length; i++) {
+                for (int j = 0; j < deepTable[0].length; j++) {
+                    if(deepTable[i][j]==d)count++;
+                }
+            }
+            System.out.println(count);
+        }
         return deepTable;
     }
 
-    private byte[][] createDeepTableRaw(SymMoveTable symPart, SymMoveTable rawPart){
+    private byte[][] createDeepTableRaw(){
         byte[][] deepTable=new byte[symPart.RAW][rawPart.RAW];
         for(byte[] b:deepTable)Arrays.fill(b,(byte) 20);
         deepTable[0][0]=0;
@@ -444,21 +435,22 @@ class SymDeepTable {
         return deepTable;
     }
 
-    void proofDeepTable(SymMoveTable symPart, SymMoveTable rawPart){
-        byte[][] deepTableRaw=createDeepTableRaw(symPart,rawPart);
+    void proofDeepTable(){
+        SymPos symP=new SymPos();
+        SymPos rawP=new SymPos();
+        byte[][] deepTableRaw=createDeepTableRaw();
         for(int i=0;i<deepTableRaw.length;i++){
             for(int j=0;j<deepTableRaw[0].length;j++){
-                SymPos symP=new SymPos();
-                SymPos rawP=new SymPos();
                 symPart.rawToSym(i,symP);
                 rawPart.rawToSym(j,rawP);
-                rawP.sym=symmetryMul[inverseSymmetry[symP.sym]][rawP.sym];
-
-                if(deepTableRaw[i][j]!=deepTable[symP.classPos][rawPart.symPosToRaw(rawP)])throw new RuntimeException(
-                        "i="+i+" j="+j+" deepTable[i][j]="+deepTable[i][j]+" deepTableRaw="+deepTableRaw[symP.classPos][rawPart.symPosToRaw(rawP)]
-                );
+                if(deepTableRaw[i][j]!=getDepth(symP,rawP))throw new RuntimeException();
             }
         }
+    }
+
+    final int getDepth(SymPos sym, SymPos raw){
+        int s=symmetryMul[inverseSymmetry[sym.sym]][raw.sym];
+        return deepTable[sym.classPos][rawPart.classToRaw[s][raw.classPos]];
     }
 }
 
@@ -466,6 +458,8 @@ class SymPos{
     int classPos;
     int sym;
 }
+
+
 
 class SymTables {
     SymMoveTable x1;
@@ -491,9 +485,61 @@ class SymTables {
         xy1 = new SymDeepTable(x1, y1);System.out.println("xy1 deep created");
         xz1 = new SymDeepTable(x1, z1);System.out.println("xz1 deep created");
         yz1 = new SymDeepTable(y1, z1);System.out.println("yz1 deep created");
-        xy2 = new SymDeepTable(x2, y2);System.out.println("xy2 deep created");
+        //xy2 = new SymDeepTable(x2, y2);System.out.println("xy2 deep created");
         xz2 = new SymDeepTable(x2, z2);System.out.println("xz2 deep created");
         yz2 = new SymDeepTable(y2, z2);System.out.println("yz2 deep created");
+    }
+    void proof(){
+        MoveTables moveTables = new MoveTables();
+        x1.proofMove(moveTables.x1Move);System.out.println("x1 move tested");
+        y1.proofMove(moveTables.y1Move);System.out.println("y1 move tested");
+        z1.proofMove(moveTables.z1Move);System.out.println("z1 move tested");
+        x2.proofMove(moveTables.x2Move);System.out.println("x2 move tested");
+        y2.proofMove(moveTables.y2Move);System.out.println("y2 move tested");
+        z2.proofMove(moveTables.z2Move);System.out.println("z2 move tested");
+        xy1.proofDeepTable();System.out.println("xy1 deep tested");
+        xz1.proofDeepTable();System.out.println("xz1 deep tested");
+        yz1.proofDeepTable();System.out.println("yz1 deep tested");
+        //xy2.proofDeepTable();System.out.println("xy2 deep tested");
+        xz2.proofDeepTable();System.out.println("xz2 deep tested");
+        yz2.proofDeepTable();System.out.println("yz2 deep tested");
+    }
+
+    static class KubState{
+        SymPos x=new SymPos();
+        SymPos y=new SymPos();
+        SymPos z=new SymPos();
+    }
+    KubState initKubStateFase1(int x,int y,int z){
+        KubState kubState=new KubState();
+        x1.rawToSym(x,kubState.x);
+        y1.rawToSym(y,kubState.y);
+        z1.rawToSym(z,kubState.z);
+        return kubState;
+    }
+
+    int moveAndGetDetphFase1(KubState in, KubState out, int np){
+        x1.doMove(in.x,out.x,np);
+        y1.doMove(in.y,out.y,np);
+        z1.doMove(in.z,out.z,np);
+        return Math.max(yz1.getDepth(out.y,out.z),Math.max(xy1.getDepth(out.x,out.y),xz1.getDepth(out.x,out.z)));
+    }
+    KubState initKubStateFase2(int x,int y,int z){
+        KubState kubState=new KubState();
+        x2.rawToSym(x,kubState.x);
+        y2.rawToSym(y,kubState.y);
+        z2.rawToSym(z,kubState.z);
+        return kubState;
+    }
+
+    int moveAndGetDetphFase2(KubState in, KubState out, int np){
+        x2.doMove(in.x,out.x,np);
+        y2.doMove(in.y,out.y,np);
+        z2.doMove(in.z,out.z,np);
+        return Math.max(yz2.getDepth(out.y,out.z),Math.max(
+                xy2 == null ? 0:
+                        xy2.getDepth(out.x,out.y),
+                        xz2.getDepth(out.x,out.z)));
     }
 }
 
@@ -504,18 +550,10 @@ class T{
         //SizeOf.sizeof(readTables());
         long ts=System.currentTimeMillis();
         SymTables symTables =new SymTables();
-        new SymDeepTable(symTables.x1, symTables.y1).proofDeepTable(symTables.x1, symTables.y1);
-        new SymDeepTable(symTables.x1, symTables.z1).proofDeepTable(symTables.x1, symTables.z1);
-        new SymDeepTable(symTables.y1, symTables.z1).proofDeepTable(symTables.y1, symTables.z1);
-
-        new SymDeepTable(symTables.x2, symTables.y2).proofDeepTable(symTables.x2, symTables.y2);
-        new SymDeepTable(symTables.x2, symTables.z2).proofDeepTable(symTables.x2, symTables.z2);
-        new SymDeepTable(symTables.y2, symTables.z2).proofDeepTable(symTables.y2, symTables.z2);
-
-
-        //new SymDeepTable2(symTables.x2,symTables.y2);//.proofDeepTable(symTables.x2,symTables.y2);
-        //new SymDeepTable2(symTables.x2,symTables.z2);//.proofDeepTable(symTables.x2,symTables.z2);
-        //new SymDeepTable2(symTables.y2,symTables.z2);//.proofDeepTable(symTables.y2,symTables.z2);
         System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
+        symTables.proof();
+        System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
+
+        SizeOf.sizeof(symTables);
     }
 }
