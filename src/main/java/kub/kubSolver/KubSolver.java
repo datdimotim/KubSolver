@@ -5,17 +5,17 @@ import static kub.kubSolver.BaseFaseSolver.MAX_DEEP;
 public class KubSolver{
     private Fase1Solver fase1Solver;
     private Fase2Solver fase2Solver;
-    private final Tables tables;
+    private final SymTables tables;
     private static final int[] hodsFase2=HodTransforms.getP10To18();
     public KubSolver(){
-        this.tables=Tables.readTables();
+        this.tables=SymTables.readTables();
         //setFase1Solver(new SimpleSolver1());
         //setFase2Solver(new SimpleSolver2());
         setFase1Solver(new SymSimpleSolver1());
         setFase2Solver(new SymSimpleSolver2());
     }
     public KubSolver(Fase1Solver fase1Solver,Fase2Solver fase2Solver){
-        this.tables=Tables.readTables();
+        this.tables=SymTables.readTables();
         setFase1Solver(fase1Solver);
         setFase2Solver(fase2Solver);
     }

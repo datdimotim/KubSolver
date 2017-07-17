@@ -5,84 +5,8 @@ import test.SizeOf;
 
 import java.io.*;
 import java.util.Arrays;
-import static kub.kubSolver.Tables.*;
 
-class Tables implements Serializable{
-    static final int X_1_MAX =2187;
-    static final int Y_1_MAX =2048;
-    static final int Z_1_MAX =495;
-    static final int X_2_MAX =40320;
-    static final int Y_2_MAX =40320;
-    static final int Z_2_MAX =24;
-    static final int X_1_SYM_CLASSES =324;
-    static final int Y_1_SYM_CLASSES =336;
-    static final int Z_1_SYM_CLASSES =81;
-    static final int X_2_SYM_CLASSES =2768;
-    static final int Y_2_SYM_CLASSES =2768;
-    static final int Z_2_SYM_CLASSES =8;
-
-    private final MoveTables moveTables;
-    private final SymTables1 symTables1;
-    private final SymTables2 symTables2;
-
-    private Tables(){
-        moveTables=new MoveTables();
-        symTables2=new SymTables2(moveTables);
-        symTables1=new SymTables1(moveTables);
-    }
-
-    // run first for initialization
-    public static void main(String[] args)throws IOException{
-        Tables tables=new Tables();
-        ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("src/main/resources/tables.object"));
-        oos.writeObject(tables);
-        oos.close();
-    }
-
-    static Tables readTables(){
-        try(InputStream fis = Tables.class.getResourceAsStream("/tables.object")) {
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            return (Tables)ois.readObject();
-        }
-        catch (IOException | ClassNotFoundException e){
-            throw new RuntimeException("Can't read tables",e);
-        }
-    }
-
-    final void initState1(CoordSet set){
-        symTables1.initState(set,moveTables);
-    }
-    final void initState2(CoordSet set){
-        symTables2.initState(set,moveTables);
-    }
-    final int moveAndGetDepth2(CoordSet in, CoordSet out, int p){
-        out.coord[0] = moveTables.x2Move[p][in.coord[0]];
-        out.coord[1] = moveTables.y2Move[p][in.coord[1]];
-        out.coord[2] = moveTables.z2Move[p][in.coord[2]];
-        symTables2.getDeep(in, out);
-        return Math.max(out.deep[0],Math.max(out.deep[1],out.deep[2]));
-    }
-    final int moveAndGetDepth1(CoordSet in, CoordSet out, int p){
-        out.coord[0] = moveTables.x1Move[p][in.coord[0]];
-        out.coord[1] = moveTables.y1Move[p][in.coord[1]];
-        out.coord[2] = moveTables.z1Move[p][in.coord[2]];
-        symTables1.getDeep(in,out);
-        return Math.max(out.deep[0],Math.max(out.deep[1],out.deep[2]));
-    }
-    static class CoordSet{
-        final int[] coord;
-        final int[] deep;
-        CoordSet(){
-            coord=new int[3];
-            deep=new int[3];
-        }
-        CoordSet(CoordSet set){
-            this.coord=set.coord.clone();
-            this.deep=set.deep.clone();
-        }
-    }
-}
+import static kub.kubSolver.SymTables.*;
 
 class MoveTables implements Serializable{
     final char[][] x1Move;
@@ -216,18 +140,17 @@ class IntegerMatrix implements Serializable{
     }
 }
 
-class SymMoveTable {
+class SymMoveTable implements Serializable{
     private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private final int[] inverseSymmetry;
     private final int[][] symHods;
-    public final int SYMMETRIES;
-    public final int ROTATIES;
-    public final int CLASSES;
-    public final int RAW;
+    final int SYMMETRIES;
+    final int CLASSES;
+    final int RAW;
 
     final char[][][] symMoveTable;   // backing storage   //<class, sym>[povorot][position]
     final char[][]   classToRaw;     // sym, class
-    final char[][]   rawToClass;     // <class, sym>[pos]
+    private final char[][]   rawToClass;     // <class, sym>[pos]
 
     SymMoveTable(char[][] rawMoveTable, int classes){
         if(rawMoveTable.length==19) {
@@ -243,10 +166,9 @@ class SymMoveTable {
 
         }
         SYMMETRIES = symmetryMul.length;
-        ROTATIES = symHods[0].length;
         CLASSES=classes;
         RAW=rawMoveTable[0].length;
-        symMoveTable=new char[2][ROTATIES][CLASSES];
+        symMoveTable=new char[2][symHods[0].length][CLASSES];
         classToRaw=new char[SYMMETRIES][CLASSES];
         int[][] symTable=createSymTable(rawMoveTable);
         initClassToRaw(rawMoveTable,symTable);
@@ -349,7 +271,7 @@ class SymMoveTable {
     }
 }
 
-class SymDeepTable {
+class SymDeepTable implements Serializable{
     private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private final int[] inverseSymmetry;
     private final SymMoveTable symPart;
@@ -404,17 +326,6 @@ class SymDeepTable {
                 }
             }
         }
-
-        //
-        for(int d=0;d<30;d++) {
-            int count=0;
-            for (int i = 0; i < deepTable.length; i++) {
-                for (int j = 0; j < deepTable[0].length; j++) {
-                    if(deepTable[i][j]==d)count++;
-                }
-            }
-            System.out.println(count);
-        }
         return deepTable;
     }
 
@@ -461,19 +372,32 @@ class SymPos{
 
 
 
-class SymTables {
-    SymMoveTable x1;
-    SymMoveTable y1;
-    SymMoveTable z1;
-    SymMoveTable x2;
-    SymMoveTable y2;
-    SymMoveTable z2;
-    SymDeepTable xy1;
-    SymDeepTable xz1;
-    SymDeepTable yz1;
-    SymDeepTable xy2;
-    SymDeepTable xz2;
-    SymDeepTable yz2;
+class SymTables implements Serializable{
+    static final int X_1_MAX =2187;
+    static final int Y_1_MAX =2048;
+    static final int Z_1_MAX =495;
+    static final int X_2_MAX =40320;
+    static final int Y_2_MAX =40320;
+    static final int Z_2_MAX =24;
+    private static final int X_1_SYM_CLASSES =324;
+    private static final int Y_1_SYM_CLASSES =336;
+    private static final int Z_1_SYM_CLASSES =81;
+    private static final int X_2_SYM_CLASSES =2768;
+    private static final int Y_2_SYM_CLASSES =2768;
+    private static final int Z_2_SYM_CLASSES =8;
+
+    private final SymMoveTable x1;
+    private final SymMoveTable y1;
+    private final SymMoveTable z1;
+    private final SymMoveTable x2;
+    private final SymMoveTable y2;
+    private final SymMoveTable z2;
+    private final SymDeepTable xy1;
+    private final SymDeepTable xz1;
+    private final SymDeepTable yz1;
+    private SymDeepTable xy2;
+    private final SymDeepTable xz2;
+    private final SymDeepTable yz2;
     SymTables() {
         MoveTables moveTables = new MoveTables();System.out.println("raw move tables created");
         x1 = new SymMoveTable(moveTables.x1Move, X_1_SYM_CLASSES);System.out.println("x1 move created");
@@ -541,6 +465,25 @@ class SymTables {
                         xy2.getDepth(out.x,out.y),
                         xz2.getDepth(out.x,out.z)));
     }
+
+    // run first for initialization
+    public static void main(String[] args)throws IOException{
+        SymTables tables=new SymTables();
+        ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("src/main/resources/tables.object"));
+        oos.writeObject(tables);
+        oos.close();
+    }
+
+    static SymTables readTables(){
+        try(InputStream fis = SymTables.class.getResourceAsStream("/tables.object")) {
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(bis);
+            return (SymTables) ois.readObject();
+        }
+        catch (IOException | ClassNotFoundException e){
+            throw new RuntimeException("Can't read tables",e);
+        }
+    }
 }
 
 class T{
@@ -548,12 +491,14 @@ class T{
         //SizeOf.sizeof(new SymTables());
         //SizeOf.sizeof(new MoveTables());
         //SizeOf.sizeof(readTables());
+        //SizeOf.sizeof(new SymTables());
+        computeAndTest();
+    }
+    static void computeAndTest(){
         long ts=System.currentTimeMillis();
         SymTables symTables =new SymTables();
         System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
         symTables.proof();
         System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
-
-        SizeOf.sizeof(symTables);
     }
 }

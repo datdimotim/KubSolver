@@ -189,7 +189,7 @@ final class Symmetry{
     private static final int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7};
     private static final int[] hods18to10=HodTransforms.getP18to10();
     private static final int[] hods10to18=HodTransforms.getP10To18();
-    static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(HodTransforms.getSymHodsAllSymmetry());
+    static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(Symmetry.getSymHodsAllSymmetry());
     static final int[] inverseSymmetryHalf=initInverseSymmetryHalf(inverseSymmetry);
     static final int[][] symHods=getSymHodsAllSymmetry();
     static final int[][] symHodsHalf=initSymHodsHalf(symHods);
@@ -835,18 +835,14 @@ class HodTransforms {
         for(int i = 0; i< symHodsFor3Axis.length; i++)ret[i]= symHodsFor3Axis[i].clone();
         return ret;
     }
-
-    static int[][] getSymHodsAllSymmetry() {
-        return Symmetry.getSymHodsAllSymmetry();
-    }
 }
 
 final class BigDecimalConverter {
     private static Random random=new Random();
     private static final BigDecimal
-            UO_MAX=BigDecimal.valueOf(Tables.X_1_MAX),
-            RO_MAX=BigDecimal.valueOf(Tables.Y_1_MAX),
-            UP_MAX=BigDecimal.valueOf(Tables.X_2_MAX),
+            UO_MAX=BigDecimal.valueOf(SymTables.X_1_MAX),
+            RO_MAX=BigDecimal.valueOf(SymTables.Y_1_MAX),
+            UP_MAX=BigDecimal.valueOf(SymTables.X_2_MAX),
             RP_MAX=BigDecimal.valueOf(479001600/2); // factorial(12)/2
     static final BigDecimal MAX_POS=umnozit(umnozit(umnozit(UO_MAX,RO_MAX),UP_MAX),RP_MAX);
     private static BigDecimal plus(BigDecimal a, BigDecimal b){
