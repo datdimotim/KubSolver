@@ -185,12 +185,54 @@ final class KubKoordinates {
 }
 
 final class Symmetry{
+    private static final int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
+    private static final int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7};
+    private static final int[] hods18to10=HodTransforms.getP18to10();
+    private static final int[] hods10to18=HodTransforms.getP10To18();
     static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(HodTransforms.getSymHodsAllSymmetry());
+    static final int[] inverseSymmetryHalf=initInverseSymmetryHalf(inverseSymmetry);
     static final int[][] symHods=getSymHodsAllSymmetry();
+    static final int[][] symHodsHalf=initSymHodsHalf(symHods);
+    static final int[][] symHods10=initSymHods10(symHods);
     static final int[][] symmetryMul=initSymmetryMul();  // matrix1*matrix2*vector -> matrix*vector
+    static final int[][] symmetryMulHalf=initSymmetryMulHalf(symmetryMul);
+
+    private static int[][] initSymHods10(int[][] symHods){
+        int[][] symHods10=new int[symHods.length][hods10to18.length];
+        for(int s=0;s<symHods.length;s++){
+            for(int p=0;p<hods10to18.length;p++){
+                symHods10[s][p]=hods18to10[symHods[s][hods10to18[p]]];
+            }
+        }
+        return symHods10;
+    }
+
+    private static int[][] initSymHodsHalf(int[][] symHods){
+        int[][] symHodsHalf=new int[8][symHods[0].length];
+        for(int i=0;i<8;i++){
+            System.arraycopy(symHods[convertSymHalfToFull[i]],0,symHodsHalf[i],0,symHodsHalf[0].length);
+        }
+        return symHodsHalf;
+    }
+
+    private static int[] initInverseSymmetryHalf(int[] inverseSymmetry){
+        int[] inverseSymmetryHalf=new int[8];
+        for (int i=0;i<8;i++)inverseSymmetryHalf[i]=convertSymFullToHalf[inverseSymmetry[convertSymHalfToFull[i]]];
+        return inverseSymmetryHalf;
+    }
+
+    private static int[][] initSymmetryMulHalf(int[][] symmetryMul){
+        int[][] symmetryMulHalf=new int[8][8];
+        for(int i=0;i<8;i++){
+            for(int j=0;j<8;j++){
+                symmetryMulHalf[i][j]=convertSymFullToHalf[symmetryMul[convertSymHalfToFull[i]][convertSymHalfToFull[j]]];
+            }
+        }
+        return symmetryMulHalf;
+    }
 
     private static int[][] initSymmetryMul(){
-        int[][] symmetryMul=new int[48][48];
+        int[][] symmetryMul=new int[16][16];
         int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
         for(int i=0;i<symmetryMul.length;i++){
             int[] hods1=hodsTransform(hodsInit,i);
