@@ -1,7 +1,7 @@
 package kub.kubSolver;
 
-import kub.kubSolver.solvers.SymSimpleSolver1;
-import kub.kubSolver.solvers.SymSimpleSolver2;
+import kub.kubSolver.solvers.SimpleSolver1;
+import kub.kubSolver.solvers.SimpleSolver2;
 
 import static kub.kubSolver.Fase1Solver.MAX_DEEP;
 
@@ -10,8 +10,8 @@ public class KubSolver<KS>{
     private Fase2Solver<KS> fase2Solver;
     private static final int[] hodsFase2=HodTransforms.p10To18;
     public KubSolver(Tables<KS> tables){
-        fase1Solver= new SymSimpleSolver1<>();
-        fase2Solver= new SymSimpleSolver2<>();
+        fase1Solver= new SimpleSolver1<>();
+        fase2Solver= new SimpleSolver2<>();
         fase1Solver.init(tables);
         fase2Solver.init(tables);
     }

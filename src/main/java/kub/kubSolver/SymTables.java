@@ -105,7 +105,7 @@ public class SymTables implements Tables<SymTables.KubState>{
     }
 
     @Override
-    public int moveAndGetDetphFase1(KubState in, KubState out, int np){
+    public int moveAndGetDepthFase1(KubState in, KubState out, int np){
         out.x=x1.doMove(in.x,np);
         out.y=y1.doMove(in.y,np);
         out.z=z1.doMove(in.z,np);
@@ -128,7 +128,7 @@ public class SymTables implements Tables<SymTables.KubState>{
     }
 
     @Override
-    public int moveAndGetDetphFase2(KubState in, KubState out, int np){
+    public int moveAndGetDepthFase2(KubState in, KubState out, int np){
         out.x=x2.doMove(in.x,np);
         out.y=y2.doMove(in.y,np);
         out.z=z2.doMove(in.z,np);

@@ -46,7 +46,7 @@ public class DoubleTables implements Tables<DoubleTables.KubState>{
     }
 
     @Override
-    public int moveAndGetDetphFase1(KubState in, KubState out, int np) {
+    public int moveAndGetDepthFase1(KubState in, KubState out, int np) {
         out.x=moveTables.x1Move[np][in.x];
         out.y=moveTables.y1Move[np][in.y];
         out.z=moveTables.z1Move[np][in.z];
@@ -54,7 +54,7 @@ public class DoubleTables implements Tables<DoubleTables.KubState>{
     }
 
     @Override
-    public int moveAndGetDetphFase2(KubState in, KubState out, int np) {
+    public int moveAndGetDepthFase2(KubState in, KubState out, int np) {
         out.x=moveTables.x2Move[np][in.x];
         out.y=moveTables.y2Move[np][in.y];
         out.z=moveTables.z2Move[np][in.z];
@@ -71,7 +71,7 @@ public class DoubleTables implements Tables<DoubleTables.KubState>{
         return new KubState[length];
     }
 
-    static class KubState{
+    public static class KubState{
         private int x;
         private int y;
         private int z;

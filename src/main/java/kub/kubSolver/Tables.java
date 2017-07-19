@@ -18,8 +18,8 @@ public interface Tables<KubState> extends Serializable{
     int Z_2_SYM_CLASSES =8;
     KubState initKubStateFase1(int x,int y,int z);
     KubState initKubStateFase2(int x,int y,int z);
-    int moveAndGetDetphFase1(KubState in, KubState out, int np);
-    int moveAndGetDetphFase2(KubState in, KubState out, int np);
+    int moveAndGetDepthFase1(KubState in, KubState out, int np);
+    int moveAndGetDepthFase2(KubState in, KubState out, int np);
     KubState newKubState();
     KubState[] newArrayKubState(int length);
 }

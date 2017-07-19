@@ -1,8 +1,5 @@
 package kub.kubSolver;
-
-import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Random;
 
 final class KubFacelet {
     static int[][][] faceletToGrani(int[] facelet) {

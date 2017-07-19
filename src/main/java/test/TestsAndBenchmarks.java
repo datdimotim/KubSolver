@@ -1,6 +1,10 @@
 package test;
 
 import kub.kubSolver.*;
+import kub.kubSolver.solvers.RecursiveSolver1;
+import kub.kubSolver.solvers.RecursiveSolver2;
+import kub.kubSolver.solvers.SimpleSolver1;
+import kub.kubSolver.solvers.SimpleSolver2;
 import parallel_solver.ParallelSymmetrySolver;
 
 import java.io.IOException;
@@ -16,7 +20,7 @@ public class TestsAndBenchmarks {
         //while (true)computeTables();
     }
     public static void speedSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver<>(new DoubleTables());
+        KubSolver kubSolver=new KubSolver<>(new DoubleTables(),new RecursiveSolver1<>(),new RecursiveSolver2<>());
         Kub kub = new Kub(false);
         final int time=1000;
         long st=System.currentTimeMillis();
@@ -37,7 +41,7 @@ public class TestsAndBenchmarks {
         }
     }
     public static void parallelSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver<>(SymTables.readTables());
+        KubSolver kubSolver=new KubSolver<>(new DoubleTables(),new RecursiveSolver1<>(),new SimpleSolver2<>());
         Kub kub = new Kub(true);
         Solution solution= ParallelSymmetrySolver.solve(kub,kubSolver,1000);
         System.out.println(solution);
@@ -45,7 +49,7 @@ public class TestsAndBenchmarks {
         System.out.println(kub);
     }
     public static void infiniteSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver<>(SymTables.readTables());
+        KubSolver kubSolver=new KubSolver<>(new DoubleTables(),new RecursiveSolver1<>(),new SimpleSolver2<>());
         Kub kub = new Kub(true);
         Solution solution=null;
         while (true) {
