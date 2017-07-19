@@ -2,7 +2,7 @@ package parallel_solver;
 
 import kub.kubSolver.Kub;
 import kub.kubSolver.KubSolver;
-import kub.kubSolver.Solution;
+import static kub.kubSolver.KubSolver.Solution;
 
 import java.util.concurrent.*;
 

@@ -1,53 +1,47 @@
 package kub.kubSolver;
 
-import static kub.kubSolver.BaseFaseSolver.MAX_DEEP;
+import kub.kubSolver.solvers.SymSimpleSolver1;
+import kub.kubSolver.solvers.SymSimpleSolver2;
 
-public class KubSolver{
-    private Fase1Solver fase1Solver;
-    private Fase2Solver fase2Solver;
-    private final SymTables tables;
-    private static final int[] hodsFase2=HodTransforms.getP10To18();
-    public KubSolver(){
-        this.tables=SymTables.readTables();
-        //setFase1Solver(new SimpleSolver1());
-        //setFase2Solver(new SimpleSolver2());
-        setFase1Solver(new SymSimpleSolver1());
-        setFase2Solver(new SymSimpleSolver2());
+import static kub.kubSolver.Fase1Solver.MAX_DEEP;
+
+public class KubSolver<KS>{
+    private Fase1Solver<KS> fase1Solver;
+    private Fase2Solver<KS> fase2Solver;
+    private static final int[] hodsFase2=HodTransforms.p10To18;
+    public KubSolver(Tables<KS> tables){
+        fase1Solver= new SymSimpleSolver1<>();
+        fase2Solver= new SymSimpleSolver2<>();
+        fase1Solver.init(tables);
+        fase2Solver.init(tables);
     }
-    public KubSolver(Fase1Solver fase1Solver,Fase2Solver fase2Solver){
-        this.tables=SymTables.readTables();
-        setFase1Solver(fase1Solver);
-        setFase2Solver(fase2Solver);
+    public KubSolver(Tables<KS> tables,Fase1Solver<KS> fase1Solver,Fase2Solver<KS> fase2Solver){
+        this.fase1Solver=fase1Solver;
+        this.fase2Solver=fase2Solver;
+        this.fase1Solver.init(tables);
+        this.fase2Solver.init(tables);
     }
-    private void setFase1Solver(Fase1Solver solver){
-        fase1Solver=solver;
-        if(solver!=null)solver.init(tables);
-    }
-    private void setFase2Solver(Fase2Solver solver){
-        fase2Solver=solver;
-        if(solver!=null)solver.init(tables);
-    }
+
     public Solution solve(Kub kub,Solution preSolution,int sym){
-        int[][][] grani;
-        switch (sym){
-            case 1:{
-                grani=kub.getGrani();
-                break;
-            }
-            case 2:{
-                grani=Symmetry.normalizeColors(Symmetry.symZ(kub.getGrani()));
-                break;
-            }
-            case 3:{
-                grani=Symmetry.normalizeColors(Symmetry.symX(kub.getGrani()));
-                break;
-            }
-            default:throw new IllegalArgumentException("sym="+sym+", but 1<=sym<=3");
-        }
-        Cubie cubie;
         try {
-            cubie=new Cubie(grani);
-        } catch (InvalidPositionException e) {
+            switch (sym) {
+                case 1: {
+                    kub=new Kub(kub);
+                    break;
+                }
+                case 2: {
+                    kub = new Kub(Symmetry.normalizeColors(Symmetry.symZ(kub.getGrani())));
+                    break;
+                }
+                case 3: {
+                    kub = new Kub(Symmetry.normalizeColors(Symmetry.symX(kub.getGrani())));
+                    break;
+                }
+                default:
+                    throw new IllegalArgumentException("sym=" + sym + ", but 1<=sym<=3");
+            }
+        }
+        catch (Kub.InvalidPositionException e){
             throw new RuntimeException(e);
         }
 
@@ -55,23 +49,41 @@ public class KubSolver{
         if(preSolution!=null)fase1solution=fase1HodsAdapter(preSolution.getFase1());
         if(fase1solution!=null)incrementHods1(fase1solution);
         else fase1solution=new int[MAX_DEEP +1];
-
-        if(fase1Solver!=null){
-            int[] k1=cubie.toKoordinates1();
-            fase1Solver.solve(k1[0], k1[1], k1[2],fase1solution);
-            for (int p : fase1solution) cubie=cubie.povorot(p);
-            k1=cubie.toKoordinates1();
-            if(k1[0]!=0||k1[1]!=0||k1[2]!=0)throw new RuntimeException("Kub 1 fase error");
+        {
+            int[] facelet = KubGrani.graniToFacelet(kub.getGrani());
+            int[] k1 = {
+                    KubCubie.uoToX1(KubFacelet.faceletToUO(facelet)),
+                    KubCubie.roToY1(KubFacelet.faceletToRO(facelet)),
+                    KubCubie.rpToZ1(KubFacelet.faceletToRP(facelet))
+            };
+            fase1Solver.solve(k1[0], k1[1], k1[2], fase1solution);
+            for (int p : fase1solution) kub.povorot(p);
+            facelet = KubGrani.graniToFacelet(kub.getGrani());
+            k1 = new int[]{
+                    KubCubie.uoToX1(KubFacelet.faceletToUO(facelet)),
+                    KubCubie.roToY1(KubFacelet.faceletToRO(facelet)),
+                    KubCubie.rpToZ1(KubFacelet.faceletToRP(facelet))
+            };
+            if (k1[0] != 0 || k1[1] != 0 || k1[2] != 0) throw new RuntimeException("Kub 1 fase error");
         }
-
         int[] fase2solution=new int[MAX_DEEP +1];
 
-        if(fase2Solver!=null) {
-            int[] k2 = cubie.toKoordinates2();
+        {
+            int[] facelet = KubGrani.graniToFacelet(kub.getGrani());
+            int[] k2 = {
+                    KubCubie.upToX2(KubFacelet.faceletToUP(facelet)),
+                    KubCubie.rpToY2(KubFacelet.faceletToRP(facelet)),
+                    KubCubie.rpToZ2(KubFacelet.faceletToRP(facelet))
+            };
             fase2Solver.solve(k2[0], k2[1], k2[2], fase2solution);
             for(int i=0;i<fase2solution.length;i++)fase2solution[i]=hodsFase2[fase2solution[i]];
-            for (int p : fase2solution) cubie=cubie.povorot(p);
-            k2=cubie.toKoordinates2();
+            for (int p : fase2solution) kub.povorot(p);
+            facelet = KubGrani.graniToFacelet(kub.getGrani());
+            k2 = new int[]{
+                    KubCubie.upToX2(KubFacelet.faceletToUP(facelet)),
+                    KubCubie.rpToY2(KubFacelet.faceletToRP(facelet)),
+                    KubCubie.rpToZ2(KubFacelet.faceletToRP(facelet))
+            };
             if(k2[0]!=0||k2[1]!=0||k2[2]!=0)throw new RuntimeException("Kub 2 fase error");
         }
         return new Solution(sym, fase1solution, fase2solution);
@@ -92,6 +104,51 @@ public class KubSolver{
                 hods[sm] = 0;
                 sm--;
             }
+        }
+    }
+    public static class Solution {
+        private static final int[][] symHods=HodTransforms.getSymHodsFor3Axis();
+        private static final String[] hodString=HodTransforms.hodString;
+        public final int length;
+        private final int[] hods;
+        private final int sym;
+        private final int[] fase1;
+
+        private Solution(int sym, int[] fase1, int[] fase2) {
+            this.sym = sym;
+            fase1=nomalize(fase1);
+            fase2=nomalize(fase2);
+            length =fase1.length+fase2.length;
+            hods = new int[length];
+            int kol=0;
+            for(int hod:fase1)hods[kol++]=hod;
+            for(int hod:fase2)hods[kol++]=hod;
+            kol=0;
+            for (int hod:hods) hods[kol++] = symHods[sym - 1][hod];
+            this.fase1=fase1;
+        }
+
+        private static int[] nomalize(int [] hods){
+            int s = 0;
+            for (int hod : hods) if (hod != 0) s++;
+            int[] res=new int[s];
+            s=0;
+            for (int hod : hods) if (hod != 0) res[s++]=hod;
+            return res;
+        }
+
+        public int[] getHods() {
+            return hods.clone();
+        }
+
+        private int[] getFase1(){
+            return fase1;
+        }
+
+        public String toString() {
+            StringBuilder out = new StringBuilder();
+            for (int hod : hods) out.append(hodString[hod]);
+            return out.toString() + length + "f symmerty="+sym;
         }
     }
 }

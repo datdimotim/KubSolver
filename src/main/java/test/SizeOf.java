@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 
 public class SizeOf {
-    public static final int SIZE_OF_REFERENCE=8;
+    private static final int SIZE_OF_REFERENCE=8;
 
     private final IdentityHashMap set=new IdentityHashMap();
     private int size=0;

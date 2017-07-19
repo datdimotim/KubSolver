@@ -4,11 +4,7 @@ import kub.kubSolver.*;
 import parallel_solver.ParallelSymmetrySolver;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
+import static kub.kubSolver.KubSolver.Solution;
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
@@ -20,25 +16,28 @@ public class TestsAndBenchmarks {
         //while (true)computeTables();
     }
     public static void speedSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver();
+        KubSolver kubSolver=new KubSolver<>(new DoubleTables());
         Kub kub = new Kub(false);
         final int time=1000;
         long st=System.currentTimeMillis();
         long kol=0;
+        int len=0;
         while (true) {
             kub.randomPos();
             Solution solution = kubSolver.solve(kub, null, 1);
+            len+=solution.length;
             kol++;
             long th=System.currentTimeMillis();
             if(th-st>time){
-                System.out.println(kol*1000/(th-st));
+                System.out.println(kol*1000/(th-st)+"pos/s"+"  avgLen="+len/kol);
                 st=th;
                 kol=0;
+                len=0;
             }
         }
     }
     public static void parallelSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver();
+        KubSolver kubSolver=new KubSolver<>(SymTables.readTables());
         Kub kub = new Kub(true);
         Solution solution= ParallelSymmetrySolver.solve(kub,kubSolver,1000);
         System.out.println(solution);
@@ -46,7 +45,7 @@ public class TestsAndBenchmarks {
         System.out.println(kub);
     }
     public static void infiniteSolve() throws IOException {
-        KubSolver kubSolver=new KubSolver();
+        KubSolver kubSolver=new KubSolver<>(SymTables.readTables());
         Kub kub = new Kub(true);
         Solution solution=null;
         while (true) {
@@ -58,18 +57,19 @@ public class TestsAndBenchmarks {
         Kub kub=new Kub(true);
         System.out.println(kub);
 
-        KubSolver kubSolver=new KubSolver();
+        KubSolver kubSolver=new KubSolver<>(SymTables.readTables());
         Solution solution=kubSolver.solve(kub,null,1);
         System.out.println(solution);
         for(int p:solution.getHods())kub.povorot(p);
 
         System.out.println(kub);
     }
-}
 
-class T{
-    public static void main(String[] args) {
-        SizeOf.sizeof(new KubSolver());
+    public static void computeAndTestSymTables(){
+        long ts=System.currentTimeMillis();
+        SymTables symTables =new SymTables();
+        System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
+        symTables.proof();
+        System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
     }
 }
-
