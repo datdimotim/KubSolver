@@ -1,4 +1,4 @@
-package test;
+package com.dimotim.kubSolver.test;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

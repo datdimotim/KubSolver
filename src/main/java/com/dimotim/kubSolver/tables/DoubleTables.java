@@ -1,8 +1,10 @@
-package kub.kubSolver;
+package com.dimotim.kubSolver.tables;
+
+import com.dimotim.kubSolver.Tables;
 
 import java.util.Arrays;
 
-public class DoubleTables implements Tables<DoubleTables.KubState>{
+public class DoubleTables implements Tables<DoubleTables.KubState> {
     private final MoveTables moveTables=new MoveTables();
     private final byte[][] xy1Deep=createDeepTable(moveTables.x1Move,moveTables.y1Move);
     private final byte[][] xz1Deep=createDeepTable(moveTables.x1Move,moveTables.z1Move);
@@ -59,6 +61,11 @@ public class DoubleTables implements Tables<DoubleTables.KubState>{
         out.y=moveTables.y2Move[np][in.y];
         out.z=moveTables.z2Move[np][in.z];
         return Math.max(xz2Deep[out.x][out.z],yz2Deep[out.y][out.z]);
+    }
+
+    @Override
+    public int getDepthInState(KubState kubState) {
+        return Math.max(xz2Deep[kubState.x][kubState.z],yz2Deep[kubState.y][kubState.z]);
     }
 
     @Override

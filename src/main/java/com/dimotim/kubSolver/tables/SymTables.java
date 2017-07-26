@@ -1,11 +1,14 @@
-package kub.kubSolver;
+package com.dimotim.kubSolver.tables;
 
 import com.dimotim.compact_arrays.CompactIntegerArrayShift;
 import com.dimotim.compact_arrays.IntegerArray;
+import com.dimotim.kubSolver.Symmetry;
+import com.dimotim.kubSolver.Tables;
+
 import java.io.*;
 import java.util.Arrays;
 
-public class SymTables implements Tables<SymTables.KubState>{
+public class SymTables implements Tables<SymTables.KubState> {
     private final SymMoveTable x1;
     private final SymMoveTable y1;
     private final SymMoveTable z1;
@@ -139,6 +142,11 @@ public class SymTables implements Tables<SymTables.KubState>{
     }
 
     @Override
+    public int getDepthInState(KubState kubState) {
+        return Math.max(kubState.xyDeep,Math.max(kubState.xzDeep,kubState.yzDeep));
+    }
+
+    @Override
     public KubState newKubState(){
         return new KubState();
     }
@@ -166,7 +174,7 @@ public class SymTables implements Tables<SymTables.KubState>{
             throw new RuntimeException("Can't read tables",e);
         }
     }
-    static final class KubState{
+    public static final class KubState{
         private int x;
         private int y;
         private int z;
@@ -176,9 +184,9 @@ public class SymTables implements Tables<SymTables.KubState>{
     }
     private static final class IntegerMatrix implements Serializable{
         private final IntegerArray array;
-        final int iLength;
-        final int jLength;
-        IntegerMatrix(int maxI,int maxJ,int maxVal){
+        private final int iLength;
+        private final int jLength;
+        private IntegerMatrix(int maxI,int maxJ,int maxVal){
             iLength =maxI;
             jLength =maxJ;
             int i=0;
@@ -190,10 +198,10 @@ public class SymTables implements Tables<SymTables.KubState>{
             array=new CompactIntegerArrayShift(maxI*maxJ,i);
             //array=new CompactIntegerArrayDivide(maxI*maxJ,maxVal);
         }
-        void set(int i,int j,int val){
+        private void set(int i,int j,int val){
             array.set(i* jLength +j,val);
         }
-        long get(int i,int j){
+        private long get(int i,int j){
             return array.get(i* jLength +j);
         }
     }
@@ -202,25 +210,25 @@ public class SymTables implements Tables<SymTables.KubState>{
         private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
         private final int[] inverseSymmetry;
         private final int[][] symHods;
-        final int SYMMETRIES;
-        final int CLASSES;
-        final int RAW;
+        private final int SYMMETRIES;
+        private final int CLASSES;
+        private final int RAW;
 
-        final char[][] symMoveTable;        // backing storage   //[povorot][position]=16*class+sym
-        final char[][]   classToRaw;        // sym, class
+        private final char[][] symMoveTable;        // backing storage   //[povorot][position]=16*class+sym
+        private final char[][]   classToRaw;        // sym, class
         private final char[]   rawToClass;  // [pos]=class*16+sym
 
-        SymMoveTable(char[][] rawMoveTable, int classes){
+        private SymMoveTable(char[][] rawMoveTable, int classes){
             if(rawMoveTable.length==19) {
-                symmetryMul = Symmetry.symmetryMulHalf;
-                inverseSymmetry = Symmetry.inverseSymmetryHalf;
-                symHods = Symmetry.symHodsHalf;
+                symmetryMul = Symmetry.getSymmetryMulHalf();
+                inverseSymmetry = Symmetry.getInverseSymmetryHalf();
+                symHods = Symmetry.getSymHodsHalf();
             }
             else {
                 if(rawMoveTable.length!=11)throw new RuntimeException();
-                symmetryMul = Symmetry.symmetryMul;
-                inverseSymmetry = Symmetry.inverseSymmetry;
-                symHods = Symmetry.symHods10;
+                symmetryMul = Symmetry.getSymmetryMul();
+                inverseSymmetry = Symmetry.getInverseSymmetry();
+                symHods = Symmetry.getSymHods10();
 
             }
             SYMMETRIES = symmetryMul.length;
@@ -292,7 +300,7 @@ public class SymTables implements Tables<SymTables.KubState>{
             }
         }
 
-        void proofMove(char[][] rawMoveTable){
+        private void proofMove(char[][] rawMoveTable){
             for(int pos=0;pos<rawMoveTable[0].length;pos++){
                 for(int np = 0; np< rawMoveTable.length; np++){
                     int posEtalon= rawMoveTable[np][pos];
@@ -302,20 +310,20 @@ public class SymTables implements Tables<SymTables.KubState>{
             }
         }
 
-        final int rawToSym(int raw){
+        private int rawToSym(int raw){
             return rawToClass[raw];
         }
 
-        final int symPosToRaw(int symPos){
+        private int symPosToRaw(int symPos){
             return classToRaw[symPos%16][symPos/16];
         }
 
-        final int doMove(int in,int np){
+        private int doMove(int in,int np){
             int npSym=symHods[inverseSymmetry[in%16]][np];
             return (symMoveTable[npSym][in/16]/16)*16+symmetryMul[in%16][symMoveTable[npSym][in/16]%16];
         }
 
-        final int rawHod(int raw,int np){
+        private int rawHod(int raw,int np){
             int in_classPos=rawToClass[raw]/16;
             int in_sym=rawToClass[raw]%16;
             int npSym=symHods[inverseSymmetry[in_sym]][np];
@@ -328,21 +336,21 @@ public class SymTables implements Tables<SymTables.KubState>{
     private static final class SymDeepTable implements Serializable{
         private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
         private final int[] inverseSymmetry;
-        final SymMoveTable symPart;
-        final SymMoveTable rawPart;
+        private final SymMoveTable symPart;
+        private final SymMoveTable rawPart;
 
         private final IntegerMatrix deepTable;
-        SymDeepTable(SymMoveTable symPart, SymMoveTable rawPart){
+        private SymDeepTable(SymMoveTable symPart, SymMoveTable rawPart){
             this.symPart=symPart;
             this.rawPart=rawPart;
             if(symPart.symMoveTable.length==19) {
-                symmetryMul = Symmetry.symmetryMulHalf;
-                inverseSymmetry = Symmetry.inverseSymmetryHalf;
+                symmetryMul = Symmetry.getSymmetryMulHalf();
+                inverseSymmetry = Symmetry.getInverseSymmetryHalf();
             }
             else {
                 if(symPart.symMoveTable.length!=11)throw new RuntimeException();
-                symmetryMul = Symmetry.symmetryMul;
-                inverseSymmetry = Symmetry.inverseSymmetry;
+                symmetryMul = Symmetry.getSymmetryMul();
+                inverseSymmetry = Symmetry.getInverseSymmetry();
             }
             deepTable=packDeepTable(createDeepTable());
         }
@@ -404,7 +412,7 @@ public class SymTables implements Tables<SymTables.KubState>{
             return deepTable;
         }
 
-        void proofDeepTable(){
+        private void proofDeepTable(){
             byte[][] deepTableRaw=createDeepTableRaw();
             for(int i=0;i<deepTableRaw.length;i++){
                 for(int j=0;j<deepTableRaw[0].length;j++){
@@ -415,7 +423,7 @@ public class SymTables implements Tables<SymTables.KubState>{
             }
         }
 
-        final int getDepth(int sym, int raw){
+        private int getDepth(int sym, int raw){
             int s=symmetryMul[inverseSymmetry[sym%16]][raw%16];
             return (int) deepTable.get(sym/16,rawPart.classToRaw[s][raw/16]);
         }
