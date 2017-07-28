@@ -15,7 +15,8 @@ public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
         //SymTables symTables=new SymTables();
         //symTables.proof();
-        solveAndView();
+        //SizeOf.sizeof(new SymTables());
+        //solveAndView();
         speedSolve();
         //fase2Benchmark(new SymTables(),new SimpleSolver2());
         //while (true)computeTables();
@@ -26,7 +27,7 @@ public class TestsAndBenchmarks {
 
     public static void speedSolve() throws IOException {
         new Benchmark(new Benchmark.Benchmarkable() {
-            KubSolver kubSolver=new KubSolver<>(new SymTables(),new SimpleSolver1<>(),new SimpleSolver2<>());
+            KubSolver kubSolver=new KubSolver<>(SymTables.readTables(),new SimpleSolver1<SymTables.KubState>(),new SimpleSolver2<SymTables.KubState>());
             Kub kub = new Kub(false);
             float len=0;
             int kol=0;
@@ -48,7 +49,7 @@ public class TestsAndBenchmarks {
         }).runBenchmark(1000);
     }
 
-    public static void fase1InfiniteBenchmark(Tables tables, Fase1Solver solver){
+    public static void fase1InfiniteBenchmark(Tables tables, final Fase1Solver solver){
         solver.init(tables);
         new Benchmark(new Benchmark.Benchmarkable() {
             private final Random random=new Random();
@@ -81,7 +82,7 @@ public class TestsAndBenchmarks {
         }).runBenchmark(1000);
     }
 
-    public static void fase1Benchmark(Tables tables,Fase1Solver solver){
+    public static void fase1Benchmark(Tables tables,final Fase1Solver solver){
         solver.init(tables);
         new Benchmark(new Benchmark.Benchmarkable() {
             private final Random random=new Random();
@@ -107,7 +108,7 @@ public class TestsAndBenchmarks {
         }).runBenchmark(1000);
     }
 
-    public static void fase2Benchmark(Tables tables,Fase2Solver solver){
+    public static void fase2Benchmark(Tables tables,final Fase2Solver solver){
         solver.init(tables);
         new Benchmark(new Benchmark.Benchmarkable() {
             private final Random random=new Random();
@@ -151,7 +152,7 @@ public class TestsAndBenchmarks {
         Kub kub=new Kub(true);
         System.out.println(kub);
 
-        KubSolver kubSolver=new KubSolver<>(new SymTables(),new SimpleSolver1<>(),new SimpleSolver2<>());
+        KubSolver kubSolver=new KubSolver<>(new SymTables(),new SimpleSolver1<SymTables.KubState>(),new SimpleSolver2<SymTables.KubState>());
         Solution solution=kubSolver.solve(kub);
         System.out.println(solution);
         for(int p:solution.getHods())kub.povorot(p);
