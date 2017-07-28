@@ -15,7 +15,7 @@ public final class MoveTables implements Serializable {
     public final char[][] x2Move;
     public final char[][] y2Move;
     public final char[][] z2Move;
-    public final char[][] y2CombMove;
+    public final char[][] x2CombMove;
 
     public MoveTables(){
         x1Move=createX1Move();
@@ -24,17 +24,17 @@ public final class MoveTables implements Serializable {
         x2Move=createX2Move();
         y2Move=createY2Move();
         z2Move=createZ2Move();
-        y2CombMove=createY2CombMove();
+        x2CombMove = createX2CombMove();
     }
 
-    private static char[][] createY2CombMove(){
+    private static char[][] createX2CombMove(){
         int[] convertPovorot= HodTransforms.getP10To18();
-        int[] r_p=new int[12];
-        char[][] table=new char[11][Y_2_COMB];
-        for(int pos = 0; pos< Y_2_COMB; pos++){
+        int[] u_p=new int[8];
+        char[][] table=new char[11][X_2_COMB];
+        for(int pos = 0; pos< X_2_COMB; pos++){
             for(int pov=0;pov<11;pov++){
-                Cubie.povorotRP(CubieKoordinateConverter.y2CombToRp(pos),r_p,convertPovorot[pov]);
-                table[pov][pos]= (char) CubieKoordinateConverter.rpToY2Comb(r_p);
+                Cubie.povorotUP(CubieKoordinateConverter.x2CombToUp(pos),u_p,convertPovorot[pov]);
+                table[pov][pos]= (char) CubieKoordinateConverter.upToX2Comb(u_p);
             }
         }
         return table;

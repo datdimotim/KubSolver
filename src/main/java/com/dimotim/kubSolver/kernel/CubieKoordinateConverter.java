@@ -75,15 +75,15 @@ public final class CubieKoordinateConverter {
         }
         return Combinations.perestanovkaToInt(m);
     }
-    public static int rpToY2Comb(int[] r_p){
+    public static int upToX2Comb(int[] u_p){
         int[] ind=new int[4];
         int c=0;
-        for(int i=0;i<8;i++)if(r_p[i]<=4)ind[3-c++]=i+1;
+        for(int i=0;i<8;i++)if(u_p[i]<=4)ind[3-c++]=i+1;
         return Combinations.combToInt(ind);
     }
-    public static int[] y2CombToRp(int x){
+    public static int[] x2CombToUp(int x){
         int[] ind=Combinations.intToComb(x,4,8);
-        int[] ret={0,0,0,0,0,0,0,0,9,10,11,12};
+        int[] ret={0,0,0,0,0,0,0,0};
         int count=1;
         for(int i=0;i<4;i++)ret[ind[3-i]-1]=count++;
         for(int i=0;i<8;i++)if(ret[i]==0)ret[i]=count++;
