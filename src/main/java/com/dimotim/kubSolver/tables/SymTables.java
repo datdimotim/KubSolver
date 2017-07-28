@@ -25,21 +25,21 @@ public final class SymTables implements Tables<SymTables.KubState> {
     private final SymDeepTable yz2;
     private final SymDeepTable yX2Comb;
     public SymTables() {
-        MoveTables moveTables = new MoveTables();System.out.println("raw move tables created");
-        x1 = new SymMoveTable(moveTables.x1Move, X_1_SYM_CLASSES);System.out.println("x1 move created");
-        y1 = new SymMoveTable(moveTables.y1Move, Y_1_SYM_CLASSES);System.out.println("y1 move created");
-        z1 = new SymMoveTable(moveTables.z1Move, Z_1_SYM_CLASSES);System.out.println("z1 move created");
-        x2 = new SymMoveTable(moveTables.x2Move, X_2_SYM_CLASSES);System.out.println("x2 move created");
-        y2 = new SymMoveTable(moveTables.y2Move, Y_2_SYM_CLASSES);System.out.println("y2 move created");
-        z2 = new SymMoveTable(moveTables.z2Move, Z_2_SYM_CLASSES);System.out.println("z2 move created");
-        x2Comb =new SymMoveTable(moveTables.x2CombMove, X_2_COMB_SYM_CLASSES);System.out.println("x2Comb move created");
-        xy1 = new SymDeepTable(x1, y1);System.out.println("xy1 deep created");
-        xz1 = new SymDeepTable(x1, z1);System.out.println("xz1 deep created");
-        yz1 = new SymDeepTable(y1, z1);System.out.println("yz1 deep created");
+        MoveTables moveTables = new MoveTables();//System.out.println("raw move tables created");
+        x1 = new SymMoveTable(moveTables.x1Move, X_1_SYM_CLASSES);//System.out.println("x1 move created");
+        y1 = new SymMoveTable(moveTables.y1Move, Y_1_SYM_CLASSES);//System.out.println("y1 move created");
+        z1 = new SymMoveTable(moveTables.z1Move, Z_1_SYM_CLASSES);//System.out.println("z1 move created");
+        x2 = new SymMoveTable(moveTables.x2Move, X_2_SYM_CLASSES);//System.out.println("x2 move created");
+        y2 = new SymMoveTable(moveTables.y2Move, Y_2_SYM_CLASSES);//System.out.println("y2 move created");
+        z2 = new SymMoveTable(moveTables.z2Move, Z_2_SYM_CLASSES);//System.out.println("z2 move created");
+        x2Comb =new SymMoveTable(moveTables.x2CombMove, X_2_COMB_SYM_CLASSES);//System.out.println("x2Comb move created");
+        xy1 = new SymDeepTable(x1, y1);//System.out.println("xy1 deep created");
+        xz1 = new SymDeepTable(x1, z1);//System.out.println("xz1 deep created");
+        yz1 = new SymDeepTable(y1, z1);//System.out.println("yz1 deep created");
         //xy2 = new SymDeepTable(x2, y2);System.out.println("xy2 deep created");
-        xz2 = new SymDeepTable(x2, z2);System.out.println("xz2 deep created");
-        yz2 = new SymDeepTable(y2, z2);System.out.println("yz2 deep created");
-        yX2Comb =new SymDeepTable(y2, x2Comb);System.out.println("yX2Comb deep created");
+        xz2 = new SymDeepTable(x2, z2);//System.out.println("xz2 deep created");
+        yz2 = new SymDeepTable(y2, z2);//System.out.println("yz2 deep created");
+        yX2Comb =new SymDeepTable(y2, x2Comb);//System.out.println("yX2Comb deep created");
     }
     public void proof(){
         MoveTables moveTables = new MoveTables();
