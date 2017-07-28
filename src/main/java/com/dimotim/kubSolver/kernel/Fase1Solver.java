@@ -1,4 +1,4 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
 public interface Fase1Solver<KubState,SolveState>{
     int MAX_DEEP=30;

@@ -1,4 +1,4 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
 public interface Fase2Solver<KS>{
     void init(Tables<KS> tables);

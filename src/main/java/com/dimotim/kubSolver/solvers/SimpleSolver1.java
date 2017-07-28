@@ -1,9 +1,9 @@
 package com.dimotim.kubSolver.solvers;
 
-import com.dimotim.kubSolver.Fase1Solver;
-import com.dimotim.kubSolver.Tables;
+import com.dimotim.kubSolver.kernel.Fase1Solver;
+import com.dimotim.kubSolver.kernel.Tables;
 
-public class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.SolveState<KS>> {
+public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.SolveState<KS>> {
     private Tables<KS> tables;
     @Override
     public void init(Tables<KS> tables) {

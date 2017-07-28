@@ -1,6 +1,6 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
-public class HodTransforms {
+public final class HodTransforms {
     public static final int NUM_HODS_1=19;
     public static final int NUM_HODS_2=11;
 

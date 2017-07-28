@@ -1,20 +1,21 @@
 package com.dimotim.kubSolver.tables;
 
-import com.dimotim.kubSolver.Cubie;
-import com.dimotim.kubSolver.CubieKoordinateConverter;
-import com.dimotim.kubSolver.HodTransforms;
+import com.dimotim.kubSolver.kernel.Cubie;
+import com.dimotim.kubSolver.kernel.CubieKoordinateConverter;
+import com.dimotim.kubSolver.kernel.HodTransforms;
 
 import java.io.Serializable;
 
-import static com.dimotim.kubSolver.Tables.*;
+import static com.dimotim.kubSolver.kernel.Tables.*;
 
-public class MoveTables implements Serializable {
+public final class MoveTables implements Serializable {
     public final char[][] x1Move;
     public final char[][] y1Move;
     public final char[][] z1Move;
     public final char[][] x2Move;
     public final char[][] y2Move;
     public final char[][] z2Move;
+    public final char[][] y2CombMove;
 
     public MoveTables(){
         x1Move=createX1Move();
@@ -23,6 +24,20 @@ public class MoveTables implements Serializable {
         x2Move=createX2Move();
         y2Move=createY2Move();
         z2Move=createZ2Move();
+        y2CombMove=createY2CombMove();
+    }
+
+    private static char[][] createY2CombMove(){
+        int[] convertPovorot= HodTransforms.getP10To18();
+        int[] r_p=new int[12];
+        char[][] table=new char[11][Y_2_COMB];
+        for(int pos = 0; pos< Y_2_COMB; pos++){
+            for(int pov=0;pov<11;pov++){
+                Cubie.povorotRP(CubieKoordinateConverter.y2CombToRp(pos),r_p,convertPovorot[pov]);
+                table[pov][pos]= (char) CubieKoordinateConverter.rpToY2Comb(r_p);
+            }
+        }
+        return table;
     }
 
     private static char[][] createX1Move(){

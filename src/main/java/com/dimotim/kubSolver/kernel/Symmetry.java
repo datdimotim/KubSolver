@@ -1,4 +1,4 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
 import java.util.Arrays;
 

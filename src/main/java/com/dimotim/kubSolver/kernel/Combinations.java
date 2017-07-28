@@ -1,6 +1,25 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
 public final class Combinations{
+    public static int[] intToComb(int x,int k,int length) {
+        x++;
+        int[] a=new int[k];
+        for(int ai=0;ai<k;ai++) {
+            for (int i = 1; i < length+1; i++) {
+                if (C(i, k-ai) >= x) {
+                    a[ai] = i;
+                    x = x + C(i - 1, k-1-ai) - C(i, k-ai);
+                    break;
+                }
+            }
+        }
+        return a;
+    }
+    public static int combToInt(int[] c){
+        int ret=0;
+        for(int i=0;i<c.length;i++)ret+=C(c[i],c.length-i)-C(c[i]-1,c.length-1-i);
+        return  ret;
+    }
     public static int posNumberToInt(int[] m, int max){
         int x = 0;
         int pow=1;

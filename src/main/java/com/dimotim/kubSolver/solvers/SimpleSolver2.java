@@ -1,10 +1,10 @@
 package com.dimotim.kubSolver.solvers;
 
-import com.dimotim.kubSolver.Fase2Solver;
-import com.dimotim.kubSolver.HodTransforms;
-import com.dimotim.kubSolver.Tables;
+import com.dimotim.kubSolver.kernel.Fase2Solver;
+import com.dimotim.kubSolver.kernel.HodTransforms;
+import com.dimotim.kubSolver.kernel.Tables;
 
-public class SimpleSolver2<KS> implements Fase2Solver<KS> {
+public final class SimpleSolver2<KS> implements Fase2Solver<KS> {
     private Tables<KS> tables;
     private static int[] hodsFase2= HodTransforms.getP10To18();
     @Override

@@ -1,4 +1,4 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
 public final class Grani {
     private static int convertNapr(int n){

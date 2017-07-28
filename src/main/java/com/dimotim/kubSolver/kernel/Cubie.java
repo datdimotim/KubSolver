@@ -1,4 +1,4 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
 public final class Cubie {
     private static final int[][] rPerest=new int[19][12];

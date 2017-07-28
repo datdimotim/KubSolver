@@ -1,6 +1,7 @@
 package com.dimotim.kubSolver.test;
 
 import com.dimotim.kubSolver.*;
+import com.dimotim.kubSolver.kernel.*;
 import com.dimotim.kubSolver.solvers.SimpleSolver1;
 import com.dimotim.kubSolver.solvers.SimpleSolver2;
 import com.dimotim.kubSolver.tables.SymTables;
@@ -12,8 +13,11 @@ import static com.dimotim.kubSolver.KubSolver.Solution;
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
+        //SymTables symTables=new SymTables();
+        //symTables.proof();
         solveAndView();
         speedSolve();
+        //fase2Benchmark(new SymTables(),new SimpleSolver2());
         //while (true)computeTables();
         //fase1InfiniteBenchmark(new DoubleTables(),new SimpleSolver1());
         ///fase1Benchmark(new SymTables(),new SimpleSolver1());
@@ -103,6 +107,46 @@ public class TestsAndBenchmarks {
         }).runBenchmark(1000);
     }
 
+    public static void fase2Benchmark(Tables tables,Fase2Solver solver){
+        solver.init(tables);
+        new Benchmark(new Benchmark.Benchmarkable() {
+            private final Random random=new Random();
+            private int t=0;
+            private int kol=0;
+            private int solv;
+            @Override
+            public void getSolveAndAddNewTask() {
+                int[] up= CubieKoordinateConverter.x2ToCubie(random.nextInt(40320));
+                int[] rp=CubieKoordinateConverter.y2ToCubie(random.nextInt(40320));
+                int[] r2=CubieKoordinateConverter.z2ToCubie(random.nextInt(24));
+                int ch1= Combinations.chetNechetPerestanovka(up)?1:0;
+                int ch2=Combinations.chetNechetPerestanovka(rp)?1:0;
+                int ch3=Combinations.chetNechetPerestanovka(r2)?1:0;
+
+                if((ch1+ch2+ch3)%2!=0){
+                    int tmp=r2[11];
+                    r2[11]=r2[10];
+                    r2[10]=tmp;
+                }
+                int[] hods=new int[12];
+
+                if(solver.solve(CubieKoordinateConverter.upToX2(up),CubieKoordinateConverter.rpToY2(rp),CubieKoordinateConverter.rpToZ2(r2),hods)){
+                 solv++;
+                }
+                kol++;
+                t+=hods[hods.length-1];
+            }
+
+            @Override
+            public String resultToStringAndClear() {
+                String res="solved percent="+(solv*100f)/kol+"  speed="+solv+"  "+t;
+                kol=0;
+                solv=0;
+                return res;
+            }
+        }).runBenchmark(1000);
+    }
+
     public static void solveAndView(){
         Kub kub=new Kub(true);
         System.out.println(kub);
@@ -123,4 +167,3 @@ public class TestsAndBenchmarks {
         System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
     }
 }
-

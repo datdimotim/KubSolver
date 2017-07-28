@@ -1,9 +1,11 @@
 package com.dimotim.kubSolver;
 
-import static com.dimotim.kubSolver.Fase1Solver.MAX_DEEP;
+import com.dimotim.kubSolver.kernel.*;
 
-public class KubSolver<KS,Solver1State>{
-    private final int tryKol=100;
+import static com.dimotim.kubSolver.kernel.Fase1Solver.MAX_DEEP;
+
+public final class KubSolver<KS,Solver1State>{
+    private final int tryKol=0;
     private Fase1Solver<KS,Solver1State> fase1Solver;
     private Fase2Solver<KS> fase2Solver;
     private static final int[] hodsFase2=HodTransforms.getP10To18();

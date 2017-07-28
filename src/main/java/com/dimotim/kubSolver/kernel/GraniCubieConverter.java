@@ -1,6 +1,6 @@
-package com.dimotim.kubSolver;
+package com.dimotim.kubSolver.kernel;
 
-public class GraniCubieConverter {
+public final class GraniCubieConverter {
     public static final int orange_gran = 5;
     public static final int yellow_gran = 4;
     public static final int blue_gran = 3;

@@ -1,5 +1,8 @@
 package com.dimotim.kubSolver;
 
+import com.dimotim.kubSolver.kernel.Combinations;
+import com.dimotim.kubSolver.kernel.Cubie;
+import com.dimotim.kubSolver.kernel.GraniCubieConverter;
 import com.dimotim.kubSolver.tables.SymTables;
 
 import java.math.BigDecimal;
@@ -148,10 +151,10 @@ public final class Kub{
             System.arraycopy(r_p,0,tmp_r_p,0,r_p.length);
             System.arraycopy(u_o,0,tmp_u_o,0,u_o.length);
             System.arraycopy(u_p,0,tmp_u_p,0,u_p.length);
-            com.dimotim.kubSolver.Cubie.povorotRO(tmp_r_o,r_o,np);
-            com.dimotim.kubSolver.Cubie.povorotRP(tmp_r_p,r_p,np);
-            com.dimotim.kubSolver.Cubie.povorotUO(tmp_u_o,u_o,np);
-            com.dimotim.kubSolver.Cubie.povorotUP(tmp_u_p,u_p,np);
+            Cubie.povorotRO(tmp_r_o,r_o,np);
+            Cubie.povorotRP(tmp_r_p,r_p,np);
+            Cubie.povorotUO(tmp_u_o,u_o,np);
+            Cubie.povorotUP(tmp_u_p,u_p,np);
         }
         private int[][][] toGrani(){
             int[][][] grani= GraniCubieConverter.cubieToGrani(u_o,u_p,r_o,r_p);

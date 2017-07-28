@@ -1,10 +1,10 @@
 package com.dimotim.kubSolver.tables;
 
-import com.dimotim.kubSolver.Tables;
+import com.dimotim.kubSolver.kernel.Tables;
 
 import java.util.Arrays;
 
-public class DoubleTables implements Tables<DoubleTables.KubState> {
+public final class DoubleTables implements Tables<DoubleTables.KubState> {
     private final MoveTables moveTables=new MoveTables();
     private final byte[][] xy1Deep=createDeepTable(moveTables.x1Move,moveTables.y1Move);
     private final byte[][] xz1Deep=createDeepTable(moveTables.x1Move,moveTables.z1Move);
