@@ -17,7 +17,8 @@ public class TestsAndBenchmarks {
         //symTables.proof();
         //SizeOf.sizeof(new SymTables());
         //solveAndView();
-        speedSolve();
+        //speedSolve();
+        speedSolve2x2();
         //fase2Benchmark(new SymTables(),new SimpleSolver2());
         //while (true)computeTables();
         //fase1InfiniteBenchmark(new DoubleTables(),new SimpleSolver1());
@@ -29,6 +30,30 @@ public class TestsAndBenchmarks {
         new Benchmark(new Benchmark.Benchmarkable() {
             KubSolver kubSolver=new KubSolver<>(SymTables.readTables(),new SimpleSolver1<SymTables.KubState>(),new SimpleSolver2<SymTables.KubState>());
             Kub kub = new Kub(false);
+            float len=0;
+            int kol=0;
+            @Override
+            public void getSolveAndAddNewTask() {
+                kub.randomPos();
+                //kub.povorot(18);
+                kol++;
+                len+=kubSolver.solve(kub).length;
+            }
+
+            @Override
+            public String resultToStringAndClear() {
+                String ret=""+(len/kol);
+                len=0;
+                kol=0;
+                return ret;
+            }
+        }).runBenchmark(1000);
+    }
+
+    public static void speedSolve2x2(){
+        new Benchmark(new Benchmark.Benchmarkable() {
+            KubSolver2x2 kubSolver=new KubSolver2x2();
+            Kub2x2 kub = new Kub2x2(false);
             float len=0;
             int kol=0;
             @Override

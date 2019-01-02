@@ -187,7 +187,7 @@ public final class KubSolver<KS,Solver1State>{
         private final int[] hods;
         private final int sym;
 
-        private Solution(int sym, int[] fase1, int[] fase2) {
+        Solution(int sym, int[] fase1, int[] fase2) {
             this.sym = sym;
             fase1=nomalize(fase1);
             fase2=nomalize(fase2);
