@@ -21,6 +21,7 @@ public class Kub2x2 {
             System.out.println(kub2x2);
         }
     }
+    private static final KubSolver2x2 kubSolver=new KubSolver2x2();
     private CubieSet cubieSet = new CubieSet();
     private static int[][][] toGrani3x3(int[][][] grani){
         int[][][] res=new int[6][3][3];
@@ -41,6 +42,9 @@ public class Kub2x2 {
             res[i][1][1]=grani[i][2][2];
         }
         return res;
+    }
+    public Solution solve(){
+        return kubSolver.solve(this);
     }
     public Kub2x2(Kub2x2 kub){
         cubieSet =new CubieSet(kub.cubieSet);

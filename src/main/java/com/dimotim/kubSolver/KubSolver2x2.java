@@ -16,7 +16,7 @@ public class KubSolver2x2 {
         Kub2x2 kub2x2=new Kub2x2(true);
         System.out.println(kub2x2);
         KubSolver2x2 kubSolver2x2=new KubSolver2x2();
-        KubSolver.Solution solution=kubSolver2x2.solve(kub2x2);
+        Solution solution=kubSolver2x2.solve(kub2x2);
         System.out.println(solution);
         for(int p:solution.getHods())kub2x2.povorot(p);
         System.out.println(kub2x2);
@@ -25,7 +25,7 @@ public class KubSolver2x2 {
     private final Tables<SimpleTables2x2.KubState> tables=new SimpleTables2x2();
     private final SimpleSolver1<SimpleTables2x2.KubState> fase1Solver=new SimpleSolver1<>();
     private final SimpleSolver2<SimpleTables2x2.KubState> fase2Solver=new SimpleSolver2<>();
-    public KubSolver.Solution solve(Kub2x2 kub2x2){
+    public Solution solve(Kub2x2 kub2x2){
         fase1Solver.init(tables);
         fase2Solver.init(tables);
         SimpleSolver1.SolveState<SimpleTables2x2.KubState> state=initFase1(kub2x2);
@@ -34,7 +34,7 @@ public class KubSolver2x2 {
         fase1Solver.getResultFromSolveState(state,hods1);
         int[] hods2=new int[31];
         finishSolution(kub2x2,state,hods2);
-        return new KubSolver.Solution(1,hods1,hods2);
+        return new Solution(1,hods1,hods2);
     }
 
 

@@ -9,7 +9,7 @@ import com.dimotim.kubSolver.tables.SymTables;
 import java.io.IOException;
 import java.util.Random;
 
-import static com.dimotim.kubSolver.KubSolver.Solution;
+import com.dimotim.kubSolver.Solution;
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {

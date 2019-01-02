@@ -3,6 +3,8 @@ package com.dimotim.kubSolver;
 import com.dimotim.kubSolver.kernel.Combinations;
 import com.dimotim.kubSolver.kernel.Cubie;
 import com.dimotim.kubSolver.kernel.GraniCubieConverter;
+import com.dimotim.kubSolver.solvers.SimpleSolver1;
+import com.dimotim.kubSolver.solvers.SimpleSolver2;
 import com.dimotim.kubSolver.tables.SymTables;
 
 import java.math.BigDecimal;
@@ -11,7 +13,9 @@ import java.util.Random;
 import static com.dimotim.kubSolver.Kub.KUB_ERROR.*;
 
 public final class Kub{
+    private static final KubSolver kubSolver=new KubSolver<>(SymTables.readTables(),new SimpleSolver1<SymTables.KubState>(),new SimpleSolver2<SymTables.KubState>());
     private CubieSet cubieSet =new CubieSet();
+
     public Kub(Kub kub){
         cubieSet =new CubieSet(kub.cubieSet);
     }
@@ -24,6 +28,9 @@ public final class Kub{
     }
     public BigDecimal getNumberPos(){
         return cubieSet.toNumberPos();
+    }
+    public Solution solve(){
+        return kubSolver.solve(this);
     }
     public void randomPos(){
         cubieSet = CubieSet.randomPos();
