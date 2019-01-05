@@ -45,7 +45,7 @@ public class Kub2x2 {
         }
         return res;
     }
-    public Solution solution(){
+    public Solution solve(){
         return solver.solve(this);
     }
     public Kub2x2(Kub2x2 kub){

@@ -8,6 +8,7 @@ import com.dimotim.kubSolver.kernel.Tables;
 
 import java.io.*;
 
+import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
 import static com.dimotim.kubSolver.tables.SymTables.track;
 
 public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
@@ -64,7 +65,7 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
         mega: while(deep<hods.length) {
             for(int np = hods[deep];np<=18;np++) {
                 //count++;
-                if(!hodPredHod(np,hods[deep-1]))continue;
+                if(!hodPredHod1Fase(np,hods[deep-1]))continue;
                 if (moveAndGetDepthFase1(state[deep-1],state[deep],np)<=hods.length-deep-1) {
                     hods[deep] = np;
                     deep++;
@@ -80,17 +81,6 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
         //System.out.println("count="+count);
     }
 
-    private static boolean hodPredHod(int hod,int predHod){
-        if(predHod!=0& hod ==0)return false;
-        if(predHod!=0) {
-            if ((predHod - 1) / 3==(hod - 1) / 3)return false;
-            if ((predHod - 1) / 3==0& (hod - 1) / 3==5)return false;
-            if ((predHod - 1) / 3==1&(hod - 1) / 3==4)return false;
-            if ((predHod - 1) / 3==2&(hod - 1) / 3==3)return false;
-        }
-        return true;
-    }
-
     @Override
     public KubState initKubStateFase1(int x, int y, int z) {
         KubState kubState=new KubState();
@@ -102,11 +92,11 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
 
     @Override
     public KubState initKubStateFase2(int x, int y, int z) {
-        return null;
+        throw new RuntimeException();
     }
     @Override
     public int moveAndGetDepthFase2(KubState in, KubState out, int np) {
-        return 0;
+        throw new RuntimeException();
     }
     @Override
     public int moveAndGetDepthFase1(KubState in, KubState out, int np) {

@@ -13,7 +13,7 @@ import java.util.Random;
 import static com.dimotim.kubSolver.Kub.KUB_ERROR.*;
 
 public final class Kub{
-    private static final KubSolver kubSolver=new KubSolver<>(SymTables.readTables(),new SimpleSolver1<SymTables.KubState>(),new SimpleSolver2<SymTables.KubState>());
+    private static final KubSolver kubSolver=new KubSolver<>(SymTables.readTables(), new SimpleSolver1<>(), new SimpleSolver2<>());
     private CubieSet cubieSet =new CubieSet();
 
     public Kub(Kub kub){

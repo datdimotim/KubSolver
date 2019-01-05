@@ -11,8 +11,6 @@ public final class Symmetry{
     private static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(Symmetry.getSymHodsAllSymmetry());
     private static final int[] inverseSymmetryHalf=initInverseSymmetryHalf(inverseSymmetry);
     private static final int[][] symHods=getSymHodsAllSymmetry();
-    private static final int[][] symHodsHalf=initSymHodsHalf(symHods);
-    private static final int[][] symHods10=initSymHods10(symHods);
     private static final int[][] symmetryMul= getSymmetryMul();  // matrix1*matrix2*vector -> matrix*vector
 
     public static int[] getInverseSymmetry() {
@@ -67,10 +65,6 @@ public final class Symmetry{
             }
         }
         return symmetryMulHalf;
-    }
-
-    public static void main(String[] args) {
-        for(int[] s:getSymmetryMul()) System.out.println(Arrays.toString(s));
     }
 
     public static int[][] getSymmetryMul(){

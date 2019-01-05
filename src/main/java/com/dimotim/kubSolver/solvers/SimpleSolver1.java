@@ -3,6 +3,8 @@ package com.dimotim.kubSolver.solvers;
 import com.dimotim.kubSolver.kernel.Fase1Solver;
 import com.dimotim.kubSolver.kernel.Tables;
 
+import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
+
 public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.SolveState<KS>> {
     private Tables<KS> tables;
     @Override
@@ -28,7 +30,7 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
             mega:
             while (deep <= MAX_DEEP) {
                 for (int np = state.hods[deep]; np <= 18; np++) {
-                    if (!hodPredHod(np, state.hods[deep - 1])) continue;
+                    if (!hodPredHod1Fase(np, state.hods[deep - 1])) continue;
                     if (tables.moveAndGetDepthFase1(state.state[deep - 1], state.state[deep], np) <= MAX_DEEP - deep) {
                         state.hods[deep] = np;
                         deep++;
@@ -41,17 +43,6 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
             }
             if(validFase1NewSolution(state.hods))return;
         }
-    }
-
-    private static boolean hodPredHod(int hod,int predHod){
-        if(predHod!=0& hod ==0)return false;
-        if(predHod!=0) {
-            if ((predHod - 1) / 3==(hod - 1) / 3)return false;
-            if ((predHod - 1) / 3==0& (hod - 1) / 3==5)return false;
-            if ((predHod - 1) / 3==1&(hod - 1) / 3==4)return false;
-            if ((predHod - 1) / 3==2&(hod - 1) / 3==3)return false;
-        }
-        return true;
     }
 
     private static boolean validFase1NewSolution(int[] face1NewSolutuion){

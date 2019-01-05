@@ -19,7 +19,7 @@ public class TestsAndBenchmarks {
         //symTables.proof();
         //SizeOf.sizeof(new SymTables());
         //solveAndView();
-        //speedSolve();
+        speedSolve();
         speedSolve2x2();
         //fase2Benchmark(new SymTables(),new SimpleSolver2());
         //while (true)computeTables();
