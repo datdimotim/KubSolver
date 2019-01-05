@@ -30,7 +30,7 @@ public class TestsAndBenchmarks {
 
     public static void speedSolve() throws IOException {
         new Benchmark(new Benchmark.Benchmarkable() {
-            KubSolver kubSolver=new KubSolver<>(SymTables.readTables(),new SimpleSolver1<SymTables.KubState>(),new SimpleSolver2<SymTables.KubState>());
+            KubSolver kubSolver= new KubSolver<>(SymTables.readTables(), new SimpleSolver1<SymTables.KubState>(), new SimpleSolver2<SymTables.KubState>());
             Kub kub = new Kub(false);
             float len=0;
             int kol=0;
