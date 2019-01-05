@@ -109,4 +109,16 @@ public final class MoveTables implements Serializable {
         }
         return table;
     }
+
+    public static char[][] createX2MoveFof18Povorots(){
+        int[] u_p=new int[8];
+        char[][] table=new char[19][X_2_MAX];
+        for(int pos = 0; pos< X_2_MAX; pos++){
+            for(int pov=0;pov<19;pov++){
+                Cubie.povorotUP(CubieKoordinateConverter.x2ToCubie(pos),u_p,pov);
+                table[pov][pos]= (char) CubieKoordinateConverter.upToX2(u_p);
+            }
+        }
+        return table;
+    }
 }

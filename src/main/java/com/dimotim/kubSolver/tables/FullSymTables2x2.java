@@ -1,11 +1,9 @@
 package com.dimotim.kubSolver.tables;
 
 import com.dimotim.kubSolver.Kub2x2;
-import com.dimotim.kubSolver.KubSolver;
 import com.dimotim.kubSolver.Solution;
 import com.dimotim.kubSolver.kernel.CubieKoordinateConverter;
 import com.dimotim.kubSolver.kernel.GraniCubieConverter;
-import com.dimotim.kubSolver.kernel.Symmetry;
 import com.dimotim.kubSolver.kernel.Tables;
 
 import java.io.*;
@@ -37,10 +35,10 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
     private final SymDeepTable deep;
 
     public FullSymTables2x2(){
-        x1move=new SymMoveTable(Complex2x2Tables.createX1Move(),X_1_16_SYM_CLASSES,16);
-        x1move.proofMove(Complex2x2Tables.createX1Move());
-        x2move=new SymMoveTable(Complex2x2Tables.createX2Move(),X_2_SYM_CLASSES,16);
-        x2move.proofMove(Complex2x2Tables.createX2Move());
+        x1move=new SymMoveTable(new MoveTables().x1Move,X_1_16_SYM_CLASSES,16);
+        x1move.proofMove(new MoveTables().x1Move);
+        x2move=new SymMoveTable(MoveTables.createX2MoveFof18Povorots(),X_2_SYM_CLASSES,16);
+        x2move.proofMove(MoveTables.createX2MoveFof18Povorots());
         deep=new SymDeepTable(x2move,x1move);
         deep.proofDeepTable();
     }

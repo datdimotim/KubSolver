@@ -4,7 +4,6 @@ import com.dimotim.kubSolver.*;
 import com.dimotim.kubSolver.kernel.*;
 import com.dimotim.kubSolver.solvers.SimpleSolver1;
 import com.dimotim.kubSolver.solvers.SimpleSolver2;
-import com.dimotim.kubSolver.tables.Complex2x2Tables;
 import com.dimotim.kubSolver.tables.FullSymTables2x2;
 import com.dimotim.kubSolver.tables.SymTables;
 
