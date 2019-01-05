@@ -4,9 +4,12 @@ import com.dimotim.kubSolver.*;
 import com.dimotim.kubSolver.kernel.*;
 import com.dimotim.kubSolver.solvers.SimpleSolver1;
 import com.dimotim.kubSolver.solvers.SimpleSolver2;
+import com.dimotim.kubSolver.tables.Complex2x2Tables;
+import com.dimotim.kubSolver.tables.FullSymTables2x2;
 import com.dimotim.kubSolver.tables.SymTables;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Random;
 
 import com.dimotim.kubSolver.Solution;
@@ -52,7 +55,9 @@ public class TestsAndBenchmarks {
 
     public static void speedSolve2x2(){
         new Benchmark(new Benchmark.Benchmarkable() {
-            KubSolver2x2 kubSolver=new KubSolver2x2();
+            //KubSolver2x2 solver=new KubSolver2x2();
+            //Complex2x2Tables solver=new Complex2x2Tables();
+            FullSymTables2x2 solver=FullSymTables2x2.readTables();
             Kub2x2 kub = new Kub2x2(false);
             float len=0;
             int kol=0;
@@ -61,7 +66,12 @@ public class TestsAndBenchmarks {
                 kub.randomPos();
                 //kub.povorot(18);
                 kol++;
-                len+=kubSolver.solve(kub).length;
+                Solution solution=solver.solve(kub);
+                len+=solution.length;
+
+                for(int p:solution.getHods())kub.povorot(p);
+                if(kub.getNumberPos().compareTo(BigDecimal.ZERO)!=0)throw new RuntimeException();
+                //System.out.println(kub);
             }
 
             @Override

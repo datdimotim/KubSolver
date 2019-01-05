@@ -1,13 +1,9 @@
 package com.dimotim.kubSolver.tables;
 
-import com.dimotim.compact_arrays.CompactIntegerArrayShift;
-import com.dimotim.compact_arrays.IntegerArray;
 import com.dimotim.kubSolver.kernel.CubieKoordinateConverter;
-import com.dimotim.kubSolver.kernel.Symmetry;
 import com.dimotim.kubSolver.kernel.Tables;
 
 import java.io.*;
-import java.util.Arrays;
 
 public final class SymTables implements Tables<SymTables.KubState> {
     private final SymMoveTable x1;
@@ -26,13 +22,13 @@ public final class SymTables implements Tables<SymTables.KubState> {
     private final SymDeepTable yX2Comb;
     public SymTables() {
         MoveTables moveTables = new MoveTables();//System.out.println("raw move tables created");
-        x1 = new SymMoveTable(moveTables.x1Move, X_1_SYM_CLASSES);//System.out.println("x1 move created");
-        y1 = new SymMoveTable(moveTables.y1Move, Y_1_SYM_CLASSES);//System.out.println("y1 move created");
-        z1 = new SymMoveTable(moveTables.z1Move, Z_1_SYM_CLASSES);//System.out.println("z1 move created");
-        x2 = new SymMoveTable(moveTables.x2Move, X_2_SYM_CLASSES);//System.out.println("x2 move created");
-        y2 = new SymMoveTable(moveTables.y2Move, Y_2_SYM_CLASSES);//System.out.println("y2 move created");
-        z2 = new SymMoveTable(moveTables.z2Move, Z_2_SYM_CLASSES);//System.out.println("z2 move created");
-        x2Comb =new SymMoveTable(moveTables.x2CombMove, X_2_COMB_SYM_CLASSES);//System.out.println("x2Comb move created");
+        x1 = new SymMoveTable(moveTables.x1Move, X_1_SYM_CLASSES,8);//System.out.println("x1 move created");
+        y1 = new SymMoveTable(moveTables.y1Move, Y_1_SYM_CLASSES,8);//System.out.println("y1 move created");
+        z1 = new SymMoveTable(moveTables.z1Move, Z_1_SYM_CLASSES,8);//System.out.println("z1 move created");
+        x2 = new SymMoveTable(moveTables.x2Move, X_2_SYM_CLASSES,16);//System.out.println("x2 move created");
+        y2 = new SymMoveTable(moveTables.y2Move, Y_2_SYM_CLASSES,16);//System.out.println("y2 move created");
+        z2 = new SymMoveTable(moveTables.z2Move, Z_2_SYM_CLASSES,16);//System.out.println("z2 move created");
+        x2Comb =new SymMoveTable(moveTables.x2CombMove, X_2_COMB_SYM_CLASSES,16);//System.out.println("x2Comb move created");
         xy1 = new SymDeepTable(x1, y1);//System.out.println("xy1 deep created");
         xz1 = new SymDeepTable(x1, z1);//System.out.println("xz1 deep created");
         yz1 = new SymDeepTable(y1, z1);//System.out.println("yz1 deep created");
@@ -59,7 +55,7 @@ public final class SymTables implements Tables<SymTables.KubState> {
         yX2Comb.proofDeepTable();System.out.println("yX2Comb deep tested");
     }
 
-    private int initDepth(SymDeepTable table, int s, int r){
+    public static int initDepth(SymDeepTable table, int s, int r){
         int si=s;
         int ri=r;
         int so;
@@ -80,7 +76,7 @@ public final class SymTables implements Tables<SymTables.KubState> {
         return count;
     }
 
-    private static int track(int mod, int deepPred){
+    public static int track(int mod, int deepPred){
         int old=deepPred%3;
         if(mod==old)return deepPred;
         if(old==2){
@@ -192,251 +188,5 @@ public final class SymTables implements Tables<SymTables.KubState> {
         private int yzDeep;
         private int xY2CombDeep;
     }
-    private static final class IntegerMatrix implements Serializable{
-        private final IntegerArray array;
-        private final int iLength;
-        private final int jLength;
-        private IntegerMatrix(int maxI,int maxJ,int maxVal){
-            iLength =maxI;
-            jLength =maxJ;
-            int i=0;
-            int v=1;
-            while (v<maxVal){
-                v*=2;
-                i++;
-            }
-            array=new CompactIntegerArrayShift(maxI*maxJ,i);
-            //array=new CompactIntegerArrayDivide(maxI*maxJ,maxVal);
-        }
-        private void set(int i,int j,int val){
-            array.set(i* jLength +j,val);
-        }
-        private long get(int i,int j){
-            return array.get(i* jLength +j);
-        }
-    }
 
-    private static final class SymMoveTable implements Serializable{
-        private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
-        private final int[] inverseSymmetry;
-        private final int[][] symHods;
-        private final int SYMMETRIES;
-        private final int CLASSES;
-        private final int RAW;
-
-        private final char[][] symMoveTable;        // backing storage   //[povorot][position]=16*class+sym
-        private final char[][]   classToRaw;        // sym, class
-        private final char[]   rawToClass;  // [pos]=class*16+sym
-
-        private SymMoveTable(char[][] rawMoveTable, int classes){
-            if(rawMoveTable.length==19) {
-                symmetryMul = Symmetry.getSymmetryMulHalf();
-                inverseSymmetry = Symmetry.getInverseSymmetryHalf();
-                symHods = Symmetry.getSymHodsHalf();
-            }
-            else {
-                if(rawMoveTable.length!=11)throw new RuntimeException();
-                symmetryMul = Symmetry.getSymmetryMul();
-                inverseSymmetry = Symmetry.getInverseSymmetry();
-                symHods = Symmetry.getSymHods10();
-
-            }
-            SYMMETRIES = symmetryMul.length;
-            CLASSES=classes;
-            RAW=rawMoveTable[0].length;
-            symMoveTable=new char[symHods[0].length][CLASSES];
-            classToRaw=new char[SYMMETRIES][CLASSES];
-            int[][] symTable=createSymTable(rawMoveTable);
-            initClassToRaw(rawMoveTable,symTable);
-            rawToClass=initRawToClass(symTable);
-            initSymMove(rawMoveTable);
-        }
-
-        private char[] initRawToClass(int[][] symTable){   // <class, sym>[pos]
-            char[] rawToClass=new char[symTable[0].length];
-            for(int i=0;i<CLASSES;i++){
-                for(int s=0;s<symTable.length;s++){
-                    rawToClass[classToRaw[s][i]]=(char) (i*16+s);
-                }
-            }
-            return rawToClass;
-        }
-
-        private void initClassToRaw(char[][] rawMoveTable,int[][] symTable){
-            boolean[] mask=new boolean[rawMoveTable[0].length];
-            Arrays.fill(mask,true);
-            int classNumber=0;
-            for(int i=0;i<symTable[0].length;i++){
-                if(mask[i]){
-                    for(int s=0;s<symTable.length;s++){
-                        classToRaw[s][classNumber]= (char) symTable[s][i];
-                        mask[symTable[s][i]]=false;
-                    }
-                    classNumber++;
-                }
-            }
-            //System.out.println(classNumber);
-        }
-
-        private int[][] createSymTable(char[][] move){
-            int[][] sym_table=new int[SYMMETRIES][move[0].length];
-            for(int[] m:sym_table)Arrays.fill(m,-1);
-            for(int i=0;i<sym_table.length;i++)sym_table[i][0]=0;
-            createSymTable1(move,sym_table,symHods);
-            return sym_table;
-        }
-        private void createSymTable1(char[][] move, int[][] sym_table,int[][] symHods){
-            boolean newMark=true;
-            while (newMark) {
-                newMark=false;
-                for(int pos=0;pos<sym_table[0].length;pos++) {
-                    if(sym_table[0][pos]==-1)continue;
-                    for (int p = 1; p < move.length; p++) {
-                        int newPos = move[p][pos];
-                        if(sym_table[0][newPos]!=-1)continue;
-                        newMark=true;
-                        for (int s = 0; s < SYMMETRIES; s++) {
-                            sym_table[s][newPos] = move[symHods[s][p]][sym_table[s][pos]];
-                        }
-                    }
-                }
-            }
-        }
-
-        private void initSymMove(char[][] rawMoveTable){
-            for (int i=0;i<CLASSES;i++){
-                for (int np = 0; np< rawMoveTable.length; np++) {
-                    symMoveTable[np][i] = (rawToClass[rawMoveTable[np][classToRaw[0][i]]]);
-                }
-            }
-        }
-
-        private void proofMove(char[][] rawMoveTable){
-            for(int pos=0;pos<rawMoveTable[0].length;pos++){
-                for(int np = 0; np< rawMoveTable.length; np++){
-                    int posEtalon= rawMoveTable[np][pos];
-                    int posCheck=rawHod(pos,np);
-                    if(posEtalon!=posCheck)throw new RuntimeException("pos="+pos+" np="+np+" posEtalon="+posEtalon+" posCheck="+posCheck);
-                }
-            }
-        }
-
-        private int rawToSym(int raw){
-            return rawToClass[raw];
-        }
-
-        private int symPosToRaw(int symPos){
-            return classToRaw[symPos%16][symPos/16];
-        }
-
-        private int doMove(int in,int np){
-            int npSym=symHods[inverseSymmetry[in%16]][np];
-            return (symMoveTable[npSym][in/16]/16)*16+symmetryMul[in%16][symMoveTable[npSym][in/16]%16];
-        }
-
-        private int rawHod(int raw,int np){
-            int in_classPos=rawToClass[raw]/16;
-            int in_sym=rawToClass[raw]%16;
-            int npSym=symHods[inverseSymmetry[in_sym]][np];
-            int out_classPos=symMoveTable[npSym][in_classPos]/16;
-            int out_sym=symmetryMul[in_sym][symMoveTable[npSym][in_classPos]%16];
-            return classToRaw[out_sym][out_classPos];
-        }
-    }
-
-    private static final class SymDeepTable implements Serializable{
-        private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
-        private final int[] inverseSymmetry;
-        private final SymMoveTable symPart;
-        private final SymMoveTable rawPart;
-
-        private final IntegerMatrix deepTable;
-        private SymDeepTable(SymMoveTable symPart, SymMoveTable rawPart){
-            this.symPart=symPart;
-            this.rawPart=rawPart;
-            if(symPart.symMoveTable.length==19) {
-                symmetryMul = Symmetry.getSymmetryMulHalf();
-                inverseSymmetry = Symmetry.getInverseSymmetryHalf();
-            }
-            else {
-                if(symPart.symMoveTable.length!=11)throw new RuntimeException();
-                symmetryMul = Symmetry.getSymmetryMul();
-                inverseSymmetry = Symmetry.getInverseSymmetry();
-            }
-            deepTable=packDeepTable(createDeepTable());
-        }
-        private byte[][] createDeepTable(){
-            int symP;
-            int rawP;
-            int symPRotated;
-            int rawPRotated;
-            int t;
-            byte[][] deepTable=new byte[symPart.CLASSES][rawPart.RAW];
-            for(byte[] b:deepTable)Arrays.fill(b,(byte) 20);
-            deepTable[0][0]=0;
-            for(int deep=0;deep<20;deep++){
-                for(int classPos=0;classPos<deepTable.length;classPos++){
-                    for(int raw=0;raw<deepTable[0].length;raw++){
-                        if(deepTable[classPos][raw]!=deep)continue;
-                        for(int np=0;np<symPart.symMoveTable.length;np++){
-                            symP=classPos*16; // sym=0
-                            rawP=rawPart.rawToSym(raw);
-
-                            symPRotated=symPart.doMove(symP,np);
-                            rawPRotated=rawPart.doMove(rawP,np);
-                            final int raw_sym=rawPRotated%16;
-
-                            for(int symInv=0;symInv<symPart.SYMMETRIES;symInv++){
-                                t=symPRotated/16*16+symInv;
-                                if(symPart.symPosToRaw(symPRotated)!=symPart.symPosToRaw(t))continue;
-                                rawPRotated=rawPRotated/16*16+symmetryMul[inverseSymmetry[symInv]][raw_sym];
-                                int rawRotated=rawPart.symPosToRaw(rawPRotated);
-                                if(deepTable[symPRotated/16][rawRotated]>deep+1)deepTable[symPRotated/16][rawRotated]=(byte) (deep+1);
-                            }
-                        }
-                    }
-                }
-            }
-            return deepTable;
-        }
-
-        private IntegerMatrix packDeepTable(byte[][] deepTable){
-            IntegerMatrix m=new IntegerMatrix(deepTable.length,deepTable[0].length,3);
-            for(int i=0;i<m.iLength;i++)for(int j=0;j<m.jLength;j++)m.set(i,j,deepTable[i][j]%3);
-            return m;
-        }
-
-        private byte[][] createDeepTableRaw(){
-            byte[][] deepTable=new byte[symPart.RAW][rawPart.RAW];
-            for(byte[] b:deepTable)Arrays.fill(b,(byte) 20);
-            deepTable[0][0]=0;
-            for(int deep=0;deep<20;deep++){
-                for(int i=0;i<deepTable.length;i++){
-                    for(int j=0;j<deepTable[0].length;j++){
-                        if(deepTable[i][j]!=deep)continue;
-                        for(int np=0;np<symPart.symMoveTable.length;np++){
-                            if(deepTable[symPart.rawHod(i,np)][rawPart.rawHod(j,np)]>deep+1)deepTable[symPart.rawHod(i,np)][rawPart.rawHod(j,np)]=(byte) (deep+1);
-                        }
-                    }
-                }
-            }
-            return deepTable;
-        }
-
-        private void proofDeepTable(){
-            byte[][] deepTableRaw=createDeepTableRaw();
-            for(int i=0;i<deepTableRaw.length;i++){
-                for(int j=0;j<deepTableRaw[0].length;j++){
-                    int symP=symPart.rawToSym(i);
-                    int rawP=rawPart.rawToSym(j);
-                    if(deepTableRaw[i][j]%3!=getDepth(symP,rawP))throw new RuntimeException();
-                }
-            }
-        }
-
-        private int getDepth(int sym, int raw){
-            int s=symmetryMul[inverseSymmetry[sym%16]][raw%16];
-            return (int) deepTable.get(sym/16,rawPart.classToRaw[s][raw/16]);
-        }
-    }
 }

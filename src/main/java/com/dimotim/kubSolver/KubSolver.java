@@ -112,11 +112,11 @@ public final class KubSolver<KS,Solver1State>{
                     break;
                 }
                 case 2: {
-                    kub = new Kub(normalizeColors(symZ(kub.getGrani())));
+                    kub = new Kub(normalizeColors(Symmetry.symZ(kub.getGrani())));
                     break;
                 }
                 case 3: {
-                    kub = new Kub(normalizeColors(symX(kub.getGrani())));
+                    kub = new Kub(normalizeColors(Symmetry.symX(kub.getGrani())));
                     break;
                 }
                 default:
@@ -153,7 +153,7 @@ public final class KubSolver<KS,Solver1State>{
         if(k2[0]!=0||k2[1]!=0||k2[2]!=0)throw new RuntimeException("Kub 2 fase error");
     }
 
-    private static int[][][] normalizeColors(int[][][] graniIn){
+    public static int[][][] normalizeColors(int[][][] graniIn){
         int[][][] grani=new int[6][3][3];
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 3; j++) {
@@ -168,16 +168,6 @@ public final class KubSolver<KS,Solver1State>{
             }
         }
         return grani;
-    }
-
-    private static int[][][] symZ(int[][][] graniIn) { // symmetry n 2
-        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 19), 4), 14);
-    }
-    private static int[][][] symX(int[][][] graniIn) { // symmetry n 3
-        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 10), 8), 22);
-    }
-    private static int[][][] symY(int[][][] graniIn) {
-        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 16), 2), 25);
     }
 
 }

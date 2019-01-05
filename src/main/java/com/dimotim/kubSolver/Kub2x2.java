@@ -66,7 +66,7 @@ public class Kub2x2 {
         return fromGrani3x3(cubieSet.toGrani());
     }
 
-    int[][][] getGrani3x3(){
+    public int[][][] getGrani3x3(){
         return cubieSet.toGrani();
     }
 

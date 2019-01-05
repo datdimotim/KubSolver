@@ -17,6 +17,7 @@ public interface Tables<KubState> extends Serializable{
     int Y_2_SYM_CLASSES =2768;
     int Z_2_SYM_CLASSES =8;
     int X_2_COMB_SYM_CLASSES =14;
+    int X_1_16_SYM_CLASSES=168;
 
     KubState initKubStateFase1(int x,int y,int z);
     KubState initKubStateFase2(int x,int y,int z);

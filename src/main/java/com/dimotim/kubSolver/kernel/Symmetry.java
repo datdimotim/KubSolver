@@ -23,10 +23,6 @@ public final class Symmetry{
         return inverseSymmetryHalf.clone();
     }
 
-    public static int[][] getSymHods() {
-        return getSymHodsAllSymmetry();
-    }
-
     public static int[][] getSymHodsHalf() {
         return initSymHodsHalf(symHods);
     }
@@ -73,8 +69,12 @@ public final class Symmetry{
         return symmetryMulHalf;
     }
 
+    public static void main(String[] args) {
+        for(int[] s:getSymmetryMul()) System.out.println(Arrays.toString(s));
+    }
+
     public static int[][] getSymmetryMul(){
-        int[][] symmetryMul=new int[16][16];
+        int[][] symmetryMul=new int[48][48];
         int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
         for(int i=0;i<symmetryMul.length;i++){
             int[] hods1=hodsTransform(hodsInit,i);
@@ -98,6 +98,18 @@ public final class Symmetry{
         int[] ret=new int[hods.length];
         for(int i=0;i<ret.length;i++)ret[i]=symHods[s][hods[i]];
         return ret;
+    }
+
+    public static int[][][] symZ(int[][][] graniIn) { // symmetry n 2
+        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 19), 4), 14);
+    }
+
+    public static int[][][] symX(int[][][] graniIn) { // symmetry n 3
+        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 10), 8), 22);
+    }
+
+    public static int[][][] symY(int[][][] graniIn) {
+        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 16), 2), 25);
     }
 
     private static class InitializerInverseSymmetry {
@@ -174,15 +186,6 @@ public final class Symmetry{
     }
     public static int[][] getSymHodsAllSymmetry(){
         return InitializerSymHods.createSymHods();
-    }
-    private static int[][][] symZ(int[][][] graniIn) { // symmetry n 2
-        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 19), 4), 14);
-    }
-    private static int[][][] symX(int[][][] graniIn) { // symmetry n 3
-        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 10), 8), 22);
-    }
-    private static int[][][] symY(int[][][] graniIn) {
-        return Grani.povorot(Grani.povorot(Grani.povorot(graniIn, 16), 2), 25);
     }
 }
 
