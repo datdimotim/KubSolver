@@ -1,6 +1,9 @@
 package com.dimotim.kubSolver.test;
 
-import com.dimotim.kubSolver.*;
+import com.dimotim.kubSolver.Kub;
+import com.dimotim.kubSolver.Kub2x2;
+import com.dimotim.kubSolver.KubSolver;
+import com.dimotim.kubSolver.Solution;
 import com.dimotim.kubSolver.kernel.*;
 import com.dimotim.kubSolver.solvers.SimpleSolver1;
 import com.dimotim.kubSolver.solvers.SimpleSolver2;
@@ -10,8 +13,6 @@ import com.dimotim.kubSolver.tables.SymTables;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Random;
-
-import com.dimotim.kubSolver.Solution;
 
 public class TestsAndBenchmarks {
     public static void main(String[] args) throws IOException {
