@@ -6,6 +6,7 @@ import static com.dimotim.kubSolver.kernel.Fase1Solver.MAX_DEEP;
 
 public final class KubSolver<KS,Solver1State>{
     private final int tryKol=0;
+    private final int maxSolutionLength=30;
     private Fase1Solver<KS,Solver1State> fase1Solver;
     private Fase2Solver<KS> fase2Solver;
     private static final int[] hodsFase2=HodTransforms.getP10To18();
@@ -26,7 +27,7 @@ public final class KubSolver<KS,Solver1State>{
         int[] fase1solution=new int[MAX_DEEP+1];
         int[] fase2solution;
         int tk=0;
-        int targetLength = 22;
+        int targetLength = maxSolutionLength;
         Solution solution=null;
         while (true) {
             if(solution!=null){
@@ -35,6 +36,7 @@ public final class KubSolver<KS,Solver1State>{
             }
             fase1Solver.solve(solver1State1);
             fase1Solver.getResultFromSolveState(solver1State1,fase1solution);
+            proofFase1(kub1,fase1solution);
             int length=lengthHods(fase1solution);
             if(length>targetLength)return solution;
             fase2solution = new int[targetLength + 1 - length];
@@ -86,7 +88,7 @@ public final class KubSolver<KS,Solver1State>{
                 CubieKoordinateConverter.rpToZ2(GraniCubieConverter.graniToRP(grani))
         };
         if (!fase2Solver.solve(k2[0], k2[1], k2[2], fase2))return false;
-        //proofFase2(kubFase2, fase2);
+        proofFase2(kubFase2, fase2);
         for (int i = 0; i < fase2.length; i++) fase2[i] = hodsFase2[fase2[i]];
         return true;
     }

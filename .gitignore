@@ -2,3 +2,7 @@
 /.gradle
 /out
 .idea
+/gradlew
+/gradlew.bat
+
+/gradle/wrapper/
