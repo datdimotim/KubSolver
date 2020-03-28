@@ -19,7 +19,7 @@ public final class SymMoveTable implements Serializable {
     public final int CLASSES;
     public final int RAW;
 
-    final char[][] symMoveTable;        // backing storage   //[povorot][position]=48*class+sym
+    private final char[][] symMoveTable;        // backing storage   //[povorot][position]=48*class+sym
     final char[][]   classToRaw;        // sym, class
     private final char[]   rawToClass;  // [pos]=class*48+sym
 
@@ -53,6 +53,10 @@ public final class SymMoveTable implements Serializable {
         initClassToRaw(rawMoveTable,symTable);
         rawToClass=initRawToClass(symTable);
         initSymMove(rawMoveTable);
+    }
+
+    public int getCountOfMoves(){
+        return symMoveTable.length;
     }
 
     private char[] initRawToClass(int[][] symTable){   // <class, sym>[pos]

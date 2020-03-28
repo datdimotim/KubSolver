@@ -40,7 +40,7 @@ public final class SymDeepTable implements Serializable {
             for(int classPos=0;classPos<deepTable.length;classPos++){
                 for(int raw=0;raw<deepTable[0].length;raw++){
                     if(deepTable[classPos][raw]!=deep)continue;
-                    for(int np=0;np<symPart.symMoveTable.length;np++){
+                    for(int np = 0; np<symPart.getCountOfMoves(); np++){
                         symP=classPos* COUNT_OF_SYMMETRIES; // sym=0
                         rawP=rawPart.rawToSym(raw);
 
@@ -76,7 +76,7 @@ public final class SymDeepTable implements Serializable {
             for(int i=0;i<deepTable.length;i++){
                 for(int j=0;j<deepTable[0].length;j++){
                     if(deepTable[i][j]!=deep)continue;
-                    for(int np=0;np<symPart.symMoveTable.length;np++){
+                    for(int np = 0; np<symPart.getCountOfMoves(); np++){
                         if(deepTable[symPart.rawHod(i,np)][rawPart.rawHod(j,np)]>deep+1)deepTable[symPart.rawHod(i,np)][rawPart.rawHod(j,np)]=(byte) (deep+1);
                     }
                 }

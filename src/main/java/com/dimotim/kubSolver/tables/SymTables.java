@@ -62,7 +62,7 @@ public final class SymTables implements Tables<SymTables.KubState> {
         int ro;
         int count=0;
         int deepPred=21+table.getDepth(s,r); // 21 mod 3 = 0
-        for(int np=1;np<table.symPart.symMoveTable.length;np++){
+        for(int np = 1; np<table.symPart.getCountOfMoves(); np++){
             so=table.symPart.doMove(si,np);
             ro=table.rawPart.doMove(ri,np);
             if(track(table.getDepth(so,ro),deepPred)<deepPred){
