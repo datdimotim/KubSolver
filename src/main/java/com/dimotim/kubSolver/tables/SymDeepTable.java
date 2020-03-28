@@ -99,7 +99,7 @@ public final class SymDeepTable implements Serializable {
         }
     }
 
-    int getDepth(int sym, int raw){
+    public int getDepth(int sym, int raw){
         int s=symmetryMul[inverseSymmetry[sym% COUNT_OF_SYMMETRIES]][raw% COUNT_OF_SYMMETRIES];
         return (int) deepTable.get(sym/ COUNT_OF_SYMMETRIES,rawPart.classToRaw[s][raw/ COUNT_OF_SYMMETRIES]);
     }

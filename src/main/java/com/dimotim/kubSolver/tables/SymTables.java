@@ -10,16 +10,16 @@ public final class SymTables implements Tables<SymTables.KubState> {
     private final SymMoveTable y1;
     private final SymMoveTable z1;
     private final SymMoveTable x2;
-    private final SymMoveTable y2;
+    public final SymMoveTable y2;
     private final SymMoveTable z2;
-    private final SymMoveTable x2Comb;
+    public final SymMoveTable x2Comb;
     private final SymDeepTable xy1;
     private final SymDeepTable xz1;
     private final SymDeepTable yz1;
     private SymDeepTable xy2;
     private final SymDeepTable xz2;
     private final SymDeepTable yz2;
-    private final SymDeepTable yX2Comb;
+    public final SymDeepTable yX2Comb;
     public SymTables() {
         MoveTables moveTables = new MoveTables();//System.out.println("raw move tables created");
         x1 = new SymMoveTable(moveTables.x1Move, X_1_SYM_CLASSES,8);//System.out.println("x1 move created");

@@ -8,6 +8,8 @@ import com.dimotim.kubSolver.kernel.*;
 import com.dimotim.kubSolver.solvers.SimpleSolver1;
 import com.dimotim.kubSolver.solvers.SimpleSolver2;
 import com.dimotim.kubSolver.tables.FullSymTables2x2;
+import com.dimotim.kubSolver.tables.SymDeepTable;
+import com.dimotim.kubSolver.tables.SymMoveTable;
 import com.dimotim.kubSolver.tables.SymTables;
 
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class TestsAndBenchmarks {
         //symTables.proof();
         //SizeOf.sizeof(new SymTables());
         //solveAndView();
+        tablesTest();
         speedSolve();
         speedSolve2x2();
         //fase2Benchmark(new SymTables(),new SimpleSolver2());
@@ -31,7 +34,7 @@ public class TestsAndBenchmarks {
 
     public static void speedSolve() throws IOException {
         new Benchmark(new Benchmark.Benchmarkable() {
-            KubSolver kubSolver= new KubSolver<>(SymTables.readTables(), new SimpleSolver1<SymTables.KubState>(), new SimpleSolver2<SymTables.KubState>());
+            KubSolver kubSolver= new KubSolver<>(new SymTables(), new SimpleSolver1<SymTables.KubState>(), new SimpleSolver2<SymTables.KubState>());
             Kub kub = new Kub(false);
             float len=0;
             int kol=0;
@@ -201,5 +204,49 @@ public class TestsAndBenchmarks {
         System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
         symTables.proof();
         System.out.println("Completed... time="+(System.currentTimeMillis()-ts)/1000+"s");
+    }
+
+    private static void tablesTest(){
+        SymTables symTables=new SymTables();
+
+        SymMoveTable x2Comb=symTables.x2Comb;
+        SymMoveTable y=symTables.y2;
+        SymDeepTable yX2Comb=symTables.yX2Comb;
+
+        Random random=new Random();
+
+        while (true) {
+            {
+                int s = 0;
+                int count = 0;
+                long startTime = System.currentTimeMillis();
+
+                while (true) {
+                    s += x2Comb.doMove(random.nextInt(x2Comb.CLASSES * 16), random.nextInt(11));
+                    s += y.doMove(random.nextInt(y.CLASSES*16),random.nextInt(11));
+                    count++;
+                    if (System.currentTimeMillis() - startTime > 1000) {
+                        System.out.println("move count: " + count/100_000 + " dummy: " + s);
+                        break;
+                    }
+                }
+            }
+
+            {
+                int s = 0;
+                int count = 0;
+                long startTime = System.currentTimeMillis();
+
+                while (true) {
+                    s += yX2Comb.getDepth(random.nextInt(y.CLASSES * 16), random.nextInt(x2Comb.CLASSES*16));
+                    count++;
+                    if (System.currentTimeMillis() - startTime > 1000) {
+                        System.out.println("depth count: " + count/100_000 + " dummy: " + s);
+                        break;
+                    }
+                }
+            }
+        }
+
     }
 }

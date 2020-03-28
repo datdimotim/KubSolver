@@ -136,7 +136,7 @@ public final class SymMoveTable implements Serializable {
         return classToRaw[symPos%COUNT_OF_SYMMETRIES][symPos/COUNT_OF_SYMMETRIES];
     }
 
-    int doMove(int in,int np){
+    public int doMove(int in,int np){
         int inSym=in%COUNT_OF_SYMMETRIES;
         int inClass=in/COUNT_OF_SYMMETRIES;
 
@@ -144,8 +144,7 @@ public final class SymMoveTable implements Serializable {
 
         int inP=symMoveTable[npSym][inClass];
 
-        return (inP/COUNT_OF_SYMMETRIES)* COUNT_OF_SYMMETRIES+
-                symmetryMul[inSym][inP%COUNT_OF_SYMMETRIES];
+        return (inP/COUNT_OF_SYMMETRIES)* COUNT_OF_SYMMETRIES+ symmetryMul[inSym][inP%COUNT_OF_SYMMETRIES];
     }
 
     int rawHod(int raw,int np){
