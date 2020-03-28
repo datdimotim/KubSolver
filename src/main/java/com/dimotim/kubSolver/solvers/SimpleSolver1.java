@@ -3,14 +3,14 @@ package com.dimotim.kubSolver.solvers;
 import com.dimotim.kubSolver.kernel.Fase1Solver;
 import com.dimotim.kubSolver.kernel.Tables;
 import io.reactivex.Observable;
-import io.reactivex.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
-//import java.util.stream.Stream;
 
 import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
+
+//import java.util.stream.Stream;
 
 public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.SolveState<KS>> {
     private Tables<KS> tables;
@@ -31,23 +31,7 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
 
     @Override
     public void solve(SolveState<KS> state) {
-        if(true){
-            /*
-                41tasks/s  results=23.404762
-                102tasks/s  results=23.142857
-                114tasks/s  results=22.983051
-                103tasks/s  results=22.971153
-                107tasks/s  results=23.046297
-                93tasks/s  results=23.127659
-                97tasks/s  results=23.060606
-                113tasks/s  results=22.965517
-                114tasks/s  results=23.172413
-                91tasks/s  results=23.25
-                111tasks/s  results=22.955357
-                113tasks/s  results=23.298246
-                131tasks/s  results=23.083334
-             */
-
+        if(false){
             solveStream(state);
             return;
         }
@@ -145,7 +129,7 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
         return Observable.concat(
                 Observable.just(root).filter(solutionValidator::test),
                 childGenerator.apply(root)
-                        .filter(edgeReduser::test)
+                        //.filter(edgeReduser::test)
                         .flatMap(ch->bactracking(ch,childGenerator,edgeReduser,solutionValidator))
         );
     }

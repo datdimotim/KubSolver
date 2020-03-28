@@ -18,7 +18,7 @@ public final class SimpleSolver2<KS> implements Fase2Solver<KS> {
     }
     @Override
     public boolean solve(int x, int y, int z, int[] hods) {
-        if(true){
+        if(false){
             solveStream(x,y,z,hods);
             return true;
         }

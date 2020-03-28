@@ -133,10 +133,15 @@ public final class SymMoveTable implements Serializable {
     }
 
     int doMove(int in,int np){
-        int npSym=symHods[inverseSymmetry[in%COUNT_OF_SYMMETRIES]][np];
-        return (symMoveTable[npSym][in/COUNT_OF_SYMMETRIES]/COUNT_OF_SYMMETRIES)*
-                COUNT_OF_SYMMETRIES+
-                symmetryMul[in%COUNT_OF_SYMMETRIES][symMoveTable[npSym][in/COUNT_OF_SYMMETRIES]%COUNT_OF_SYMMETRIES];
+        int inSym=in%COUNT_OF_SYMMETRIES;
+        int inClass=in/COUNT_OF_SYMMETRIES;
+
+        int npSym=symHods[inverseSymmetry[inSym]][np];
+
+        int inP=symMoveTable[npSym][inClass];
+
+        return (inP/COUNT_OF_SYMMETRIES)* COUNT_OF_SYMMETRIES+
+                symmetryMul[inSym][inP%COUNT_OF_SYMMETRIES];
     }
 
     int rawHod(int raw,int np){
@@ -146,12 +151,6 @@ public final class SymMoveTable implements Serializable {
         int npSym=symHods[inverseSymmetry[in_sym]][np];
         int out_classPos=symMoveTable[npSym][in_classPos]/COUNT_OF_SYMMETRIES;
         int out_sym=symmetryMul[in_sym][symMoveTable[npSym][in_classPos]%COUNT_OF_SYMMETRIES];
-        try {
-            return classToRaw[out_sym][out_classPos];
-        }
-        catch (ArrayIndexOutOfBoundsException e){
-            System.out.println(symMoveTable[npSym][in_classPos]%COUNT_OF_SYMMETRIES);
-            throw new RuntimeException();
-        }
+        return classToRaw[out_sym][out_classPos];
     }
 }
