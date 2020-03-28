@@ -149,12 +149,8 @@ public final class SymMoveTable implements Serializable {
     }
 
     int rawHod(int raw,int np){
-        int in_classPos=rawToClass[raw]/COUNT_OF_SYMMETRIES;
-        int in_sym=rawToClass[raw]%COUNT_OF_SYMMETRIES;
-
-        int npSym=symHods[inverseSymmetry[in_sym]][np];
-        int out_classPos=symMoveTable[npSym][in_classPos]/COUNT_OF_SYMMETRIES;
-        int out_sym=symmetryMul[in_sym][symMoveTable[npSym][in_classPos]%COUNT_OF_SYMMETRIES];
-        return classToRaw[out_sym][out_classPos];
+        int in_class_sym=rawToClass[raw];
+        int out_class_sym=doMove(in_class_sym,np);
+        return classToRaw[out_class_sym%COUNT_OF_SYMMETRIES][out_class_sym/COUNT_OF_SYMMETRIES];
     }
 }
