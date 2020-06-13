@@ -17,6 +17,30 @@ public final class KubSolver<KS,Solver1State>{
         this.fase2Solver.init(tables);
     }
 
+    /**
+     *
+     *     id = f * (R * f')
+     *  => f'^(-1) = f * R
+     *
+     *    id - нейтральная перестановка
+     *    R - запутывание кубика
+     *    f' - сборка узора в начальную позицию
+     *    f'^(-1) - узора из начальной позиции
+     *
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public Solution solve(Kub from, Kub to){
+        Solution R=solve(from).inverse();
+        Solution fDash=solve(to);
+        Solution RfDash=fDash.compose(R);
+        Kub k=new Kub(false).apply(RfDash);
+        Solution f=k.solve();
+        return f;
+    }
+
     public Solution solve(Kub kub){
         Kub kub1=getSymmetryKub(kub,1);
         Kub kub2=getSymmetryKub(kub,2);
@@ -41,8 +65,8 @@ public final class KubSolver<KS,Solver1State>{
             if(length>targetLength)return solution;
             fase2solution = new int[targetLength + 1 - length];
             if(finishSolution(kub1,solver1State1,fase2solution)){
-                solution=new Solution(1,fase1solution,fase2solution);
-                targetLength =solution.length-1;
+                solution=Solution.fromFases(1,fase1solution,fase2solution);
+                targetLength =solution.getLength()-1;
             }
 
             if(solution!=null){
@@ -55,8 +79,8 @@ public final class KubSolver<KS,Solver1State>{
             if(length>targetLength)return solution;
             fase2solution = new int[targetLength + 1 - length];
             if(finishSolution(kub2,solver1State2,fase2solution)){
-                solution=new Solution(2,fase1solution,fase2solution);
-                targetLength =solution.length-1;
+                solution=Solution.fromFases(2,fase1solution,fase2solution);
+                targetLength =solution.getLength()-1;
             }
 
             if(solution!=null){
@@ -69,8 +93,8 @@ public final class KubSolver<KS,Solver1State>{
             if(length>targetLength)return solution;
             fase2solution = new int[targetLength + 1 - length];
             if(finishSolution(kub3,solver1State3,fase2solution)){
-                solution=new Solution(3,fase1solution,fase2solution);
-                targetLength =solution.length-1;
+                solution=Solution.fromFases(3,fase1solution,fase2solution);
+                targetLength =solution.getLength()-1;
             }
         }
     }

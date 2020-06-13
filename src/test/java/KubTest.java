@@ -48,4 +48,22 @@ public class KubTest {
         }
         Assertions.assertEquals(kub.getNumberPos(),BigDecimal.ZERO);
     }
+
+    @Test
+    public void checkSolutionInverse(){
+        Kub kub=new Kub(true);
+        Solution solution=kub.solve();
+        Kub duplicate=new Kub(false).apply(solution.inverse());
+
+        Assertions.assertEquals(kub,duplicate);
+    }
+
+    @Test
+    public void checkSolveUzor(){
+        Kub uzor=new Kub(true);
+        Kub random=new Kub(true);
+        Solution uzorSolution=random.solve(uzor);
+
+        Assertions.assertEquals(uzor,random.apply(uzorSolution));
+    }
 }

@@ -45,4 +45,11 @@ public final class HodTransforms {
     public static boolean hodPredHod2Fase(int hod, int predHod){
         return hodPredHod1Fase(p10To18[hod],p10To18[predHod]);
     }
+
+    public static int inverseHod18(int h18){
+        int dir=(h18-1)%3;
+        if(dir==2)return h18;
+        if(dir==0)return h18+1;
+        else return h18-1;
+    }
 }

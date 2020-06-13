@@ -2,42 +2,63 @@ package com.dimotim.kubSolver;
 
 import com.dimotim.kubSolver.kernel.HodTransforms;
 
+import java.util.Arrays;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 public class Solution {
     private static final int[][] symHods= HodTransforms.getSymHodsFor3Axis();
     private static final String[] hodString=HodTransforms.getHodString();
-    public final int length;
     private final int[] hods;
     private final int sym;
 
-    public Solution(int sym, int[] fase1, int[] fase2) {
-        this.sym = sym;
-        fase1=nomalize(fase1);
-        fase2=nomalize(fase2);
-        length =fase1.length+fase2.length;
-        hods = new int[length];
-        int kol=0;
-        for(int hod:fase1)hods[kol++]=hod;
-        for(int hod:fase2)hods[kol++]=hod;
-        kol=0;
-        for (int hod:hods) hods[kol++] = symHods[sym - 1][hod];
+    public Solution(int sym, int[] hods) {
+        this.sym=sym;
+        this.hods=hods;
     }
 
-    private static int[] nomalize(int [] hods){
-        int s = 0;
-        for (int hod : hods) if (hod != 0) s++;
-        int[] res=new int[s];
-        s=0;
-        for (int hod : hods) if (hod != 0) res[s++]=hod;
-        return res;
+    public static Solution fromFases(int sym, int[] fase1, int[] fase2){
+        int[] hods=IntStream.concat(
+                Arrays.stream(fase1),
+                Arrays.stream(fase2)
+        )
+        .filter(h->h!=0)
+        .map(h->symHods[sym-1][h])
+        .toArray();
+
+        return new Solution(sym,hods);
     }
 
     public int[] getHods() {
         return hods.clone();
     }
 
+    public Solution inverse(){
+        int[] h=IntStream.range(0,getLength())
+                .map(i->getLength()-1-i)
+                .map(i->hods[i])
+                .map(HodTransforms::inverseHod18)
+                .toArray();
+
+        return new Solution(sym,h);
+    }
+
+    public Solution compose(Solution next){
+        return new Solution(
+                sym,
+                Stream.of(hods,next.getHods())
+                    .flatMapToInt(Arrays::stream)
+                    .toArray()
+        );
+    }
+
+    public int getLength(){
+        return hods.length;
+    }
+
     public String toString() {
         StringBuilder out = new StringBuilder();
         for (int hod : hods) out.append(hodString[hod]);
-        return out.toString() + length + "f symmerty="+sym;
+        return out.toString() + getLength() + "f symmerty="+sym;
     }
 }

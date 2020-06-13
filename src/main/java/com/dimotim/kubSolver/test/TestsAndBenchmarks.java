@@ -43,7 +43,7 @@ public class TestsAndBenchmarks {
                 kub.randomPos();
                 //kub.povorot(18);
                 kol++;
-                len+=kubSolver.solve(kub).length;
+                len+=kubSolver.solve(kub).getLength();
             }
 
             @Override
@@ -70,7 +70,7 @@ public class TestsAndBenchmarks {
                 //kub.povorot(18);
                 kol++;
                 Solution solution=solver.solve(kub);
-                len+=solution.length;
+                len+=solution.getLength();
 
                 for(int p:solution.getHods())kub.povorot(p);
                 if(kub.getNumberPos().compareTo(BigDecimal.ZERO)!=0)throw new RuntimeException();
