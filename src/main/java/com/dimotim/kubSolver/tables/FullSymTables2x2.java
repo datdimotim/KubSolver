@@ -41,7 +41,8 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
         x2move=new SymMoveTable(MoveTables.createX2MoveFof18Povorots(),X_2_SYM_CLASSES,16);
         x2move.proofMove(MoveTables.createX2MoveFof18Povorots());
         deep=new SymDeepTable(x2move,x1move);
-        deep.proofDeepTable();
+
+        //deep.proofDeepTable();
     }
 
     public Solution solve(Kub2x2 kub2x2){
