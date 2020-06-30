@@ -15,13 +15,14 @@ import static com.dimotim.kubSolver.Kub2x2.KUB_ERROR.*;
 public class Kub2x2 {
     public static void main(String[] args) throws InvalidPositionException {
         while (true) {
-            Kub2x2 kub2x2 = new Kub2x2(fromGrani3x3(new Kub(true).getGrani()));
-            kub2x2.povorot(1);
-            System.out.println(kub2x2);
+            Kub2x2 kub2x2 = new Kub2x2(true);
+            Solution solution=kub2x2.solve();
+            System.out.println(solution);
         }
     }
 
     private static final FullSymTables2x2 solver = new FullSymTables2x2();
+
     private CubieSet cubieSet = new CubieSet();
 
     private static int[][][] toGrani3x3(int[][][] grani) {
@@ -72,6 +73,10 @@ public class Kub2x2 {
 
     public void randomPos() {
         cubieSet = CubieSet.randomPos();
+    }
+
+    public boolean isSolved(){
+        return getNumberPos().equals(BigDecimal.ZERO);
     }
 
     public int[][][] getGrani() {
@@ -209,7 +214,7 @@ public class Kub2x2 {
         }
 
         private static final class BigDecimalConverter {
-            private static Random random = new Random();
+            private static final Random random = new Random();
             private static final BigDecimal
                     UO_MAX = BigDecimal.valueOf(SymTables.X_1_MAX),
                     UP_MAX = BigDecimal.valueOf(SymTables.X_2_MAX);

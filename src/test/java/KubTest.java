@@ -10,7 +10,6 @@ import com.dimotim.kubSolver.tables.SymTables;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 
 
@@ -26,21 +25,21 @@ public class KubTest {
         Solution solution=kub2x2.solve();
         Arrays.stream(solution.getHods())
                 .forEach(kub2x2::povorot);
-        Assertions.assertEquals(BigDecimal.ZERO,kub2x2.getNumberPos());
+        Assertions.assertTrue(kub2x2.isSolved());
     }
 
     @Test
     public void solveSolvedKub(){
         Kub kub=new Kub(false);
         Solution solution=kub.solve();
-        checkSolution(kub,solution);
+        Assertions.assertTrue(kub.apply(solution).isSolved());
     }
 
     @Test
     public void solveRandomKub(){
         Kub kub=new Kub(true);
         Solution solution=kub.solve();
-        checkSolution(kub,solution);
+        Assertions.assertTrue(kub.apply(solution).isSolved());
     }
 
     @Test
@@ -51,13 +50,6 @@ public class KubTest {
         Solution s3=new KubSolver<>(new SymTables(),new SimpleSolver1<>(),new SimpleSolver2<>()).solve(kub);
         Assertions.assertArrayEquals(s1.getHods(),s2.getHods());
         Assertions.assertArrayEquals(s2.getHods(),s3.getHods());
-    }
-
-    private static void checkSolution(Kub kub, Solution solution){
-        for(int hod:solution.getHods()){
-            kub.povorot(hod);
-        }
-        Assertions.assertEquals(kub.getNumberPos(),BigDecimal.ZERO);
     }
 
     @Test

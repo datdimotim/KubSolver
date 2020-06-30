@@ -15,7 +15,7 @@ import java.util.Random;
 import static com.dimotim.kubSolver.Kub.KUB_ERROR.*;
 
 public final class Kub {
-    private static final KubSolver<?,?> kubSolver = new KubSolver<>(new SymTables(), new SimpleSolver1<SymTables.KubState>(), new SimpleSolver2<SymTables.KubState>());
+    private static final KubSolver<?,?> kubSolver = new KubSolver<>(new SymTables(), new SimpleSolver1<>(), new SimpleSolver2<>());
     private CubieSet cubieSet = new CubieSet();
 
     public Kub(Kub kub) {
@@ -44,6 +44,10 @@ public final class Kub {
 
     public Solution solve(Kub uzor) {
         return kubSolver.solve(this, uzor);
+    }
+
+    public boolean isSolved(){
+        return getNumberPos().equals(BigDecimal.ZERO);
     }
 
     public void randomPos() {
@@ -234,7 +238,7 @@ public final class Kub {
         }
 
         private static final class BigDecimalConverter {
-            private static Random random = new Random();
+            private static final Random random = new Random();
             private static final BigDecimal
                     UO_MAX = BigDecimal.valueOf(SymTables.X_1_MAX),
                     RO_MAX = BigDecimal.valueOf(SymTables.Y_1_MAX),
