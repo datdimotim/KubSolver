@@ -6,14 +6,17 @@ public class Benchmark{
         this.benchmarkable=benchmarkable;
     }
     public void runBenchmark(final int timeToResults){
+        final long totalStartTime=System.currentTimeMillis();
         long st=System.currentTimeMillis();
         long kol=0;
+        long totalKol=0;
         while (true) {
             benchmarkable.getSolveAndAddNewTask();
             kol++;
             long th=System.currentTimeMillis();
             if(th-st>timeToResults){
-                System.out.println(kol*1000/(th-st)+"tasks/s"+"  results="+benchmarkable.resultToStringAndClear());
+                totalKol+=kol;
+                System.out.println("avg: "+totalKol*1000/(th-totalStartTime)+" tasks/s "+kol*1000/(th-st)+" tasks/s"+"  results="+benchmarkable.resultToStringAndClear());
                 st=th;
                 kol=0;
             }

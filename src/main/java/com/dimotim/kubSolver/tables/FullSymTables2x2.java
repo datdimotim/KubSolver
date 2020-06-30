@@ -7,6 +7,7 @@ import com.dimotim.kubSolver.kernel.GraniCubieConverter;
 import com.dimotim.kubSolver.kernel.Tables;
 
 import java.io.*;
+import java.util.Arrays;
 
 import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
 import static com.dimotim.kubSolver.tables.SymTables.track;
@@ -52,7 +53,7 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
         int x1= CubieKoordinateConverter.uoToX1(GraniCubieConverter.graniToUO(grani));
         int x2=CubieKoordinateConverter.upToX2(GraniCubieConverter.graniToUP(grani));
         solve(x1,x2,hods);
-        return new Solution(1,hods);
+        return new Solution(1, Arrays.stream(hods).filter(h->h!=0).toArray());
     }
 
     private void solve(int x1, int x2, int[] hods) {

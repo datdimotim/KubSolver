@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 
+
 public class KubTest {
     @Test
     public void SymTablesGenerateTest(){
@@ -68,5 +69,20 @@ public class KubTest {
         Solution uzorSolution=random.solve(uzor);
 
         Assertions.assertEquals(uzor,random.apply(uzorSolution));
+    }
+
+    @Test
+    public void checkSolveUzorSelf(){
+        Kub random=new Kub(true);
+        Solution uzorSolution=random.solve(random);
+        Assertions.assertEquals(random,random.apply(uzorSolution));
+    }
+
+    @Test
+    public void checkSolveUzor2x2(){
+        Kub2x2 kub2x2=new Kub2x2(true);
+        Kub2x2 uzor=new Kub2x2(true);
+        Solution s=kub2x2.solve(uzor);
+        Assertions.assertEquals(uzor,kub2x2.apply(s));
     }
 }

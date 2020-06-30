@@ -4,13 +4,11 @@ import com.dimotim.kubSolver.kernel.Fase1Solver;
 import com.dimotim.kubSolver.kernel.Tables;
 import io.reactivex.Observable;
 
-import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
 
-//import java.util.stream.Stream;
 
 public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.SolveState<KS>> {
     private Tables<KS> tables;
@@ -25,8 +23,8 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
     }
 
     @Override
-    public void getResultFromSolveState(SolveState<KS> state, int[] hods) {
-        System.arraycopy(state.hods,0,hods,0,state.hods.length);
+    public int[] getResultFromSolveState(SolveState<KS> state) {
+        return state.hods.clone();
     }
 
     @Override
@@ -35,7 +33,7 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
             solveStream(state);
             return;
         }
-        if(Arrays.stream(state.hods).anyMatch(i->i>0))throw new RuntimeException(Arrays.toString(state.hods));
+        //if(Arrays.stream(state.hods).anyMatch(i->i>0))throw new RuntimeException(Arrays.toString(state.hods));
         while (true) {
             incrementHods1(state.hods);
             int deep = 1;
@@ -97,7 +95,6 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
                 pos-> pos.moveCount==0
         )
         .blockingFirst();
-        //System.out.println(solution);
         St st=solution;
         int i=0;
         while (true){
@@ -129,7 +126,6 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
         return Observable.concat(
                 Observable.just(root).filter(solutionValidator::test),
                 childGenerator.apply(root)
-                        //.filter(edgeReduser::test)
                         .flatMap(ch->bactracking(ch,childGenerator,edgeReduser,solutionValidator))
         );
     }

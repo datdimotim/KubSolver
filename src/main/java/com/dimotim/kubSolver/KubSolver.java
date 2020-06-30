@@ -1,12 +1,17 @@
 package com.dimotim.kubSolver;
 
 import com.dimotim.kubSolver.kernel.*;
+import lombok.val;
 
-import static com.dimotim.kubSolver.kernel.Fase1Solver.MAX_DEEP;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class KubSolver<KS,Solver1State>{
     private final int tryKol=0;
-    private final int maxSolutionLength=30;
+    private final int maxSolutionLength=23;
     private Fase1Solver<KS,Solver1State> fase1Solver;
     private Fase2Solver<KS> fase2Solver;
     private static final int[] hodsFase2=HodTransforms.getP10To18();
@@ -17,91 +22,58 @@ public final class KubSolver<KS,Solver1State>{
         this.fase2Solver.init(tables);
     }
 
-    /**
-     *
-     *     id = f * (R * f')
-     *  => f'^(-1) = f * R
-     *
-     *    id - нейтральная перестановка
-     *    R - запутывание кубика
-     *    f' - сборка узора в начальную позицию
-     *    f'^(-1) - узора из начальной позиции
-     *
-     *
-     * @param from
-     * @param to
-     * @return
-     */
-    public Solution solve(Kub from, Kub to){
-        Solution R=solve(from).inverse();
-        Solution fDash=solve(to);
-        Solution RfDash=fDash.compose(R);
-        Kub k=new Kub(false).apply(RfDash);
-        Solution f=k.solve();
-        return f;
+    public Iterator<Function<Integer, Optional<Solution>>> getSolutionSequence(Kub kub, int symmetry){
+        return new Iterator<Function<Integer, Optional<Solution>>>() {
+            private final Kub symKub=getSymmetryKub(kub,symmetry);
+            private final Solver1State solver1State=initFase1(symKub);
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public Function<Integer, Optional<Solution>> next() {
+                fase1Solver.solve(solver1State);
+                int[] phase1=fase1Solver.getResultFromSolveState(solver1State);
+                int length=lengthHods(phase1);
+                return totalLengthLimit-> {
+                    if(totalLengthLimit + 1 - length<0)return Optional.empty();
+                    int[] fase2solution = new int[totalLengthLimit + 1 - length];
+                    if(finishSolution(symKub,solver1State,fase2solution)){
+                        return Optional.of(Solution.fromFases(symmetry,phase1,fase2solution));
+                    }
+                    return Optional.empty();
+                };
+            }
+        };
     }
 
     public Solution solve(Kub kub){
-        Kub kub1=getSymmetryKub(kub,1);
-        Kub kub2=getSymmetryKub(kub,2);
-        Kub kub3=getSymmetryKub(kub,3);
-        Solver1State solver1State1=initFase1(kub1);
-        Solver1State solver1State2=initFase1(kub2);
-        Solver1State solver1State3=initFase1(kub3);
-        int[] fase1solution=new int[MAX_DEEP+1];
-        int[] fase2solution;
+        val symmetrySolutionIterators= IntStream.rangeClosed(1,3)
+                .mapToObj(s->getSolutionSequence(kub,s))
+                .collect(Collectors.toList());
+
         int tk=0;
         int targetLength = maxSolutionLength;
         Solution solution=null;
         while (true) {
-            if(solution!=null){
-                tk++;
-                if(tk>tryKol)return solution;
-            }
-            fase1Solver.solve(solver1State1);
-            fase1Solver.getResultFromSolveState(solver1State1,fase1solution);
-            proofFase1(kub1,fase1solution);
-            int length=lengthHods(fase1solution);
-            if(length>targetLength)return solution;
-            fase2solution = new int[targetLength + 1 - length];
-            if(finishSolution(kub1,solver1State1,fase2solution)){
-                solution=Solution.fromFases(1,fase1solution,fase2solution);
-                targetLength =solution.getLength()-1;
-            }
+            for(val symmetrySolutionIterator:symmetrySolutionIterators) {
+                if (solution != null) {
+                    tk++;
+                    if (tk > tryKol) return solution;
+                }
 
-            if(solution!=null){
-                tk++;
-                if(tk>tryKol)return solution;
-            }
-            fase1Solver.solve(solver1State2);
-            fase1Solver.getResultFromSolveState(solver1State2,fase1solution);
-            length=lengthHods(fase1solution);
-            if(length>targetLength)return solution;
-            fase2solution = new int[targetLength + 1 - length];
-            if(finishSolution(kub2,solver1State2,fase2solution)){
-                solution=Solution.fromFases(2,fase1solution,fase2solution);
-                targetLength =solution.getLength()-1;
-            }
-
-            if(solution!=null){
-                tk++;
-                if(tk>tryKol)return solution;
-            }
-            fase1Solver.solve(solver1State3);tk++;
-            fase1Solver.getResultFromSolveState(solver1State3,fase1solution);
-            length=lengthHods(fase1solution);
-            if(length>targetLength)return solution;
-            fase2solution = new int[targetLength + 1 - length];
-            if(finishSolution(kub3,solver1State3,fase2solution)){
-                solution=Solution.fromFases(3,fase1solution,fase2solution);
-                targetLength =solution.getLength()-1;
+                Optional<Solution> s = symmetrySolutionIterator.next().apply(targetLength);
+                if (s.isPresent()) {
+                    solution = s.get();
+                    targetLength = s.get().getLength() - 1;
+                }
             }
         }
     }
 
     private boolean finishSolution(Kub kub,Solver1State solver1State,int[] fase2){
-        int[] fase1solution=new int[MAX_DEEP+1];
-        fase1Solver.getResultFromSolveState(solver1State,fase1solution);
+        int[] fase1solution= fase1Solver.getResultFromSolveState(solver1State);
         Kub kubFase2=new Kub(kub);
         for(int i:fase1solution)kubFase2.povorot(i);
 
@@ -112,7 +84,6 @@ public final class KubSolver<KS,Solver1State>{
                 CubieKoordinateConverter.rpToZ2(GraniCubieConverter.graniToRP(grani))
         };
         if (!fase2Solver.solve(k2[0], k2[1], k2[2], fase2))return false;
-        proofFase2(kubFase2, fase2);
         for (int i = 0; i < fase2.length; i++) fase2[i] = hodsFase2[fase2[i]];
         return true;
     }

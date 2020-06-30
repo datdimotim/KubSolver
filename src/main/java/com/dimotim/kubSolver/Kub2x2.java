@@ -7,6 +7,8 @@ import com.dimotim.kubSolver.tables.FullSymTables2x2;
 import com.dimotim.kubSolver.tables.SymTables;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 import static com.dimotim.kubSolver.Kub2x2.KUB_ERROR.*;
@@ -51,8 +53,23 @@ public class Kub2x2 {
         return solver.solve(this);
     }
 
+    public Solution solve(Kub2x2 uzor) {
+        return KubSolverUtils.solve(
+                this,
+                uzor,
+                Kub2x2::solve,
+                new Kub2x2(false)::apply
+        );
+    }
+
     public Kub2x2(Kub2x2 kub) {
         cubieSet = new CubieSet(kub.cubieSet);
+    }
+
+    public Kub2x2 apply(Solution solution) {
+        Kub2x2 kub = new Kub2x2(getNumberPos());
+        Arrays.stream(solution.getHods()).forEach(kub::povorot);
+        return kub;
     }
 
     public Kub2x2(boolean isRandom) {
@@ -106,6 +123,18 @@ public class Kub2x2 {
         cubieSet.povorot(np);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Kub2x2 kub = (Kub2x2) o;
+        return Objects.equals(getNumberPos(), kub.getNumberPos());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getNumberPos());
+    }
 
     public static class InvalidPositionException extends Exception {
         private final KUB_ERROR trable;

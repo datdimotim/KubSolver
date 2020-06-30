@@ -43,7 +43,13 @@ public final class Kub {
     }
 
     public Solution solve(Kub uzor) {
-        return kubSolver.solve(this, uzor);
+        return KubSolverUtils.solve(
+                this,
+                uzor,
+                kubSolver::solve,
+                new Kub(false)::apply
+        );
+        //return kubSolver.solve(this, uzor);
     }
 
     public boolean isSolved(){

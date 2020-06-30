@@ -5,5 +5,5 @@ public interface Fase1Solver<KubState,SolveState>{
     void init(Tables<KubState> tables);
     SolveState initSolveState(int x,int y,int z);
     void solve(SolveState lastSolveState);
-    void getResultFromSolveState(SolveState state,int[] hods);
+    int[] getResultFromSolveState(SolveState state);
 }

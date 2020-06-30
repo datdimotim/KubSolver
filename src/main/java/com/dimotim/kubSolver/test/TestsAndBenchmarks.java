@@ -22,7 +22,7 @@ public class TestsAndBenchmarks {
         //symTables.proof();
         //SizeOf.sizeof(new SymTables());
         //solveAndView();
-        tablesTest();
+        //tablesTest();
         speedSolve();
         speedSolve2x2();
         //fase2Benchmark(new SymTables(),new SimpleSolver2());
@@ -94,7 +94,6 @@ public class TestsAndBenchmarks {
             private Object task=newTask();
             private int kol=0;
             private int t=0;
-            private int[] hods=new int[31];
             @Override
             public void getSolveAndAddNewTask() {
                 if(kol>100){
@@ -102,7 +101,7 @@ public class TestsAndBenchmarks {
                     kol=0;
                 }
                 solver.solve(task);
-                solver.getResultFromSolveState(task,hods);
+                int[] hods=solver.getResultFromSolveState(task);
                 t+=hods[30];
                 kol++;
             }
@@ -125,12 +124,11 @@ public class TestsAndBenchmarks {
         new Benchmark(new Benchmark.Benchmarkable() {
             private final Random random=new Random();
             private int t=0;
-            private int[] hods=new int[31];
             @Override
             public void getSolveAndAddNewTask() {
                 Object task=newTask();
                 solver.solve(task);
-                solver.getResultFromSolveState(task,hods);
+                int[] hods=solver.getResultFromSolveState(task);
                 t+=hods[30];
             }
 
