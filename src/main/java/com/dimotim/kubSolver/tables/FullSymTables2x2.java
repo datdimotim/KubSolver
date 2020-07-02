@@ -15,10 +15,17 @@ import static com.dimotim.kubSolver.tables.SymTables.track;
 public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
     // run first for initialization
     public static void main(String[] args)throws IOException {
-        FullSymTables2x2 tables=new FullSymTables2x2();
-        ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("src/main/resources/tables2x2full.object"));
-        oos.writeObject(tables);
-        oos.close();
+        while (true){
+            long st=System.currentTimeMillis();
+            long h=new FullSymTables2x2().deep.getDepth(0,1);
+            System.out.println("time: "+(System.currentTimeMillis()-st)+"ms, hash: "+h);
+        }
+
+
+        //FullSymTables2x2 tables=new FullSymTables2x2();
+        //ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("src/main/resources/tables2x2full.object"));
+        //oos.writeObject(tables);
+        //oos.close();
     }
 
     public static FullSymTables2x2 readTables(){
@@ -120,7 +127,7 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
         return new KubState[length];
     }
 
-    class KubState{
+    static class KubState{
         private int x1;
         private int x2;
         private int deep;

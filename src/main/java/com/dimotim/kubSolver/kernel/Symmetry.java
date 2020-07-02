@@ -1,6 +1,8 @@
 package com.dimotim.kubSolver.kernel;
 
 import java.util.Arrays;
+import java.util.function.IntBinaryOperator;
+import java.util.stream.IntStream;
 
 public final class Symmetry{
     private static final int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
@@ -11,7 +13,7 @@ public final class Symmetry{
     private static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(Symmetry.getSymHodsAllSymmetry());
     private static final int[] inverseSymmetryHalf=initInverseSymmetryHalf(inverseSymmetry);
     private static final int[][] symHods=getSymHodsAllSymmetry();
-    private static final int[][] symmetryMul= getSymmetryMul();  // matrix1*matrix2*vector -> matrix*vector
+
 
     public static int[] getInverseSymmetry() {
         return inverseSymmetry.clone();
@@ -29,8 +31,8 @@ public final class Symmetry{
         return initSymHods10(symHods);
     }
 
-    public static int[][] getSymmetryMulHalf() {
-        return getSymmetryMulHalf(symmetryMul);
+    private static int[][] getSymmetryMulHalf() {
+        return getSymmetryMulHalf(getSymmetryMul());
     }
 
     private static int[][] initSymHods10(int[][] symHods){
@@ -57,6 +59,26 @@ public final class Symmetry{
         return inverseSymmetryHalf;
     }
 
+    private static IntBinaryOperator makeSymmetryMul(int[][] symmetry){
+        return new IntBinaryOperator() {
+            private final int l1;
+            private final int l2;
+            private final byte[] arr;
+            {
+                l1= symmetry.length;
+                l2= symmetry[0].length;
+                arr=new byte[l1*l2];
+                IntStream.range(0,l1*l2)
+                        .forEach(i-> arr[i]= (byte) symmetry[i/l2][i%l2]);
+            }
+
+            @Override
+            public int applyAsInt(int left, int right) {
+                return arr[left*l2+right];
+            }
+        };
+    }
+
     private static int[][] getSymmetryMulHalf(int[][] symmetryMul){
         int[][] symmetryMulHalf=new int[8][8];
         for(int i=0;i<8;i++){
@@ -66,6 +88,10 @@ public final class Symmetry{
         }
         return symmetryMulHalf;
     }
+
+    public static final IntBinaryOperator symmetryMul=makeSymmetryMul(getSymmetryMul());
+
+    public static final IntBinaryOperator symmetryMulHalf=makeSymmetryMul(getSymmetryMulHalf());
 
     public static int[][] getSymmetryMul(){
         int[][] symmetryMul=new int[48][48];
