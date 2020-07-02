@@ -49,6 +49,10 @@ public final class SymDeepTable implements Serializable {
                         final  int sym_symmetry=symPRotated%COUNT_OF_SYMMETRIES;
                         final int raw_sym = rawPRotated % COUNT_OF_SYMMETRIES;
 
+                        int rawNormalizedSymmetryExample=symmetryMul[inverseSymmetry[sym_symmetry]][raw_sym];
+                        int rawRotatedExample=rawPart.symPosToRaw(rawPClass * COUNT_OF_SYMMETRIES +rawNormalizedSymmetryExample);
+                        if(!(deepTable[symPClass][rawRotatedExample]>deep+1))continue;
+
                         for(byte eqSym:symsForPos[symPClass]){
                             /*  Здесь мы 'нормализуем' повернутую позицию:
                                 У нас имеется симметричная часть (класс + симметрия) после поворота
@@ -70,12 +74,9 @@ public final class SymDeepTable implements Serializable {
                                 наконец перехомим к симметрии raw - части
                              */
                             int rawNormalizedSymmetry=symmetryMul[eqSym][symmetryMul[inverseSymmetry[sym_symmetry]][raw_sym]];
-                            /////////////////////
 
                             int rawRotated=rawPart.symPosToRaw(rawPClass * COUNT_OF_SYMMETRIES +rawNormalizedSymmetry);
-
-                            if(deepTable[symPClass][rawRotated]>deep+1)
-                                deepTable[symPClass][rawRotated]=(byte) (deep+1);
+                            deepTable[symPClass][rawRotated]=(byte) (deep+1);
                         }
                     }
                 }
