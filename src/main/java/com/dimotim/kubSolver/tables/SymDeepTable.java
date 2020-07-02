@@ -44,14 +44,14 @@ public final class SymDeepTable implements Serializable {
                     for (int np = 1; np < symPart.getCountOfMoves(); np++) {
                         int symPRotated = symPart.doMove(classPos * COUNT_OF_SYMMETRIES, np);
                         int rawPRotated = rawPart.doMove(rawPart.rawToSym(raw), np);
+                        final  int sym_symmetry=symPRotated%COUNT_OF_SYMMETRIES;
                         final int raw_sym = rawPRotated % COUNT_OF_SYMMETRIES;
-                        int symRawRotated = symPart.symPosToRaw(symPRotated);
 
-                        for(byte symInv:symsForPos[symRawRotated]){
-                            int t=symPRotated/ COUNT_OF_SYMMETRIES* COUNT_OF_SYMMETRIES+symInv;
-                            if(symPart.symPosToRaw(symPRotated)!=symPart.symPosToRaw(t))continue;
-                            rawPRotated=rawPRotated/ COUNT_OF_SYMMETRIES* COUNT_OF_SYMMETRIES+symmetryMul[inverseSymmetry[symInv]][raw_sym];
-                            int rawRotated=rawPart.symPosToRaw(rawPRotated);
+                        for(byte symInv:symsForPos[symPRotated/COUNT_OF_SYMMETRIES]){
+                            int s=symmetryMul[sym_symmetry][symInv];
+                            int rawPRotatedS=rawPRotated/ COUNT_OF_SYMMETRIES* COUNT_OF_SYMMETRIES
+                                    +symmetryMul[inverseSymmetry[s]][raw_sym];
+                            int rawRotated=rawPart.symPosToRaw(rawPRotatedS);
                             if(deepTable[symPRotated/ COUNT_OF_SYMMETRIES][rawRotated]>deep+1)deepTable[symPRotated/ COUNT_OF_SYMMETRIES][rawRotated]=(byte) (deep+1);
                         }
                     }
@@ -66,18 +66,18 @@ public final class SymDeepTable implements Serializable {
 
     // rawPosSymPart -> [sym] - список симметрий при которых позиция переходит сама в себя (т.е. симметрии позиции)
     private byte[][] calculateSymForPos(){
-        byte[][] table=new byte[symPart.RAW][];
-        for(int rawPos=0;rawPos<symPart.RAW;rawPos++){
-            int symClass=symPart.rawToSym(rawPos)/COUNT_OF_SYMMETRIES;
+        byte[][] table=new byte[symPart.CLASSES][];
+        for(int classPos=0;classPos<symPart.CLASSES;classPos++){
+            int rawExample=symPart.symPosToRaw(classPos*COUNT_OF_SYMMETRIES);
             List<Byte> ls=new ArrayList<>();
             for(int sym=0;sym<symPart.SYMMETRIES;sym++){
-                int raw=symPart.symPosToRaw(symClass*COUNT_OF_SYMMETRIES+sym);
-                if(raw==rawPos){
+                int raw=symPart.symPosToRaw(classPos*COUNT_OF_SYMMETRIES+sym);
+                if(raw==rawExample){
                     ls.add((byte) sym);
                 }
             }
-            table[rawPos]=new byte[ls.size()];
-            for(int i=0;i<ls.size();i++)table[rawPos][i]=ls.get(i);
+            table[classPos]=new byte[ls.size()];
+            for(int i=0;i<ls.size();i++)table[classPos][i]=ls.get(i);
         }
         return table;
     }
