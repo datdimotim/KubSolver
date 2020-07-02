@@ -44,15 +44,38 @@ public final class SymDeepTable implements Serializable {
                     for (int np = 1; np < symPart.getCountOfMoves(); np++) {
                         int symPRotated = symPart.doMove(classPos * COUNT_OF_SYMMETRIES, np);
                         int rawPRotated = rawPart.doMove(rawPart.rawToSym(raw), np);
+                        int rawPClass=rawPRotated/COUNT_OF_SYMMETRIES;
+                        int symPClass=symPRotated/COUNT_OF_SYMMETRIES;
                         final  int sym_symmetry=symPRotated%COUNT_OF_SYMMETRIES;
                         final int raw_sym = rawPRotated % COUNT_OF_SYMMETRIES;
 
-                        for(byte symInv:symsForPos[symPRotated/COUNT_OF_SYMMETRIES]){
-                            int s=symmetryMul[sym_symmetry][symInv];
-                            int rawPRotatedS=rawPRotated/ COUNT_OF_SYMMETRIES* COUNT_OF_SYMMETRIES
-                                    +symmetryMul[inverseSymmetry[s]][raw_sym];
-                            int rawRotated=rawPart.symPosToRaw(rawPRotatedS);
-                            if(deepTable[symPRotated/ COUNT_OF_SYMMETRIES][rawRotated]>deep+1)deepTable[symPRotated/ COUNT_OF_SYMMETRIES][rawRotated]=(byte) (deep+1);
+                        for(byte eqSym:symsForPos[symPClass]){
+                            /*  Здесь мы 'нормализуем' повернутую позицию:
+                                У нас имеется симметричная часть (класс + симметрия) после поворота
+                                и raw - часть (класс + симметрия)
+
+                                Мы хотим хранить только класс симметричной части + класс + симметрия raw части
+                                Соответственно нам нужно получить эквивалентную позицию когда симметрия sym - части равна 0
+
+                                Тогда rawSymNormalized = sympartSym^(-1) * rawSym, но дело в том что не все позиции симметричной части
+                                можно привести единственным способом, т.е. sympartSym^(-1) - это множество таких вариантов
+
+                                Т.о мы вычисляем множество таких симметрий для каждого класса (byte[][] symsForPos),
+                                А далее мы делаем переход:
+                                    eqSym * sym_symmetry^-1 * raw_sym
+
+                                Т.е сначала применяем эквивалентную симметрию которая не меняет симметричную часть, но возможно меняет
+                                raw - часть, затем переходим 0 симметрии симметричной части
+                                эти два преобразования и есть неоднозначный перевод симметричной части к 0 симметрии,
+                                наконец перехомим к симметрии raw - части
+                             */
+                            int rawNormalizedSymmetry=symmetryMul[eqSym][symmetryMul[inverseSymmetry[sym_symmetry]][raw_sym]];
+                            /////////////////////
+
+                            int rawRotated=rawPart.symPosToRaw(rawPClass * COUNT_OF_SYMMETRIES +rawNormalizedSymmetry);
+
+                            if(deepTable[symPClass][rawRotated]>deep+1)
+                                deepTable[symPClass][rawRotated]=(byte) (deep+1);
                         }
                     }
                 }
