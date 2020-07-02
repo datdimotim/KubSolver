@@ -36,10 +36,6 @@ public final class SymMoveTable implements Serializable {
             if(rawMoveTable.length==11)symHods=Symmetry.getSymHods10();
             else symHods=Symmetry.getSymHodsAllSymmetry();
 
-        }else if(symmetries==48){
-            symmetryMul=Symmetry.getSymmetryMul();
-            inverseSymmetry=Symmetry.getInverseSymmetry();
-            symHods=Symmetry.getSymHodsAllSymmetry();
         }else {
             throw new RuntimeException();
         }
