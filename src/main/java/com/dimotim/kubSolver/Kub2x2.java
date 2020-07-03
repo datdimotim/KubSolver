@@ -15,15 +15,7 @@ import static com.dimotim.kubSolver.Kub2x2.KUB_ERROR.*;
 
 
 public class Kub2x2 {
-    public static void main(String[] args) throws InvalidPositionException {
-        while (true) {
-            Kub2x2 kub2x2 = new Kub2x2(true);
-            Solution solution=kub2x2.solve();
-            System.out.println(solution);
-        }
-    }
-
-    private static final FullSymTables2x2 solver = new FullSymTables2x2();
+    //private static final FullSymTables2x2 solver = new FullSymTables2x2();
 
     private CubieSet cubieSet = new CubieSet();
 
@@ -49,18 +41,18 @@ public class Kub2x2 {
         return res;
     }
 
-    public Solution solve() {
-        return solver.solve(this);
-    }
+    //public Solution solve() {
+    //    return solver.solve(this);
+   // }
 
-    public Solution solve(Kub2x2 uzor) {
-        return KubSolverUtils.solve(
-                this,
-                uzor,
-                Kub2x2::solve,
-                new Kub2x2(false)::apply
-        );
-    }
+    //public Solution solve(Kub2x2 uzor) {
+    //    return KubSolverUtils.solve(
+    //            this,
+    //            uzor,
+    //            Kub2x2::solve,
+    //            new Kub2x2(false)::apply
+    //    );
+    //}
 
     public Kub2x2(Kub2x2 kub) {
         cubieSet = new CubieSet(kub.cubieSet);

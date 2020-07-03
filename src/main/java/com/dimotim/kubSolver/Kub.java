@@ -15,7 +15,7 @@ import java.util.Random;
 import static com.dimotim.kubSolver.Kub.KUB_ERROR.*;
 
 public final class Kub {
-    private static final KubSolver<?,?> kubSolver = new KubSolver<>(new SymTables(), new SimpleSolver1<>(), new SimpleSolver2<>());
+    //private static final KubSolver<?,?> kubSolver = new KubSolver<>(new SymTables(), new SimpleSolver1<>(), new SimpleSolver2<>());
     private CubieSet cubieSet = new CubieSet();
 
     public Kub(Kub kub) {
@@ -38,19 +38,19 @@ public final class Kub {
         return cubieSet.toNumberPos();
     }
 
-    public Solution solve() {
-        return kubSolver.solve(this);
-    }
+    //public Solution solve() {
+    //    return kubSolver.solve(this);
+    //}
 
-    public Solution solve(Kub uzor) {
-        return KubSolverUtils.solve(
-                this,
-                uzor,
-                kubSolver::solve,
-                new Kub(false)::apply
-        );
+    //public Solution solve(Kub uzor) {
+    //    return KubSolverUtils.solve(
+    //            this,
+    //            uzor,
+    //            kubSolver::solve,
+    //            new Kub(false)::apply
+    //    );
         //return kubSolver.solve(this, uzor);
-    }
+    //}
 
     public boolean isSolved(){
         return getNumberPos().equals(BigDecimal.ZERO);
