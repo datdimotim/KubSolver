@@ -1,6 +1,7 @@
 package com.dimotim.kubSolver.tables;
 
 import com.dimotim.kubSolver.kernel.CubieKoordinateConverter;
+import com.dimotim.kubSolver.kernel.Symmetry;
 import com.dimotim.kubSolver.kernel.Tables;
 
 import java.io.*;
@@ -145,8 +146,8 @@ public final class SymTables implements Tables<SymTables.KubState> {
     }
 
     @Override
-    public int getDepthInState(KubState kubState) {
-        return Math.max(kubState.xyDeep,Math.max(kubState.xzDeep,kubState.yzDeep));
+    public boolean isSolved(KubState kubState) {
+        return Math.max(kubState.xyDeep,Math.max(kubState.xzDeep,kubState.yzDeep)) == 0;
     }
 
     @Override

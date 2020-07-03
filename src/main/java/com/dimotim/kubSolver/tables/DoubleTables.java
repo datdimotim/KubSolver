@@ -64,8 +64,8 @@ public final class DoubleTables implements Tables<DoubleTables.KubState> {
     }
 
     @Override
-    public int getDepthInState(KubState kubState) {
-        return Math.max(xz2Deep[kubState.x][kubState.z],yz2Deep[kubState.y][kubState.z]);
+    public boolean isSolved(KubState kubState) {
+        return Math.max(xz2Deep[kubState.x][kubState.z],yz2Deep[kubState.y][kubState.z])==0;
     }
 
     @Override

@@ -64,7 +64,7 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
         KubState[] state=newArrayKubState(hods.length);
         for(int i=0;i<state.length;i++)state[i]=newKubState();
         state[0]= initKubStateFase1(x1,x2,0);
-        if(getDepthInState(state[0])==0)return;
+        if(isSolved(state[0]))return;
         int deep=1;
         //int count=0;
         mega: while(deep<hods.length) {
@@ -113,8 +113,8 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
 
 
     @Override
-    public int getDepthInState(KubState kubState) {
-        return kubState.deep;
+    public boolean isSolved(KubState kubState) {
+        return kubState.deep==0;
     }
 
     @Override

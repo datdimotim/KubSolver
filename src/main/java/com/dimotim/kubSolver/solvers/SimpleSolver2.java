@@ -1,12 +1,10 @@
 package com.dimotim.kubSolver.solvers;
 
 import com.dimotim.kubSolver.kernel.Fase2Solver;
-import com.dimotim.kubSolver.kernel.HodTransforms;
 import com.dimotim.kubSolver.kernel.Tables;
 import io.reactivex.Observable;
 
 import static com.dimotim.kubSolver.kernel.Fase1Solver.MAX_DEEP;
-import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
 import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod2Fase;
 import static com.dimotim.kubSolver.solvers.SimpleSolver1.bactracking;
 
@@ -23,11 +21,11 @@ public final class SimpleSolver2<KS> implements Fase2Solver<KS> {
             return true;
         }
 
-        if(hods.length==0)return tables.getDepthInState(tables.initKubStateFase1(x,y,z))==0;
+        if(hods.length==0)return tables.isSolved(tables.initKubStateFase1(x,y,z));
         KS[] state=tables.newArrayKubState(hods.length);
         for(int i=0;i<state.length;i++)state[i]=tables.newKubState();
         state[0]= tables.initKubStateFase2(x,y,z);
-        if(tables.getDepthInState(state[0])==0)return true;
+        if(tables.isSolved(state[0]))return true;
         int deep=1;
         mega: while(deep<hods.length) {
             for(int np = hods[deep];np<=10;np++) {
@@ -43,7 +41,7 @@ public final class SimpleSolver2<KS> implements Fase2Solver<KS> {
             if(deep<1)return false;
             hods[deep]++;
         }
-        return tables.getDepthInState(state[state.length-1])==0;
+        return tables.isSolved(state[state.length-1]);
     }
 
     public void solveStream(int x,int y, int z, int[] hods) {

@@ -63,8 +63,8 @@ public final class SimpleTables implements Tables<SimpleTables.KubState> {
     }
 
     @Override
-    public int getDepthInState(KubState kubState) {
-        return Math.max(x2Deep[kubState.x],Math.max(y2Deep[kubState.y],z2Deep[kubState.z]));
+    public boolean isSolved(KubState kubState) {
+        return Math.max(x2Deep[kubState.x],Math.max(y2Deep[kubState.y],z2Deep[kubState.z]))==0;
     }
 
     @Override

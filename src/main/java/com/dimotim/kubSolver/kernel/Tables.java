@@ -23,7 +23,7 @@ public interface Tables<KubState> extends Serializable{
     KubState initKubStateFase2(int x,int y,int z);
     int moveAndGetDepthFase1(KubState in, KubState out, int np);
     int moveAndGetDepthFase2(KubState in, KubState out, int np);
-    int getDepthInState(KubState state);
+    boolean isSolved(KubState state);
 
     KubState newKubState();
     KubState[] newArrayKubState(int length);
