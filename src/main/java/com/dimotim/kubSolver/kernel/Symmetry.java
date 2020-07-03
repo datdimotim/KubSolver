@@ -89,6 +89,11 @@ public final class Symmetry{
         return symmetryMulHalf;
     }
 
+    /*
+        symmetryMul(f,g) = f . g
+        т.е. resultPos = (f . g) pos
+        возвращаемая симметрия - композиция симметрий сначала g, затем f
+     */
     public static final IntBinaryOperator symmetryMul=makeSymmetryMul(getSymmetryMul());
 
     public static final IntBinaryOperator symmetryMulHalf=makeSymmetryMul(getSymmetryMulHalf());
