@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.function.IntBinaryOperator;
 
 public final class SymMoveTable implements Serializable {
-    public static final int COUNT_OF_SYMMETRIES=16;
+    public static final int SYM_COUNT =16;
     private final IntBinaryOperator symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private final int[] inverseSymmetry;
     private final int[][] symHods;
@@ -55,7 +55,7 @@ public final class SymMoveTable implements Serializable {
         char[] rawToClass=new char[symTable[0].length];
         for(int i=0;i<CLASSES;i++){
             for(int s=0;s<symTable.length;s++){
-                rawToClass[classToRaw[s][i]]= (char) (i*COUNT_OF_SYMMETRIES+s);
+                rawToClass[classToRaw[s][i]]= (char) (i* SYM_COUNT +s);
             }
         }
         return rawToClass;
@@ -125,23 +125,23 @@ public final class SymMoveTable implements Serializable {
     }
 
     int symPosToRaw(int symPos){
-        return classToRaw[symPos%COUNT_OF_SYMMETRIES][symPos/COUNT_OF_SYMMETRIES];
+        return classToRaw[symPos% SYM_COUNT][symPos/ SYM_COUNT];
     }
 
     public int doMove(int in,int np){
-        int inSym=in%COUNT_OF_SYMMETRIES;
-        int inClass=in/COUNT_OF_SYMMETRIES;
+        int inSym=in% SYM_COUNT;
+        int inClass=in/ SYM_COUNT;
 
         int npSym=symHods[inverseSymmetry[inSym]][np];
 
         int inP=symMoveTable[npSym][inClass];
 
-        return (inP/COUNT_OF_SYMMETRIES)* COUNT_OF_SYMMETRIES+ symmetryMul.applyAsInt(inSym,inP%COUNT_OF_SYMMETRIES);
+        return (inP/ SYM_COUNT)* SYM_COUNT + symmetryMul.applyAsInt(inSym,inP% SYM_COUNT);
     }
 
     int rawHod(int raw,int np){
         int in_class_sym=rawToClass[raw];
         int out_class_sym=doMove(in_class_sym,np);
-        return classToRaw[out_class_sym%COUNT_OF_SYMMETRIES][out_class_sym/COUNT_OF_SYMMETRIES];
+        return classToRaw[out_class_sym% SYM_COUNT][out_class_sym/ SYM_COUNT];
     }
 }

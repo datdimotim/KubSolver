@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntBinaryOperator;
 
-import static com.dimotim.kubSolver.tables.SymMoveTable.COUNT_OF_SYMMETRIES;
+import static com.dimotim.kubSolver.tables.SymMoveTable.SYM_COUNT;
 
 public final class SymDeepTable implements Serializable {
     private final IntBinaryOperator symmetryMul;
@@ -44,15 +44,15 @@ public final class SymDeepTable implements Serializable {
                 for (int raw = 0; raw < deepTable[0].length; raw++) {
                     if (deepTable[classPos][raw] != deep) continue;
                     for (int np = 1; np < symPart.getCountOfMoves(); np++) {
-                        int symPRotated = symPart.doMove(classPos * COUNT_OF_SYMMETRIES, np);
+                        int symPRotated = symPart.doMove(classPos * SYM_COUNT, np);
                         int rawPRotated = rawPart.doMove(rawPart.rawToSym(raw), np);
-                        int rawPClass=rawPRotated/COUNT_OF_SYMMETRIES;
-                        int symPClass=symPRotated/COUNT_OF_SYMMETRIES;
-                        final  int sym_symmetry=symPRotated%COUNT_OF_SYMMETRIES;
-                        final int raw_sym = rawPRotated % COUNT_OF_SYMMETRIES;
+                        int rawPClass=rawPRotated/ SYM_COUNT;
+                        int symPClass=symPRotated/ SYM_COUNT;
+                        final  int sym_symmetry=symPRotated% SYM_COUNT;
+                        final int raw_sym = rawPRotated % SYM_COUNT;
 
                         int rawNormalizedSymmetryExample=symmetryMul.applyAsInt(inverseSymmetry[sym_symmetry],raw_sym);
-                        int rawRotatedExample=rawPart.symPosToRaw(rawPClass * COUNT_OF_SYMMETRIES +rawNormalizedSymmetryExample);
+                        int rawRotatedExample=rawPart.symPosToRaw(rawPClass * SYM_COUNT +rawNormalizedSymmetryExample);
                         if(!(deepTable[symPClass][rawRotatedExample]>deep+1))continue;
 
                         for(byte eqSym:symsForPos[symPClass]){
@@ -83,7 +83,7 @@ public final class SymDeepTable implements Serializable {
                                     )
                             );
 
-                            int rawRotated=rawPart.symPosToRaw(rawPClass * COUNT_OF_SYMMETRIES +rawNormalizedSymmetry);
+                            int rawRotated=rawPart.symPosToRaw(rawPClass * SYM_COUNT +rawNormalizedSymmetry);
                             deepTable[symPClass][rawRotated]=(byte) (deep+1);
                         }
                     }
@@ -99,10 +99,10 @@ public final class SymDeepTable implements Serializable {
     private byte[][] calculateSymForPos(){
         byte[][] table=new byte[symPart.CLASSES][];
         for(int classPos=0;classPos<symPart.CLASSES;classPos++){
-            int rawExample=symPart.symPosToRaw(classPos*COUNT_OF_SYMMETRIES);
+            int rawExample=symPart.symPosToRaw(classPos* SYM_COUNT);
             List<Byte> ls=new ArrayList<>();
             for(int sym=0;sym<symPart.SYMMETRIES;sym++){
-                int raw=symPart.symPosToRaw(classPos*COUNT_OF_SYMMETRIES+sym);
+                int raw=symPart.symPosToRaw(classPos* SYM_COUNT +sym);
                 if(raw==rawExample){
                     ls.add((byte) sym);
                 }
@@ -152,7 +152,7 @@ public final class SymDeepTable implements Serializable {
     }
 
     public int getDepth(int sym, int raw) {
-        int s = symmetryMul.applyAsInt(inverseSymmetry[sym % COUNT_OF_SYMMETRIES],raw % COUNT_OF_SYMMETRIES);
-        return (int) deepTable.get(sym / COUNT_OF_SYMMETRIES, rawPart.classToRaw[s][raw / COUNT_OF_SYMMETRIES]);
+        int s = symmetryMul.applyAsInt(inverseSymmetry[sym % SYM_COUNT],raw % SYM_COUNT);
+        return (int) deepTable.get(sym / SYM_COUNT, rawPart.classToRaw[s][raw / SYM_COUNT]);
     }
 }
