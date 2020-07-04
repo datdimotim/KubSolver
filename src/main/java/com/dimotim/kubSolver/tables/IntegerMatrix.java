@@ -6,6 +6,7 @@ import com.dimotim.compact_arrays.IntegerArray;
 import java.io.Serializable;
 
 public final class IntegerMatrix implements Serializable {
+    private static final long serialVersionUID = -9045342885638574768L;
     private final IntegerArray array;
     final int iLength;
     final int jLength;

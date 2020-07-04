@@ -13,6 +13,8 @@ import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
 import static com.dimotim.kubSolver.tables.SymTables.track;
 
 public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
+    private static final long serialVersionUID = -2795159039724746468L;
+
     // run first for initialization
     public static void main(String[] args)throws IOException {
         //while (true){

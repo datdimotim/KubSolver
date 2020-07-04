@@ -6,6 +6,7 @@ import com.dimotim.kubSolver.kernel.Tables;
 import java.io.*;
 
 public final class SymTables implements Tables<SymTables.KubState> {
+    private static final long serialVersionUID = -3566963027898320331L;
     private final SymMoveTable x1;
     private final SymMoveTable y1;
     private final SymMoveTable z1;

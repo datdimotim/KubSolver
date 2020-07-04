@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public final class SymMoveTable implements Serializable {
+    private static final long serialVersionUID = 5310419190940737007L;
     public static final int SYM_COUNT =16;
     private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private final int[] inverseSymmetry;

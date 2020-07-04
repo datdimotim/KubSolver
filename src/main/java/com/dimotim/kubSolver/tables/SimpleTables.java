@@ -5,6 +5,7 @@ import com.dimotim.kubSolver.kernel.Tables;
 import java.util.Arrays;
 
 public final class SimpleTables implements Tables<SimpleTables.KubState> {
+    private static final long serialVersionUID = -4965264704365719620L;
     private final MoveTables moveTables=new MoveTables();
     private final byte[] x1Deep=createDeepTable(moveTables.x1Move);
     private final byte[] y1Deep=createDeepTable(moveTables.y1Move);

@@ -9,6 +9,7 @@ import java.io.Serializable;
 import static com.dimotim.kubSolver.kernel.Tables.*;
 
 public final class MoveTables implements Serializable {
+    private static final long serialVersionUID = -6376382200133008154L;
     public final char[][] x1Move;
     public final char[][] y1Move;
     public final char[][] z1Move;

@@ -10,6 +10,7 @@ import java.util.List;
 import static com.dimotim.kubSolver.tables.SymMoveTable.SYM_COUNT;
 
 public final class SymDeepTable implements Serializable {
+    private static final long serialVersionUID = -2634966561356611763L;
     private final int[][] symmetryMul;
     private final int[] inverseSymmetry;
     final SymMoveTable symPart;
