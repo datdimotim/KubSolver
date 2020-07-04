@@ -169,7 +169,7 @@ public final class SymTables implements Tables<SymTables.KubState> {
     }
 
     public static SymTables readTables(){
-        try(InputStream fis = SymTables.class.getResourceAsStream("../../../../tables.object")) {
+        try(InputStream fis = SymTables.class.getResourceAsStream("/tables.object")) {
             BufferedInputStream bis = new BufferedInputStream(fis);
             ObjectInputStream ois = new ObjectInputStream(bis);
             return (SymTables) ois.readObject();
