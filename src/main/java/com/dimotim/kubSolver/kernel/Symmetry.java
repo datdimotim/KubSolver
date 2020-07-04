@@ -1,33 +1,28 @@
 package com.dimotim.kubSolver.kernel;
 
 import java.util.Arrays;
-import java.util.function.IntBinaryOperator;
-import java.util.stream.IntStream;
 
 public final class Symmetry{
-    private static final int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
-    private static final int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7};
-    private static final int[] hods18to10=HodTransforms.getP18to10();
-    private static final int[] hods10to18=HodTransforms.getP10To18();
+    public static final int[] convertSymHalfToFull={0,1,4,5,8,9,12,13};
+    public static final int[] convertSymFullToHalf={0,1,-1,-1,2,3,-1,-1,4,5,-1,-1,6,7};
+    public static final int[] hods18to10=HodTransforms.p18to10;
+    public static final int[] hods10to18=HodTransforms.p10To18;
 
-    private static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(Symmetry.getSymHodsAllSymmetry());
-    private static final int[] inverseSymmetryHalf=initInverseSymmetryHalf(inverseSymmetry);
-    private static final int[][] symHods=getSymHodsAllSymmetry();
+    public static final int[] inverseSymmetry= InitializerInverseSymmetry.getInverseSymmetry(Symmetry.getSymHodsAllSymmetry());
+    public static final int[] inverseSymmetryHalf=initInverseSymmetryHalf(inverseSymmetry);
+    public static final int[][] symHods=getSymHodsAllSymmetry();
+    public static final int[][] symHodsHalf=getSymHodsHalf();
+    public static final int[][] symHods10=getSymHods10();
+    public static final int[][] symmetryMul=getSymmetryMul();
+    public static final int[][] symmetryMulHalf=getSymmetryMulHalf();
 
 
-    public static int[] getInverseSymmetry() {
-        return inverseSymmetry.clone();
-    }
 
-    public static int[] getInverseSymmetryHalf() {
-        return inverseSymmetryHalf.clone();
-    }
-
-    public static int[][] getSymHodsHalf() {
+    private static int[][] getSymHodsHalf() {
         return initSymHodsHalf(symHods);
     }
 
-    public static int[][] getSymHods10() {
+    private static int[][] getSymHods10() {
         return initSymHods10(symHods);
     }
 
@@ -59,26 +54,6 @@ public final class Symmetry{
         return inverseSymmetryHalf;
     }
 
-    private static IntBinaryOperator makeSymmetryMul(int[][] symmetry){
-        return new IntBinaryOperator() {
-            private final int l1;
-            private final int l2;
-            private final byte[] arr;
-            {
-                l1= symmetry.length;
-                l2= symmetry[0].length;
-                arr=new byte[l1*l2];
-                IntStream.range(0,l1*l2)
-                        .forEach(i-> arr[i]= (byte) symmetry[i/l2][i%l2]);
-            }
-
-            @Override
-            public int applyAsInt(int left, int right) {
-                return arr[left*l2+right];
-            }
-        };
-    }
-
     private static int[][] getSymmetryMulHalf(int[][] symmetryMul){
         int[][] symmetryMulHalf=new int[8][8];
         for(int i=0;i<8;i++){
@@ -90,15 +65,11 @@ public final class Symmetry{
     }
 
     /*
-        symmetryMul(f,g) = f . g
+        symmetryMul[f][g] = f . g
         т.е. resultPos = (f . g) pos
         возвращаемая симметрия - композиция симметрий сначала g, затем f
      */
-    public static final IntBinaryOperator symmetryMul=makeSymmetryMul(getSymmetryMul());
-
-    public static final IntBinaryOperator symmetryMulHalf=makeSymmetryMul(getSymmetryMulHalf());
-
-    public static int[][] getSymmetryMul(){
+    private static int[][] getSymmetryMul(){
         int[][] symmetryMul=new int[48][48];
         int[] hodsInit={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
         for(int i=0;i<symmetryMul.length;i++){
@@ -209,7 +180,7 @@ public final class Symmetry{
             return m;
         }
     }
-    public static int[][] getSymHodsAllSymmetry(){
+    private static int[][] getSymHodsAllSymmetry(){
         return InitializerSymHods.createSymHods();
     }
 }

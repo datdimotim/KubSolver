@@ -4,11 +4,10 @@ import com.dimotim.kubSolver.kernel.Symmetry;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.function.IntBinaryOperator;
 
 public final class SymMoveTable implements Serializable {
     public static final int SYM_COUNT =16;
-    private final IntBinaryOperator symmetryMul; // matrix1*matrix2*vector -> matrix*vector
+    private final int[][] symmetryMul; // matrix1*matrix2*vector -> matrix*vector
     private final int[] inverseSymmetry;
     private final int[][] symHods;
     public final int SYMMETRIES;
@@ -22,15 +21,15 @@ public final class SymMoveTable implements Serializable {
     SymMoveTable(char[][] rawMoveTable, int classes, int symmetries){
         if(symmetries==8) {
             symmetryMul = Symmetry.symmetryMulHalf;
-            inverseSymmetry = Symmetry.getInverseSymmetryHalf();
-            symHods = Symmetry.getSymHodsHalf();
+            inverseSymmetry = Symmetry.inverseSymmetryHalf;
+            symHods = Symmetry.symHodsHalf;
         }
         else if(symmetries==16){
             symmetryMul = Symmetry.symmetryMul;
-            inverseSymmetry = Symmetry.getInverseSymmetry();
+            inverseSymmetry = Symmetry.inverseSymmetry;
 
-            if(rawMoveTable.length==11)symHods=Symmetry.getSymHods10();
-            else symHods=Symmetry.getSymHodsAllSymmetry();
+            if(rawMoveTable.length==11)symHods=Symmetry.symHods10;
+            else symHods=Symmetry.symHods;
 
         }else {
             throw new RuntimeException();
@@ -136,7 +135,7 @@ public final class SymMoveTable implements Serializable {
 
         int inP=symMoveTable[npSym][inClass];
 
-        return (inP/ SYM_COUNT)* SYM_COUNT + symmetryMul.applyAsInt(inSym,inP% SYM_COUNT);
+        return (inP/ SYM_COUNT)* SYM_COUNT + symmetryMul[inSym][inP% SYM_COUNT];
     }
 
     int rawHod(int raw,int np){

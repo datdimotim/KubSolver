@@ -28,7 +28,7 @@ public final class MoveTables implements Serializable {
     }
 
     private static char[][] createX2CombMove(){
-        int[] convertPovorot= HodTransforms.getP10To18();
+        int[] convertPovorot= HodTransforms.p10To18;
         int[] u_p=new int[8];
         char[][] table=new char[11][X_2_COMB];
         for(int pos = 0; pos< X_2_COMB; pos++){
@@ -74,7 +74,7 @@ public final class MoveTables implements Serializable {
         return table;
     }
     private static char[][] createX2Move(){
-        int[] convertPovorot= HodTransforms.getP10To18();
+        int[] convertPovorot= HodTransforms.p10To18;
         int[] u_p=new int[8];
         char[][] table=new char[HodTransforms.NUM_HODS_2][X_2_MAX];
         for(int pos = 0; pos< X_2_MAX; pos++){
@@ -86,7 +86,7 @@ public final class MoveTables implements Serializable {
         return table;
     }
     private static char[][] createY2Move(){
-        int[] convertPovorot=HodTransforms.getP10To18();
+        int[] convertPovorot=HodTransforms.p10To18;
         int[] r_p=new int[12];
         char[][] table=new char[HodTransforms.NUM_HODS_2][Y_2_MAX];
         for(int pos = 0; pos< Y_2_MAX; pos++){
@@ -98,7 +98,7 @@ public final class MoveTables implements Serializable {
         return table;
     }
     private static char[][] createZ2Move(){
-        int[] convertPovorot=HodTransforms.getP10To18();
+        int[] convertPovorot=HodTransforms.p10To18;
         int[] r_p=new int[12];
         char[][] table=new char[HodTransforms.NUM_HODS_2][Z_2_MAX];
         for(int pos = 0; pos< Z_2_MAX; pos++){

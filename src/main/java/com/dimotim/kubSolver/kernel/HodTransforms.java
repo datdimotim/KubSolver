@@ -4,7 +4,8 @@ public final class HodTransforms {
     public static final int NUM_HODS_1=19;
     public static final int NUM_HODS_2=11;
 
-    private static final int[] p10To18=getP10To18();
+    public static final int[] p10To18=new int[]{0,1,2,3,6,9,12,15,16,17,18};
+    public static final int[] p18to10=new int[]{0,1,2,3,-1,-1,4,-1,-1,5,-1,-1,6,-1,-1,7,8,9,10};
 
     public static String[] getHodString() {
         return new String[]{"",
@@ -16,16 +17,8 @@ public final class HodTransforms {
                 "U ", "U' ", "U2 "};
     }
 
-    public static int[] getP10To18() {
-        return new int[]{0,1,2,3,6,9,12,15,16,17,18};
-    }
-
-    public static int[] getP18to10() {
-        return new int[]{0,1,2,3,-1,-1,4,-1,-1,5,-1,-1,6,-1,-1,7,8,9,10};
-    }
-
     public static int[][] getSymHodsFor3Axis() {
-        int[][] symHodsAllSymmetry=Symmetry.getSymHodsAllSymmetry();
+        int[][] symHodsAllSymmetry=Symmetry.symHods;
         return new int[][] {symHodsAllSymmetry[0].clone(),
                 symHodsAllSymmetry[32].clone(),
                 symHodsAllSymmetry[16].clone()};

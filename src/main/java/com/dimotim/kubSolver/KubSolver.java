@@ -11,10 +11,10 @@ import java.util.stream.IntStream;
 
 public final class KubSolver<KS,Solver1State>{
     private final int tryKol=0;
-    private final int maxSolutionLength=23;
+    private final int maxSolutionLength=22;
     private Fase1Solver<KS,Solver1State> fase1Solver;
     private Fase2Solver<KS> fase2Solver;
-    private static final int[] hodsFase2=HodTransforms.getP10To18();
+    private static final int[] hodsFase2=HodTransforms.p10To18;
     public KubSolver(Tables<KS> tables,Fase1Solver<KS,Solver1State> fase1Solver,Fase2Solver<KS> fase2Solver){
         this.fase1Solver=fase1Solver;
         this.fase2Solver=fase2Solver;
