@@ -1,7 +1,6 @@
 package com.dimotim.kubSolver.tables;
 
 import com.dimotim.kubSolver.kernel.CubieKoordinateConverter;
-import com.dimotim.kubSolver.kernel.Symmetry;
 import com.dimotim.kubSolver.kernel.Tables;
 
 import java.io.*;
@@ -170,7 +169,7 @@ public final class SymTables implements Tables<SymTables.KubState> {
     }
 
     public static SymTables readTables(){
-        try(InputStream fis = SymTables.class.getResourceAsStream("/tables.object")) {
+        try(InputStream fis = SymTables.class.getResourceAsStream("../../../../tables.object")) {
             BufferedInputStream bis = new BufferedInputStream(fis);
             ObjectInputStream ois = new ObjectInputStream(bis);
             return (SymTables) ois.readObject();

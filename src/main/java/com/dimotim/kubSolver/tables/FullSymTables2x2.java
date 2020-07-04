@@ -28,7 +28,7 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
     }
 
     public static FullSymTables2x2 readTables(){
-        try(InputStream fis = SymTables.class.getResourceAsStream("/tables2x2full.object")) {
+        try(InputStream fis = SymTables.class.getResourceAsStream("../../../../tables2x2full.object")) {
             BufferedInputStream bis = new BufferedInputStream(fis);
             ObjectInputStream ois = new ObjectInputStream(bis);
             return (FullSymTables2x2) ois.readObject();
