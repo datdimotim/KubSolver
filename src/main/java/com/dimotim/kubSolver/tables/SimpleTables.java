@@ -3,6 +3,8 @@ package com.dimotim.kubSolver.tables;
 import com.dimotim.kubSolver.kernel.Tables;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public final class SimpleTables implements Tables<SimpleTables.KubState> {
     private static final long serialVersionUID = -4965264704365719620L;
@@ -13,6 +15,22 @@ public final class SimpleTables implements Tables<SimpleTables.KubState> {
     private final byte[] x2Deep=createDeepTable(moveTables.x2Move);
     private final byte[] y2Deep=createDeepTable(moveTables.y2Move);
     private final byte[] z2Deep=createDeepTable(moveTables.z2Move);
+
+    public static void main(String[] args) {
+        printChart(new SimpleTables().x2Deep);
+    }
+
+    private static void printChart(byte[] deepTable){
+        for(int dd=0;true;dd++){
+            final int depth=dd;
+            long count = IntStream.range(0,deepTable.length)
+                    .mapToLong(i->deepTable[i])
+                    .filter(d->d==depth)
+                    .count();
+            if(count==0)return;
+            System.out.println(depth + "\t"+ count);
+        }
+    }
 
     private byte[] createDeepTable(char[][] move){
         byte[] deep=new byte[move[0].length];
