@@ -3,6 +3,8 @@ package com.dimotim.kubSolver.solvers;
 import com.dimotim.kubSolver.kernel.Fase1Solver;
 import com.dimotim.kubSolver.kernel.Tables;
 import io.reactivex.Observable;
+import lombok.val;
+import reactor.core.publisher.Flux;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -83,7 +85,7 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
 
         St solution=bactracking(
                 new St(null,startState,length,0,0),
-                root-> Observable.range(0, 19)
+                root-> Flux.range(0, 19)
                         .filter(i->hodPredHod1Fase(i,root.predHod))
                         .map(hod->{
                             KS out=tables.newKubState();
@@ -94,7 +96,8 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
                 e->true,
                 pos-> pos.moveCount==0
         )
-        .blockingFirst();
+        .blockFirst();
+        //.blockingFirst();
         St st=solution;
         int i=0;
         while (true){
@@ -122,9 +125,9 @@ public final class SimpleSolver1<KS> implements Fase1Solver<KS,SimpleSolver1.Sol
         }
     }
 
-    public static <T> Observable<T> bactracking(T root, Function<T, Observable<T>> childGenerator, Predicate<T> edgeReduser, Predicate<T> solutionValidator){
-        return Observable.concat(
-                Observable.just(root).filter(solutionValidator::test),
+    public static <T> Flux<T> bactracking(T root, Function<T, Flux<T>> childGenerator, Predicate<T> edgeReduser, Predicate<T> solutionValidator){
+        return Flux.concat(
+                Flux.just(root).filter(solutionValidator::test),
                 childGenerator.apply(root)
                         .flatMap(ch->bactracking(ch,childGenerator,edgeReduser,solutionValidator))
         );

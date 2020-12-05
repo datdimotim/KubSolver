@@ -1,8 +1,15 @@
 package com.dimotim.kubSolver.tables;
 
+import com.dimotim.kubSolver.kernel.Combinations;
+import com.dimotim.kubSolver.kernel.Cubie;
+import com.dimotim.kubSolver.kernel.CubieKoordinateConverter;
 import com.dimotim.kubSolver.kernel.Tables;
+import com.dimotim.kubSolver.solvers.SimpleSolver2;
+import lombok.val;
 
 import java.util.Arrays;
+import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -17,7 +24,26 @@ public final class SimpleTables implements Tables<SimpleTables.KubState> {
     private final byte[] z2Deep=createDeepTable(moveTables.z2Move);
 
     public static void main(String[] args) {
-        printChart(new SimpleTables().x2Deep);
+        printChart(new SimpleTables().z1Deep);System.exit(0);
+        int[] c=CubieKoordinateConverter.y2ToCubie(0);
+        BiPredicate<Integer,Integer> validPos = (y,z) ->{
+            boolean p1=Combinations.chetNechetPerestanovka(CubieKoordinateConverter.y2ToCubie(y));
+            boolean p2=Combinations.chetNechetPerestanovka(CubieKoordinateConverter.z2ToCubie(z));
+            return p1==p2;
+        };
+        SimpleSolver2<SimpleTables.KubState> s=new SimpleSolver2<>();
+        s.init(new SimpleTables());
+        IntStream.range(0,40320).boxed()
+                .flatMap(y -> IntStream.range(0,24).boxed().map(z->Arrays.asList(y,z)))
+                .filter(p->validPos.test(p.get(0),p.get(1)))
+                .limit(100)
+                .forEach(p-> {
+                    int[] m=new int[30];
+                    s.solve(0,p.get(0),p.get(1),m);
+                    System.out.println(p.get(0)+"  "+p.get(1));
+                    System.out.println(Arrays.stream(m).filter(i->i!=0).boxed().collect(Collectors.toList()));
+                });
+
     }
 
     private static void printChart(byte[] deepTable){

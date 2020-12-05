@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 
 public final class KubSolver<KS,Solver1State>{
     private final int tryKol=0;
-    private final int maxSolutionLength=22;
+    private final int maxSolutionLength=30;
     private Fase1Solver<KS,Solver1State> fase1Solver;
     private Fase2Solver<KS> fase2Solver;
     private static final int[] hodsFase2=HodTransforms.p10To18;

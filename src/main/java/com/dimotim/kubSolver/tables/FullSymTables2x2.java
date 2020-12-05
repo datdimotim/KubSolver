@@ -8,6 +8,7 @@ import com.dimotim.kubSolver.kernel.Tables;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod1Fase;
 import static com.dimotim.kubSolver.tables.SymTables.track;
@@ -47,6 +48,29 @@ public class FullSymTables2x2 implements Tables<FullSymTables2x2.KubState> {
     public FullSymTables2x2(){
         x1move=new SymMoveTable(new MoveTables().x1Move,X_1_16_SYM_CLASSES,16);
         x2move=new SymMoveTable(MoveTables.createX2MoveFof18Povorots(),X_2_SYM_CLASSES,16);
+
+        int[] table= IntStream.range(0,40320)
+                .map(__->20)
+                .toArray();
+        table[0]=0;
+
+        for(int d=0;d<20;d++){
+            for(int p=0;p<40320;p++){
+                if(table[p]!=d)continue;
+                for (int np=1;np<=18;np++){
+                    int pp=x2move.rawHod(p,np);
+                    if(table[pp]>d+1){
+                        table[pp]=d+1;
+                    }
+                }
+            }
+        }
+
+        IntStream.range(0,10)
+                .mapToLong(d->Arrays.stream(table).filter(dd->dd==d).count())
+                .forEach(System.out::println);
+
+
         deep=new SymDeepTable(x2move,x1move);
     }
 

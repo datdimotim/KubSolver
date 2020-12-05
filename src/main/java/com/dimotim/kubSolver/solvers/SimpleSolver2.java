@@ -3,6 +3,7 @@ package com.dimotim.kubSolver.solvers;
 import com.dimotim.kubSolver.kernel.Fase2Solver;
 import com.dimotim.kubSolver.kernel.Tables;
 import io.reactivex.Observable;
+import reactor.core.publisher.Flux;
 
 import static com.dimotim.kubSolver.kernel.Fase1Solver.MAX_DEEP;
 import static com.dimotim.kubSolver.kernel.HodTransforms.hodPredHod2Fase;
@@ -29,7 +30,7 @@ public final class SimpleSolver2<KS> implements Fase2Solver<KS> {
         int deep=1;
         mega: while(deep<hods.length) {
             for(int np = hods[deep];np<=10;np++) {
-                if(!hodPredHod2Fase(np,hods[deep-1]))continue;
+                //if(!hodPredHod2Fase(np,hods[deep-1]))continue;
                 if (tables.moveAndGetDepthFase2(state[deep-1],state[deep],np)<=hods.length-deep-1) {
                     hods[deep] = np;
                     deep++;
@@ -51,7 +52,7 @@ public final class SimpleSolver2<KS> implements Fase2Solver<KS> {
 
         St solution=bactracking(
                 new St(null,startState,length,0,0),
-                root-> Observable.range(0, 11)
+                root-> Flux.range(0, 11)
                         .filter(i->hodPredHod2Fase(i,root.predHod))
                         .map(hod->{
                             KS out=tables.newKubState();
@@ -61,8 +62,8 @@ public final class SimpleSolver2<KS> implements Fase2Solver<KS> {
                         .filter(st->st.moveCount<=MAX_DEEP-st.depth),
                 e->true,
                 pos-> pos.moveCount==0
-        )
-                .blockingFirst();
+        ).blockFirst();
+                //.blockingFirst();
         //System.out.println(solution);
         St st=solution;
         int i=0;
