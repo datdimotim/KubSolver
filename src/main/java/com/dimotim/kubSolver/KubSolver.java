@@ -3,6 +3,7 @@ package com.dimotim.kubSolver;
 import com.dimotim.kubSolver.kernel.*;
 import lombok.val;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.Function;
@@ -15,6 +16,7 @@ public final class KubSolver<KS,Solver1State>{
     private Fase1Solver<KS,Solver1State> fase1Solver;
     private Fase2Solver<KS> fase2Solver;
     private static final int[] hodsFase2=HodTransforms.p10To18;
+    private static final int[][] symHods= HodTransforms.getSymHodsFor3Axis();
     public KubSolver(Tables<KS> tables,Fase1Solver<KS,Solver1State> fase1Solver,Fase2Solver<KS> fase2Solver){
         this.fase1Solver=fase1Solver;
         this.fase2Solver=fase2Solver;
@@ -40,12 +42,22 @@ public final class KubSolver<KS,Solver1State>{
                     if(totalLengthLimit + 1 - length<0)return Optional.empty();
                     int[] fase2solution = new int[totalLengthLimit + 1 - length];
                     if(finishSolution(symKub,solver1State,fase2solution)){
-                        return Optional.of(Solution.fromFases(symmetry,phase1,fase2solution));
+                        return Optional.of(new Solution(fromFases(phase1,fase2solution,symmetry)));
                     }
                     return Optional.empty();
                 };
             }
         };
+    }
+
+    public static int[] fromFases(int[] fase1, int[] fase2, int sym){
+        return IntStream.concat(
+                Arrays.stream(fase1),
+                Arrays.stream(fase2)
+        )
+                .filter(h->h!=0)
+                .map(h->symHods[sym-1][h])
+                .toArray();
     }
 
     public Solution solve(Kub kub){

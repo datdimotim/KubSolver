@@ -3,30 +3,16 @@ package com.dimotim.kubSolver;
 import com.dimotim.kubSolver.kernel.HodTransforms;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Solution {
-    private static final int[][] symHods= HodTransforms.getSymHodsFor3Axis();
     private static final String[] hodString=HodTransforms.getHodString();
     private final int[] hods;
-    private final int sym;
 
-    public Solution(int sym, int[] hods) {
-        this.sym=sym;
+    public Solution(int[] hods) {
         this.hods=hods;
-    }
-
-    public static Solution fromFases(int sym, int[] fase1, int[] fase2){
-        int[] hods=IntStream.concat(
-                Arrays.stream(fase1),
-                Arrays.stream(fase2)
-        )
-        .filter(h->h!=0)
-        .map(h->symHods[sym-1][h])
-        .toArray();
-
-        return new Solution(sym,hods);
     }
 
     public int[] getHods() {
@@ -40,12 +26,11 @@ public class Solution {
                 .map(HodTransforms::inverseHod18)
                 .toArray();
 
-        return new Solution(sym,h);
+        return new Solution(h);
     }
 
     public Solution compose(Solution next){
         return new Solution(
-                sym,
                 Stream.of(hods,next.getHods())
                     .flatMapToInt(Arrays::stream)
                     .toArray()
@@ -59,6 +44,19 @@ public class Solution {
     public String toString() {
         StringBuilder out = new StringBuilder();
         for (int hod : hods) out.append(hodString[hod]);
-        return out.toString() + getLength() + "f symmerty="+sym;
+        return out.toString() + getLength() + "f";
+    }
+
+    public static Solution parse(String str){
+        int[] hods = Arrays.stream(str.split("(\\s+)"))
+                .map(p -> p.toUpperCase(Locale.ROOT).trim())
+                .mapToInt(p -> IntStream.range(0,hodString.length)
+                                .filter(i -> hodString[i].trim().equals(p))
+                                .findFirst()
+                                .getAsInt()
+                )
+                .toArray();
+
+        return new Solution(hods);
     }
 }
