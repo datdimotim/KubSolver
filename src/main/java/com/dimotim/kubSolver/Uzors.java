@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Uzors {
     private static Uzors instance = null;
-    private final Map<String, Kub> uzors;
+    private final Map<String, Solution> uzors;
 
     @SneakyThrows
     public static synchronized Uzors getInstance() {
@@ -24,7 +24,7 @@ public class Uzors {
         return instance;
     }
 
-    public Map<String, Kub> getUzors(){
+    public Map<String, Solution> getUzors(){
         return new HashMap<>(uzors);
     }
 
@@ -37,10 +37,7 @@ public class Uzors {
         uzors = properties.entrySet().stream()
                 .collect(Collectors.toMap(
                         kv -> kv.getKey().toString(),
-                        kv -> {
-                            Solution solution = Solution.parse(kv.getValue().toString());
-                            return new Kub(false).apply(solution);
-                        }
+                        kv -> Solution.parse(kv.getValue().toString())
                 ));
     }
 }
