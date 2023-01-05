@@ -6,65 +6,20 @@ on:
     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create-release.outputs.upload_url }}
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v2
-      - name: Create Release
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up GraalVM Native Image toolchain
+        uses: helpermethod/graalvm-native-image-toolchain@0.0.2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-  perform-release-linux:
-    needs: create-release
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v1
-      with:
-        java-version: 17
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build native image with Gradle
-      run: ./gradlew zipExecutable
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}  
-        asset_path: ./build/dist/KubSolver.zip
-        asset_name: KubSolver_linux_amd64.zip
-        asset_content_type: application/zip
-  perform-release-windows:
-    runs-on: windows-latest
-    needs: create-release
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v1
-      with:
-        java-version: 17
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
-      run: choco install visualstudio2017-workload-vctools && "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-    - name: Build native image with Gradle
-      run: ./gradlew zipExecutable
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}  
-        asset_path: ./build/dist/KubSolver.zip
-        asset_name: KubSolver_windows_amd64.zip
-        asset_content_type: application/zip
+          graalvm-version: 22.3.0
+          java-version: 17
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build native image with Gradle
+        run: ./gradlew zipExecutable
