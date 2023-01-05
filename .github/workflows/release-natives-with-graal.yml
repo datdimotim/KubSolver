@@ -55,9 +55,8 @@ jobs:
         java-version: 17
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: 'Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools'
-      run: |
-        choco install visualstudio2017-workload-vctools
+    - name: Set up Visual C Build Tools Workload for Visual Studio 2017 Build Tools
+      run: choco install visualstudio2017-workload-vctools && "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     - name: Build native image with Gradle
       run: ./gradlew zipExecutable
     - name: Upload Release Asset
