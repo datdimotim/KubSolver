@@ -77,22 +77,16 @@ public final class SymTables implements Tables<SymTables.KubState> {
         return count;
     }
 
-    public static int track(int mod, int deepPred){
-        int old=deepPred%3;
-        if(mod==old)return deepPred;
-        if(old==2){
-            if(mod==1)return deepPred-1;
-            else return deepPred+1;
-        }
-        if(old==1){
-            if(mod==0)return deepPred-1;
-            else return deepPred+1;
-        }
-        if(old==0){
-            if(mod==2)return deepPred-1;
-            else return deepPred+1;
-        }
-        throw new RuntimeException("mod="+mod+" deepPred="+deepPred);
+    /**
+     * Вычисляет текущую глубину
+     *
+     * @param mod текущая глубина по модулю 3
+     * @param pred предыдущая глубина
+     * @return текущая глубина
+     */
+    public static int track(int mod, int pred) {
+        int d = (3 + pred - mod) % 3;
+        return pred - (-2 * d + 3) % 3;
     }
 
     @Override
