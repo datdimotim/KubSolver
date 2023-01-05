@@ -1,12 +1,35 @@
+plugins {
+    id 'java'
+    id 'application'
+
+    // Apply Graal plugin
+    id 'com.palantir.graal' version '0.12.0'
+}
+
+apply plugin: 'com.palantir.graal'
+
+graal {
+    graalVersion '22.3.0'
+    outputName 'KubSolver'
+    mainClass 'com.dimotim.kubSolver.test.TestsAndBenchmarks'
+    javaVersion '17'
+}
+
+task zipExecutable(type: Zip) {
+    dependsOn 'nativeImage'
+
+    archiveFileName = "KubSolver.zip"
+    destinationDirectory = file("$buildDir/dist")
+
+    from "$buildDir/graal"
+}
+
 group 'KubSolver'
 version '1.0'
-
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
+sourceCompatibility = 1.17
 
 jar {
-    manifest{ manifest.attributes('Main-Class' : 'test.TestsAndBenchmarks'); }
+    manifest{ manifest.attributes('Main-Class' : 'com.dimotim.kubSolver.test.TestsAndBenchmarks'); }
     baseName = 'KubSolver'
     version =  '1.0'
 }
@@ -26,8 +49,8 @@ dependencies {
     implementation 'com.github.datdimotim:CompactArrays:1.0.2'
 
 
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
-    testCompileOnly 'org.projectlombok:lombok:1.18.12'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testCompileOnly 'org.projectlombok:lombok:1.18.22'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 }
