@@ -13,6 +13,12 @@ graal {
     outputName 'KubSolver'
     mainClass 'com.dimotim.kubSolver.test.TestsAndBenchmarks'
     javaVersion '17'
+
+    // Workaround for GH actions
+    var ghActionsVsVarsFile = new File("C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat")
+    if (ghActionsVsVarsFile.exists()) {
+        windowsVsVarsPath(ghActionsVsVarsFile.absolutePath)
+    }
 }
 
 task zipExecutable(type: Zip) {
